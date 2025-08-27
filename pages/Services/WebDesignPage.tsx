@@ -1,0 +1,95 @@
+
+import React from 'react';
+import SectionHeader from '../../components/SectionHeader';
+import FeatureCard from '../../components/FeatureCard';
+import CTABanner from '../../components/CTABanner';
+import { webdevProcess } from '../../data/siteData';
+import Tooltip from '../../components/Tooltip';
+
+const WebDesignPage: React.FC = () => {
+    const features = [
+        { title: 'تصميم المتاجر الإلكترونية المتكاملة', content: 'نطور متاجر إلكترونية احترافية مع لوحة تحكم سهلة، وربط مع بوابات الدفع وشركات الشحن.' },
+        { title: 'تصميم المواقع التعريفية للشركات', content: 'نصمم مواقع جذابة تعكس هوية شركتك، تعرض خدماتك بشكل احترافي، وتسهل على العملاء التواصل معك.' },
+        { title: 'تصميم متجاوب مع جميع الأجهزة', content: 'نضمن أن موقعك يعمل ويبدو بشكل مثالي على جميع الشاشات، من الهواتف المحمولة إلى الحواسيب المكتبية.' },
+        { title: 'تحسين سرعة وأداء المواقع', content: 'نهتم بأدق التفاصيل التقنية لضمان تحميل موقعك بسرعة فائقة، مما يحسن تجربة المستخدم وترتيبك في جوجل.' },
+        { title: 'الدعم الفني والصيانة', content: 'نقدم خدمات الدعم الفني المستمر لضمان عمل موقعك بكفاءة وأمان على مدار الساعة.' },
+        { 
+            title: <span>أنظمة إدارة المحتوى (<Tooltip text="Content Management System: نظام يتيح لك التحكم في محتوى موقعك بسهولة.">CMS</Tooltip>)</span>, 
+            content: 'نبني مواقع باستخدام أنظمة سهلة مثل ووردبريس، مما يتيح لك التحكم الكامل في محتوى موقعك وتحديثه بسهولة.' 
+        },
+    ];
+
+    const tools = ['React', 'Next.js', 'Tailwind CSS', 'WordPress', 'Shopify', 'Node.js', 'Supabase'];
+
+  return (
+    <div className="bg-dark-bg text-slate-300">
+      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        {/* Hero Section */}
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl">
+            تصميم المواقع والمتاجر الإلكترونية
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-400">
+            نبني لك واجهة رقمية قوية، سريعة، وآمنة، تضمن أفضل تجربة لعملائك وتزيد من مبيعاتك على الإنترنت.
+          </p>
+        </div>
+
+        {/* What We Offer Section */}
+        <div className="mt-20">
+          <SectionHeader title="حلولنا في تطوير الويب" subtitle="من المواقع البسيطة إلى المتاجر المعقدة، نقدم حلولاً تقنية متكاملة."/>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+             {features.map((feature, i) => (
+                <FeatureCard key={i} title={feature.title}>
+                    {feature.content}
+                </FeatureCard>
+            ))}
+          </div>
+        </div>
+        
+        {/* Our Process Section */}
+        <div className="mt-20">
+            <SectionHeader title="دورة حياة تطوير المشروع" subtitle="نتبع منهجية منظمة لضمان تسليم مشروعك بأعلى جودة وفي الوقت المحدد." />
+            <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-4">
+                {webdevProcess.map((item, index) => (
+                    <React.Fragment key={item.step}>
+                        <div className="flex md:flex-col items-center gap-4">
+                            <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-dark-bg z-10">{item.step}</div>
+                            <div className="text-right md:text-center">
+                                <h3 className="font-bold text-white">{item.title}</h3>
+                                <p className="text-slate-400 text-sm hidden md:block">{item.description}</p>
+                            </div>
+                        </div>
+                        {index < webdevProcess.length - 1 && (
+                             <div className="hidden md:flex items-center">
+                                <div className="w-full h-0.5 bg-slate-700"></div>
+                            </div>
+                        )}
+                    </React.Fragment>
+                ))}
+            </div>
+        </div>
+
+        {/* Tools Section */}
+        <div className="mt-20">
+            <SectionHeader title="التقنيات التي نستخدمها" />
+             <div className="flex flex-wrap justify-center gap-4">
+                {tools.map(tool => (
+                    <div key={tool} className="bg-slate-800/50 text-slate-300 font-semibold px-5 py-2 rounded-lg border border-slate-700/50">
+                        {tool}
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        <CTABanner
+            title="هل أنت جاهز لإطلاق موقعك؟"
+            description="سواء كنت تبدأ من الصفر أو ترغب في تطوير موقعك الحالي، نحن هنا لمساعدتك."
+            buttonText="احصل على عرض سعر"
+            buttonLink="#/contact"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default WebDesignPage;

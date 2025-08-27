@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- SEO Meta Tags -->
+    <title>إعلانات القاهرة | Cairoeg - وكالة تسويق رقمي متكاملة</title>
+    <meta name="description" content="إعلانات القاهرة (Cairoeg) هي شريكك الرقمي للنجاح. نقدم خدمات الإعلانات الممولة، تحسين محركات البحث (SEO)، التصميم الجرافيكي، وتطوير المواقع والمتاجر الإلكترونية في مصر." />
+    <meta name="keywords" content="تسويق رقمي, إعلانات ممولة, SEO, تصميم جرافيك, تطوير مواقع, حملات إعلانية, فيسبوك, جوجل, انستغرام, مصر, القاهرة, Cairoeg" />
+    <link rel="canonical" href="https://cairoeg.online/" />
+    <link rel="icon" href="https://i.postimg.cc/1RN16091/image.png" type="image/png">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cairoeg.online/">
+    <meta property="og:title" content="إعلانات القاهرة | Cairoeg - علامتك التجارية تبدأ من هنا">
+    <meta property="og:description" content="وكالة تسويق رقمي متكاملة لمساعدتك على النمو. نقدم حلولاً مبتكرة في الإعلانات الممولة، SEO، والتصميم لعلامتك التجارية.">
+    <meta property="og:image" content="https://i.postimg.cc/1RN16091/image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://cairoeg.online/">
+    <meta property="twitter:title" content="إعلانات القاهرة | Cairoeg - علامتك التجارية تبدأ من هنا">
+    <meta property="twitter:description" content="وكالة تسويق رقمي متكاملة لمساعدتك على النمو. نقدم حلولاً مبتكرة في الإعلانات الممولة، SEO، والتصميم لعلامتك التجارية.">
+    <meta property="twitter:image" content="https://i.postimg.cc/1RN16091/image.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                'primary': '#0f54c0', // Royal Blue
+                'accent': '#6d28d9',  // Rich Purple
+                'gold': '#f59e0b',    // Gold
+                'dark-bg': '#0f172a',  // Dark background
+              },
+              fontFamily: {
+                sans: ['Cairo', 'sans-serif'],
+              },
+              animation: {
+                'fade-in': 'fadeIn 0.5s ease-out forwards',
+                'slide-in-up': 'slideInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                'slide-in-left': 'slideInLeft 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                'slide-in-right': 'slideInRight 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                'background-pan': 'backgroundPan 15s linear infinite',
+                'shimmer': 'shimmer 1.5s infinite linear',
+                'draw-line': 'drawLine 1s ease-out forwards',
+              },
+              keyframes: {
+                  fadeIn: {
+                      'from': { opacity: 0, transform: 'translateY(10px)' },
+                      'to': { opacity: 1, transform: 'translateY(0)' },
+                  },
+                  slideInUp: {
+                      'from': { opacity: 0, transform: 'translateY(30px)' },
+                      'to': { opacity: 1, transform: 'translateY(0)' },
+                  },
+                  slideInLeft: {
+                      'from': { opacity: 0, transform: 'translateX(30px)' },
+                      'to': { opacity: 1, transform: 'translateX(0)' },
+                  },
+                  slideInRight: {
+                      'from': { opacity: 0, transform: 'translateX(-30px)' },
+                      'to': { opacity: 1, transform: 'translateX(0)' },
+                  },
+                  backgroundPan: {
+                      '0%': { backgroundPosition: '0% 50%' },
+                      '50%': { backgroundPosition: '100% 50%' },
+                      '100%': { backgroundPosition: '0% 50%' },
+                  },
+                  shimmer: {
+                    '0%': { background-position: '-1000px 0' },
+                    '100%': { background-position: '1000px 0' }
+                  },
+                  drawLine: {
+                      'from': { width: '0' },
+                      'to': { width: '100%' }
+                  }
+              }
+            }
+          }
+        }
+      </script>
+    <style>
+      body {
+        font-family: 'Cairo', sans-serif;
+      }
+      /* Custom scrollbar for better aesthetics */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+      .spotlight-card:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: inherit;
+        background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .spotlight-card:hover:before {
+        opacity: 1;
+      }
+    </style>
+
+    <!-- JSON-LD for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "إعلانات القاهرة | Cairoeg",
+      "url": "https://cairoeg.online/",
+      "logo": "https://i.postimg.cc/1RN16091/image.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+20-102-267-9250",
+        "contactType": "Customer Service"
+      },
+      "sameAs": [
+        "https://wa.me/201022679250"
+      ]
+    }
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.15.0"
+  }
+}
+</script>
+</head>
+<body class="bg-dark-bg text-slate-300 antialiased">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
