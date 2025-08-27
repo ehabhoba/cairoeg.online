@@ -3,11 +3,16 @@ import React from 'react';
 
 const LoginPage: React.FC = () => {
     
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    // In a real app, this would involve an API call.
+    // Here, we simulate the role-based redirection.
+    const handleLoginAsAdmin = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        // In a real app, you would handle authentication here.
-        // For this demo, we will redirect to the dashboard.
         window.location.hash = '#/dashboard/analytics';
+    };
+
+    const handleLoginAsClient = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        window.location.hash = '#/client/dashboard';
     };
 
     return (
@@ -24,7 +29,7 @@ const LoginPage: React.FC = () => {
                         أو <a href="#/" className="font-medium text-primary hover:text-primary/90">العودة إلى الصفحة الرئيسية</a>
                     </p>
                 </div>
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                <div className="mt-8 space-y-6">
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>
                             <label htmlFor="email-address" className="sr-only">البريد الإلكتروني</label>
@@ -36,6 +41,7 @@ const LoginPage: React.FC = () => {
                                 required
                                 className="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-slate-900 text-slate-300 placeholder-slate-500 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                                 placeholder="البريد الإلكتروني"
+                                defaultValue="demo@example.com"
                             />
                         </div>
                         <div>
@@ -48,6 +54,7 @@ const LoginPage: React.FC = () => {
                                 required
                                 className="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-slate-900 text-slate-300 placeholder-slate-500 rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                                 placeholder="كلمة المرور"
+                                defaultValue="password"
                             />
                         </div>
                     </div>
@@ -72,15 +79,21 @@ const LoginPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="space-y-4">
                         <button
-                            type="submit"
+                            onClick={handleLoginAsAdmin}
                             className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary"
                         >
-                            تسجيل الدخول
+                            تسجيل الدخول كمدير
+                        </button>
+                        <button
+                            onClick={handleLoginAsClient}
+                            className="group relative w-full flex justify-center py-3 px-4 border border-slate-600 text-sm font-medium rounded-md text-slate-300 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-slate-500"
+                        >
+                            تسجيل الدخول كعميل
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     );

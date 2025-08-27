@@ -7,6 +7,7 @@ import TopNav from './components/TopNav';
 import Footer from './components/Footer';
 import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
 import DashboardLayout from './components/DashboardLayout';
+import ClientLayout from './components/ClientLayout';
 
 // Main Pages
 import HomePage from './pages/HomePage';
@@ -24,10 +25,16 @@ import MarketingPage from './pages/Services/MarketingPage';
 import GraphicDesignPage from './pages/Services/GraphicDesignPage';
 import WebDesignPage from './pages/Services/WebDesignPage';
 
-// Dashboard Pages
+// Admin Dashboard Pages
 import AnalyticsPage from './pages/AnalyticsPage';
 import ClientsPage from './pages/ClientsPage';
 import AssistantPage from './pages/AssistantPage';
+
+// Client Portal Pages
+import ClientDashboardPage from './pages/client/ClientDashboardPage';
+import ClientProjectsPage from './pages/client/ClientProjectsPage';
+import ClientInvoicesPage from './pages/client/ClientInvoicesPage';
+import ClientSupportPage from './pages/client/ClientSupportPage';
 
 
 const App: React.FC = () => {
@@ -66,35 +73,61 @@ const App: React.FC = () => {
   };
   
   const renderDashboardPage = () => {
-      const [baseRoute, page] = route.split('/');
+      const page = route.split('/')[2];
       switch (page) {
           case 'analytics': return <AnalyticsPage />;
           case 'clients': return <ClientsPage />;
           case 'assistant': return <AssistantPage />;
-          default: return <AnalyticsPage />; // Default to analytics
+          default: return <AnalyticsPage />;
       }
   };
+
+  const renderClientPortalPage = () => {
+      const page = route.split('/')[2];
+      switch(page) {
+          case 'dashboard': return <ClientDashboardPage />;
+          case 'projects': return <ClientProjectsPage />;
+          case 'invoices': return <ClientInvoicesPage />;
+          case 'support': return <ClientSupportPage />;
+          default: return <ClientDashboardPage />;
+      }
+  }
   
   const isDashboardRoute = route.startsWith('#/dashboard');
+  const isClientPortalRoute = route.startsWith('#/client');
+
+  const renderContent = () => {
+    if (isDashboardRoute) {
+      return (
+        <DashboardLayout currentRoute={route}>
+          {renderDashboardPage()}
+        </DashboardLayout>
+      );
+    }
+    if (isClientPortalRoute) {
+        return (
+            <ClientLayout currentRoute={route}>
+                {renderClientPortalPage()}
+            </ClientLayout>
+        );
+    }
+    return (
+      <div className="flex flex-col min-h-screen font-sans bg-dark-bg text-slate-300">
+        <TopNav currentRoute={route} />
+        <main className="flex-grow">
+          <div key={route} className="animate-fade-in">
+            {renderPublicPage()}
+          </div>
+        </main>
+        <FloatingWhatsAppButton />
+        <Footer />
+      </div>
+    );
+  };
 
   return (
     <NotificationProvider>
-        {isDashboardRoute ? (
-            <DashboardLayout currentRoute={route}>
-                {renderDashboardPage()}
-            </DashboardLayout>
-        ) : (
-            <div className="flex flex-col min-h-screen font-sans bg-dark-bg text-slate-300">
-                <TopNav currentRoute={route} />
-                <main className="flex-grow">
-                    <div key={route} className="animate-fade-in">
-                        {renderPublicPage()}
-                    </div>
-                </main>
-                <FloatingWhatsAppButton />
-                <Footer />
-            </div>
-        )}
+        {renderContent()}
     </NotificationProvider>
   );
 };
