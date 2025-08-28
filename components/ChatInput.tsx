@@ -63,7 +63,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, onStopG
             ))}
         </div>
       <form onSubmit={handleSubmit} className="flex items-start gap-3 relative">
+        <label htmlFor="chat-input-textarea" className="sr-only">أدخل رسالتك</label>
         <textarea
+          id="chat-input-textarea"
           ref={textareaRef}
           rows={1}
           value={text}

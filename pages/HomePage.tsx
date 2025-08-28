@@ -1,14 +1,14 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { testimonials, portfolioItems, faqItems, services } from '../data/siteData';
-import { CheckCircleIcon } from '../components/icons/CheckCircleIcon';
+import { testimonials, faqItems, services } from '../data/siteData';
 import { ChevronDownIcon } from '../components/icons/ChevronDownIcon';
 import { PaintBrushIcon } from '../components/icons/PaintBrushIcon';
 import { MegaphoneIcon } from '../components/icons/MegaphoneIcon';
 import { CodeBracketIcon } from '../components/icons/CodeBracketIcon';
 import { GlobeIcon } from '../components/icons/GlobeIcon';
 import { RocketLaunchIcon } from '../components/icons/RocketLaunchIcon';
+import SpotlightCard from '../components/SpotlightCard';
 
 const iconMap: { [key: string]: React.ReactNode } = {
     'ads': <MegaphoneIcon />,
@@ -51,37 +51,6 @@ const AnimatedCounter: React.FC<{ end: number, duration?: number }> = ({ end, du
     }, [end, duration]);
 
     return <span ref={ref}>{count.toLocaleString()}</span>;
-};
-
-const SpotlightCard: React.FC<{ service: typeof services[0], link: string }> = ({ service, link }) => {
-    const cardRef = useRef<HTMLAnchorElement>(null);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        const rect = cardRef.current?.getBoundingClientRect();
-        if (rect) {
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            cardRef.current?.style.setProperty('--mouse-x', `${x}px`);
-            cardRef.current?.style.setProperty('--mouse-y', `${y}px`);
-        }
-    };
-
-    return (
-        <a 
-            href={link}
-            ref={cardRef}
-            onMouseMove={handleMouseMove}
-            className="spotlight-card block relative bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-primary hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 overflow-hidden"
-        >
-            <div className="relative z-10">
-                <div className="w-12 h-12 flex items-center justify-center bg-primary/20 text-primary rounded-xl mb-4">
-                    {iconMap[service.id]}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
-                <p className="text-slate-400 leading-relaxed text-sm">{service.description}</p>
-            </div>
-        </a>
-    );
 };
 
 const TestimonialCarousel: React.FC = () => {
@@ -199,7 +168,13 @@ const HomePage: React.FC = () => {
                     <p className="text-center text-slate-400 mb-12 max-w-2xl mx-auto">من الاستراتيجية إلى التنفيذ، نقدم كل ما تحتاجه للتميز في العالم الرقمي.</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {services.map(service => (
-                            <SpotlightCard key={service.id} service={service} link={serviceLinks[service.id]} />
+                             <SpotlightCard 
+                                key={service.id} 
+                                title={service.title}
+                                description={service.description}
+                                link={serviceLinks[service.id]}
+                                icon={iconMap[service.id]}
+                            />
                         ))}
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { FacebookIcon } from './icons/FacebookIcon';
 import { InstagramIcon } from './icons/InstagramIcon';
@@ -10,7 +11,7 @@ const Footer: React.FC = () => {
     const quickLinks = [
         { href: "#/", label: "الرئيسية" },
         { href: "#/about", label: "من نحن" },
-        { href: "#/services/marketing", label: "الخدمات" },
+        { href: "#/services", label: "الخدمات" },
         { href: "#/portfolio", label: "أعمالنا" },
         { href: "#/blog", label: "المدونة" },
         { href: "#/contact", label: "تواصل معنا" },

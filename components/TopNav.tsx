@@ -68,11 +68,16 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                                         <button 
                                             onClick={() => setIsServicesMenuOpen(!isServicesMenuOpen)}
                                             className={`flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-md transition-colors ${currentRoute.startsWith('#/services') ? 'text-white bg-white/10' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+                                            aria-haspopup="true"
+                                            aria-expanded={isServicesMenuOpen}
+                                            aria-controls="services-menu"
                                         >
                                             <span>{link.label}</span>
                                             <ChevronDownIcon className={`w-4 h-4 transition-transform ${isServicesMenuOpen ? 'rotate-180' : ''}`} />
                                         </button>
-                                        <div className={`absolute top-full right-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-lg border border-slate-700 overflow-hidden transition-all duration-200 ease-out origin-top ${isServicesMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                                        <div 
+                                            id="services-menu"
+                                            className={`absolute top-full right-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-lg border border-slate-700 overflow-hidden transition-all duration-200 ease-out origin-top ${isServicesMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                                             {link.children.map(child => (
                                                 <a key={child.href} href={child.href} onClick={() => setIsServicesMenuOpen(false)} className="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white">{child.label}</a>
                                             ))}
@@ -92,7 +97,13 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                             اطلب استشارة
                         </a>
                         <div className="md:hidden">
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-300 rounded-md hover:bg-white/10">
+                            <button 
+                                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                                className="p-2 text-slate-300 rounded-md hover:bg-white/10"
+                                aria-controls="mobile-menu"
+                                aria-expanded={isMenuOpen}
+                                aria-label={isMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+                            >
                                 {isMenuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
                             </button>
                         </div>
@@ -100,7 +111,7 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                 </div>
             </div>
             {isMenuOpen && (
-                <div className="md:hidden bg-dark-bg/95 backdrop-blur-lg border-t border-slate-700/50">
+                <div id="mobile-menu" className="md:hidden bg-dark-bg/95 backdrop-blur-lg border-t border-slate-700/50">
                     <nav className="px-2 pt-2 pb-4 space-y-1">
                          {navLinks.map(link => (
                             link.children ? (

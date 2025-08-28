@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { NotificationProvider } from './providers/NotificationProvider';
 import { blogPosts } from './data/siteData';
@@ -20,6 +21,7 @@ import LoginPage from './pages/LoginPage';
 import PaymentsPage from './pages/PaymentsPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
+import ServicesPage from './pages/ServicesPage';
 
 // Service Pages
 import MarketingPage from './pages/Services/MarketingPage';
@@ -91,31 +93,34 @@ const App: React.FC = () => {
   }, [route]);
 
   const renderPublicPage = () => {
-    const [baseRoute, slug] = route.split('/');
-    switch (baseRoute) {
-      case '#': return <HomePage />;
-      case '#services':
-        switch (slug) {
-            case 'marketing': return <MarketingPage />;
-            case 'graphic-design': return <GraphicDesignPage />;
-            case 'web-design': return <WebDesignPage />;
-            case 'ad-creation': return <AdCreationPage />;
-            default: return <HomePage />;
-        }
-      case '#pricing': return <PricingPage />;
-      case '#portfolio': return <PortfolioPage />;
-      case '#about': return <AboutPage />;
-      case '#contact': return <ContactPage />;
-      case '#login': return <LoginPage />;
-      case '#payments': return <PaymentsPage />;
-      case '#blog': 
-        return slug ? <BlogPostPage slug={slug} /> : <BlogPage />;
-      default: return <HomePage />;
+    const path = route.startsWith('#/') ? route.substring(2) : '';
+    const [mainRoute, slug] = path.split('/');
+
+    switch (mainRoute) {
+        case '':
+            return <HomePage />;
+        case 'services':
+            switch (slug) {
+                case 'marketing': return <MarketingPage />;
+                case 'graphic-design': return <GraphicDesignPage />;
+                case 'web-design': return <WebDesignPage />;
+                case 'ad-creation': return <AdCreationPage />;
+                default: return <ServicesPage />; 
+            }
+        case 'pricing': return <PricingPage />;
+        case 'portfolio': return <PortfolioPage />;
+        case 'about': return <AboutPage />;
+        case 'contact': return <ContactPage />;
+        case 'login': return <LoginPage />;
+        case 'payments': return <PaymentsPage />;
+        case 'blog': 
+            return slug ? <BlogPostPage slug={slug} /> : <BlogPage />;
+        default: return <HomePage />;
     }
   };
   
   const renderDashboardPage = () => {
-      const page = route.split('/')[2];
+      const page = route.startsWith('#/dashboard/') ? route.substring(12) : '';
       switch (page) {
           case 'analytics': return <AnalyticsPage />;
           case 'clients': return <ClientsPage />;
@@ -125,7 +130,7 @@ const App: React.FC = () => {
   };
 
   const renderClientPortalPage = () => {
-      const page = route.split('/')[2];
+      const page = route.startsWith('#/client/') ? route.substring(9) : '';
       switch(page) {
           case 'dashboard': return <ClientDashboardPage />;
           case 'projects': return <ClientProjectsPage />;
