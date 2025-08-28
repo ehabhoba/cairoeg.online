@@ -28,6 +28,7 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
             label: "الخدمات",
             children: [
                 { href: "#/services/marketing", label: "التسويق الرقمي والإعلانات" },
+                { href: "#/services/ad-creation", label: "إنشاء ونشر الإعلانات" },
                 { href: "#/services/graphic-design", label: "التصميم الجرافيكي والهوية" },
                 { href: "#/services/web-design", label: "تصميم المواقع والمتاجر" },
             ]

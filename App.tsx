@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NotificationProvider } from './providers/NotificationProvider';
+import { blogPosts } from './data/siteData';
 
 // Layouts
 import TopNav from './components/TopNav';
@@ -24,6 +25,7 @@ import BlogPostPage from './pages/BlogPostPage';
 import MarketingPage from './pages/Services/MarketingPage';
 import GraphicDesignPage from './pages/Services/GraphicDesignPage';
 import WebDesignPage from './pages/Services/WebDesignPage';
+import AdCreationPage from './pages/Services/AdCreationPage';
 
 // Admin Dashboard Pages
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -49,6 +51,45 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  useEffect(() => {
+    const getPageTitle = (path: string): string => {
+        const baseTitle = "إعلانات القاهرة | Cairoeg";
+        if (!path || path === '#/') return baseTitle;
+
+        const [baseRoute, slug] = path.substring(2).split('/');
+        
+        switch (baseRoute) {
+            case '': return baseTitle;
+            case 'services':
+                switch (slug) {
+                    case 'marketing': return `التسويق الرقمي - ${baseTitle}`;
+                    case 'graphic-design': return `التصميم الجرافيكي - ${baseTitle}`;
+                    case 'web-design': return `تصميم المواقع - ${baseTitle}`;
+                    case 'ad-creation': return `إنشاء الإعلانات - ${baseTitle}`;
+                    default: return `الخدمات - ${baseTitle}`;
+                }
+            case 'pricing': return `الباقات - ${baseTitle}`;
+            case 'portfolio': return `أعمالنا - ${baseTitle}`;
+            case 'about': return `من نحن - ${baseTitle}`;
+            case 'contact': return `تواصل معنا - ${baseTitle}`;
+            case 'login': return `تسجيل الدخول - ${baseTitle}`;
+            case 'payments': return `طرق الدفع - ${baseTitle}`;
+            case 'blog': 
+                if (slug) {
+                    const post = blogPosts.find(p => p.slug === slug);
+                    return post ? `${post.title} - ${baseTitle}` : `المدونة - ${baseTitle}`;
+                }
+                return `المدونة - ${baseTitle}`;
+            case 'dashboard':
+                return `لوحة التحكم - ${baseTitle}`;
+            case 'client':
+                return `بوابة العميل - ${baseTitle}`;
+            default: return baseTitle;
+        }
+    }
+    document.title = getPageTitle(route);
+  }, [route]);
+
   const renderPublicPage = () => {
     const [baseRoute, slug] = route.split('/');
     switch (baseRoute) {
@@ -58,6 +99,7 @@ const App: React.FC = () => {
             case 'marketing': return <MarketingPage />;
             case 'graphic-design': return <GraphicDesignPage />;
             case 'web-design': return <WebDesignPage />;
+            case 'ad-creation': return <AdCreationPage />;
             default: return <HomePage />;
         }
       case '#pricing': return <PricingPage />;

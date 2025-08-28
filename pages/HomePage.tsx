@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { testimonials, portfolioItems, faqItems, services } from '../data/siteData';
 import { CheckCircleIcon } from '../components/icons/CheckCircleIcon';
@@ -7,12 +8,14 @@ import { PaintBrushIcon } from '../components/icons/PaintBrushIcon';
 import { MegaphoneIcon } from '../components/icons/MegaphoneIcon';
 import { CodeBracketIcon } from '../components/icons/CodeBracketIcon';
 import { GlobeIcon } from '../components/icons/GlobeIcon';
+import { RocketLaunchIcon } from '../components/icons/RocketLaunchIcon';
 
 const iconMap: { [key: string]: React.ReactNode } = {
     'ads': <MegaphoneIcon />,
     'design': <PaintBrushIcon />,
     'dev': <CodeBracketIcon />,
-    'seo': <GlobeIcon />
+    'seo': <GlobeIcon />,
+    'creation': <RocketLaunchIcon />,
 };
 
 const AnimatedCounter: React.FC<{ end: number, duration?: number }> = ({ end, duration = 2000 }) => {
@@ -50,10 +53,10 @@ const AnimatedCounter: React.FC<{ end: number, duration?: number }> = ({ end, du
     return <span ref={ref}>{count.toLocaleString()}</span>;
 };
 
-const SpotlightCard: React.FC<{ service: typeof services[0] }> = ({ service }) => {
-    const cardRef = useRef<HTMLDivElement>(null);
+const SpotlightCard: React.FC<{ service: typeof services[0], link: string }> = ({ service, link }) => {
+    const cardRef = useRef<HTMLAnchorElement>(null);
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
         const rect = cardRef.current?.getBoundingClientRect();
         if (rect) {
             const x = e.clientX - rect.left;
@@ -64,10 +67,11 @@ const SpotlightCard: React.FC<{ service: typeof services[0] }> = ({ service }) =
     };
 
     return (
-        <div 
+        <a 
+            href={link}
             ref={cardRef}
             onMouseMove={handleMouseMove}
-            className="spotlight-card relative bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-primary hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 overflow-hidden"
+            className="spotlight-card block relative bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-primary hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 overflow-hidden"
         >
             <div className="relative z-10">
                 <div className="w-12 h-12 flex items-center justify-center bg-primary/20 text-primary rounded-xl mb-4">
@@ -76,18 +80,18 @@ const SpotlightCard: React.FC<{ service: typeof services[0] }> = ({ service }) =
                 <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
                 <p className="text-slate-400 leading-relaxed text-sm">{service.description}</p>
             </div>
-        </div>
+        </a>
     );
 };
 
 const TestimonialCarousel: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const isHoveringRef = useRef(false);
 
-    const resetTimeout = () => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
+    const resetInterval = () => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
         }
     };
 
@@ -99,8 +103,8 @@ const TestimonialCarousel: React.FC = () => {
                 );
             }
         };
-        timeoutRef.current = setInterval(nextSlide, 5000);
-        return () => resetTimeout();
+        intervalRef.current = setInterval(nextSlide, 5000);
+        return () => resetInterval();
     }, []);
 
     const handleMouseEnter = () => { isHoveringRef.current = true; };
@@ -155,6 +159,14 @@ const HomePage: React.FC = () => {
         return () => observer.disconnect();
     }, []);
 
+    const serviceLinks: { [id: string]: string } = {
+        'ads': '#/services/marketing',
+        'creation': '#/services/ad-creation',
+        'design': '#/services/graphic-design',
+        'dev': '#/services/web-design',
+        'seo': '#/services/marketing',
+    };
+
     return (
         <div className="w-full">
             {/* Hero Section */}
@@ -185,9 +197,9 @@ const HomePage: React.FC = () => {
                 <div className="max-w-7xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-2">خدمات احترافية لدعم علامتك التجارية</h2>
                     <p className="text-center text-slate-400 mb-12 max-w-2xl mx-auto">من الاستراتيجية إلى التنفيذ، نقدم كل ما تحتاجه للتميز في العالم الرقمي.</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {services.map(service => (
-                            <SpotlightCard key={service.id} service={service} />
+                            <SpotlightCard key={service.id} service={service} link={serviceLinks[service.id]} />
                         ))}
                     </div>
                 </div>

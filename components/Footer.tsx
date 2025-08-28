@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
 
     const socialLinks = [
         { href: "https://wa.me/201022679250", icon: <WhatsappIcon className="w-5 h-5" /> },
-        { href: "#", icon: <FacebookIcon className="w-5 h-5" /> },
+        { href: "https://www.facebook.com/cairoeg.online", icon: <FacebookIcon className="w-5 h-5" /> },
         { href: "#", icon: <InstagramIcon className="w-5 h-5" /> },
         { href: "#", icon: <TiktokIcon className="w-5 h-5" /> },
         { href: "#", icon: <LinkedInIcon className="w-5 h-5" /> },
