@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
@@ -118,6 +119,17 @@ const App: React.FC = () => {
         const path = route;
         const [_, baseRoute, slug] = path.split('/');
         
+        // Reset structured data by default
+        updateStructuredData({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "إعلانات القاهرة | Cairoeg",
+            "url": "https://cairoeg.online/",
+            "logo": "https://i.postimg.cc/1RN16091/image.png",
+            "contactPoint": { "@type": "ContactPoint", "telephone": "+20-102-267-9250", "contactType": "Customer Service" },
+            "sameAs": ["https://wa.me/201022679250", "https://www.facebook.com/cairoeg.online"]
+        });
+        
         switch (baseRoute) {
             case 'services':
                 switch (slug) {
@@ -168,8 +180,8 @@ const App: React.FC = () => {
                     const post = await getPostBySlug(slug);
                     if (post) {
                         const author = await findUserByPhone(post.authorPhone);
-                        pageTitle = `${post.title} | ${baseTitle}`;
-                        pageDescription = post.excerpt;
+                        pageTitle = `${post.title} - بقلم ${author?.name || 'فريقنا'} | ${baseTitle}`;
+                        pageDescription = `مقال بتاريخ ${post.date} بقلم ${author?.name || 'فريق إعلانات القاهرة'}. ${post.excerpt}`;
                         pageKeywords = post.tags.join(', ');
                         ogImage = post.imageUrl;
 
@@ -199,12 +211,10 @@ const App: React.FC = () => {
                         });
                     } else {
                         pageTitle = `المقال غير موجود - ${baseTitle}`;
-                        updateStructuredData(null);
                     }
                 } else {
                     pageTitle = `المدونة - ${baseTitle}`;
                     pageDescription = "مقالات ورؤى حول أحدث استراتيجيات التسويق الرقمي لمساعدتك على النمو في السوق المصري والعربي.";
-                    updateStructuredData(null);
                 }
                 break;
             case 'author': 

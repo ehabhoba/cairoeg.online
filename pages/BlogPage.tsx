@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BlogPost, getApprovedPosts, blogCategories } from '../data/blogData';
 import SectionHeader from '../components/SectionHeader';

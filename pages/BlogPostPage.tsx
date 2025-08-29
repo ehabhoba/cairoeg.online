@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BlogPost, getPostBySlug, addComment, getApprovedComments, Comment, getPostsByAuthor } from '../data/blogData';
 import { useAuth } from '../hooks/useAuth';

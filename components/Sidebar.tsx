@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { DashboardIcon } from './icons/DashboardIcon';
@@ -18,10 +17,10 @@ const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
     ];
     
     return (
-        <aside className="w-64 bg-white border-l border-slate-200 p-4 flex flex-col">
-            <div className="flex items-center gap-2 mb-8 px-2">
-                <img src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" className="w-8 h-8" />
-                <span className="text-lg font-bold text-slate-800">إعلانات القاهرة</span>
+        <aside className="w-64 bg-panel-bg p-4 flex flex-col border-l border-slate-100/10">
+             <div className="flex items-center gap-2 mb-8 px-2">
+                <img src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" className="w-8 h-8 filter brightness-0 invert" />
+                <span className="text-lg font-bold text-white">لوحة التحكم</span>
             </div>
             
             <nav className="flex-1 space-y-2">
@@ -33,8 +32,8 @@ const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                                 isActive 
-                                ? 'bg-blue-600 text-white shadow-sm' 
-                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                ? 'bg-primary text-white shadow-sm' 
+                                : 'text-slate-300 hover:bg-white/5 hover:text-white'
                             }`}
                         >
                             <span className="w-5 h-5">{item.icon}</span>
@@ -47,7 +46,7 @@ const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
             <div className="mt-auto">
                 <button 
                     onClick={logout} 
-                    className="flex items-center w-full gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100"
+                    className="flex items-center w-full gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-300 hover:bg-white/5"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

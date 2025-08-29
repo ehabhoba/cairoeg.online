@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { WhatsappIcon } from './icons/WhatsappIcon';
 import { FacebookIcon } from './icons/FacebookIcon';

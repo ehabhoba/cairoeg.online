@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { pricingPlans } from '../data/siteData';
 import { CheckCircleIcon } from '../components/icons/CheckCircleIcon';
