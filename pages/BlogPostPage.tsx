@@ -34,6 +34,13 @@ const renderMarkdown = (markdown: string) => {
         if (block.startsWith('### ')) {
             return <h3 key={blockIndex} className="text-2xl font-bold text-white mt-8 mb-4">{parseInline(block.substring(4))}</h3>;
         }
+        if (block.startsWith('> ')) {
+            return (
+                <blockquote key={blockIndex} className="border-r-4 border-primary pr-4 my-4 text-slate-400 italic">
+                    {parseInline(block.substring(2))}
+                </blockquote>
+            );
+        }
         if (block.match(/^\s*[\*\-]\s+/)) {
             const listItems = block.split('\n').map(item => item.replace(/^\s*[\*\-]\s+/, ''));
             return (

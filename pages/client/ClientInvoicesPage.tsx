@@ -1,6 +1,7 @@
 import React from 'react';
 import { clientInvoices } from '../../data/mockClientData';
 import Badge from '../../components/Badge';
+import { CurrencyDollarIcon } from '../../components/icons/CurrencyDollarIcon';
 
 const ClientInvoicesPage: React.FC = () => {
   return (
@@ -27,7 +28,7 @@ const ClientInvoicesPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100/10">
                   {clientInvoices.map((invoice) => (
-                    <tr key={invoice.id} className="hover:bg-light-bg/30">
+                    <tr key={invoice.id} className="hover:bg-light-bg/30 transition-colors">
                       <td className="p-4 whitespace-nowrap font-medium text-white">
                         {invoice.id}
                       </td>
@@ -40,8 +41,9 @@ const ClientInvoicesPage: React.FC = () => {
                       </td>
                        <td className="p-4 whitespace-nowrap">
                         {invoice.status === 'غير مدفوعة' && (
-                             <a href="/payments" className="px-4 py-1.5 bg-primary text-white text-xs font-semibold rounded-full shadow-sm hover:bg-primary-dark transition-colors">
-                                ادفع الآن
+                             <a href="/payments" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-transform transform hover:scale-105">
+                                <CurrencyDollarIcon className="w-4 h-4" />
+                                <span>ادفع الآن</span>
                             </a>
                         )}
                       </td>

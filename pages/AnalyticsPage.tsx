@@ -17,17 +17,19 @@ const iconMap: { [key: string]: React.ReactNode } = {
 const StatCard: React.FC<{ title: string; value: string; change: string; changeType: 'increase' | 'decrease' | 'neutral', icon: React.ReactNode }> = ({ title, value, change, changeType, icon }) => {
     const changeColor = changeType === 'increase' ? 'text-green-400' : changeType === 'decrease' ? 'text-red-400' : 'text-slate-400';
     return (
-        <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg flex items-start justify-between">
-            <div>
-                <p className="text-sm font-medium text-slate-400">{title}</p>
-                <p className="text-3xl font-bold text-white mt-1">{value}</p>
-                <p className={`text-xs mt-2 ${changeColor}`}>
-                    {change}
-                </p>
+        <div className="relative bg-gradient-to-br from-light-bg to-panel-bg p-6 rounded-2xl border border-slate-700/50 shadow-lg overflow-hidden">
+            <div className="flex items-start justify-between">
+                <div>
+                    <p className="text-sm font-medium text-slate-400">{title}</p>
+                    <p className="text-3xl font-bold text-white mt-1">{value}</p>
+                </div>
+                <div className="w-12 h-12 flex items-center justify-center bg-primary/10 text-primary rounded-lg border border-primary/20">
+                    {icon}
+                </div>
             </div>
-            <div className="w-12 h-12 flex items-center justify-center bg-primary/20 text-primary rounded-lg">
-                {icon}
-            </div>
+            <p className={`text-xs mt-2 ${changeColor}`}>
+                {change}
+            </p>
         </div>
     );
 };
@@ -37,16 +39,16 @@ const BarChart: React.FC<{ data: { month: string, revenue: number }[] }> = ({ da
     return (
         <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
             <h3 className="text-lg font-bold text-white mb-4">نظرة عامة على الإيرادات الشهرية</h3>
-            <div className="flex items-end justify-between gap-2 h-64">
+            <div className="flex items-end justify-between gap-2 h-64 pt-4">
                 {data.map(({ month, revenue }) => (
-                    <div key={month} className="flex flex-col items-center flex-1 h-full group">
-                        <div className="w-full h-full flex items-end">
-                            <div
-                                className="w-full bg-primary/60 rounded-t-lg group-hover:bg-primary transition-colors"
-                                style={{ height: `${(revenue / maxRevenue) * 100}%` }}
-                                title={`الإيراد: ${revenue.toLocaleString()}`}
-                            ></div>
+                    <div key={month} className="relative flex flex-col items-center flex-1 h-full group">
+                         <div className="absolute -top-8 bg-dark-bg text-white text-xs font-bold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                            {revenue.toLocaleString()} ج.م
                         </div>
+                        <div
+                            className="w-full bg-gradient-to-t from-primary/80 to-accent/80 rounded-t-lg group-hover:opacity-100 opacity-75 transition-all duration-300"
+                            style={{ height: `${(revenue / maxRevenue) * 100}%` }}
+                        ></div>
                         <span className="text-xs text-slate-400 mt-2">{month}</span>
                     </div>
                 ))}
