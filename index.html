@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -35,10 +34,20 @@
           theme: {
             extend: {
               colors: {
-                'primary': '#0f54c0', // Royal Blue
-                'accent': '#6d28d9',  // Rich Purple
-                'gold': '#f59e0b',    // Gold
-                'dark-bg': '#0f172a',  // Dark background
+                'primary': {
+                  DEFAULT: '#2563EB', // A vibrant blue
+                  'light': '#3B82F6',
+                  'dark': '#1D4ED8',
+                },
+                'accent': {
+                  DEFAULT: '#9333EA', // A glowing purple
+                  'light': '#A855F7',
+                  'dark': '#7E22CE',
+                },
+                'gold': '#f59e0b',    // Gold for special CTAs
+                'dark-bg': '#111827',  // A deep space gray
+                'light-bg': '#1F2937', // A slightly lighter gray for cards/sections
+                'panel-bg': '#1F2937', // For dashboard panels
               },
               fontFamily: {
                 sans: ['Cairo', 'sans-serif'],
@@ -51,6 +60,8 @@
                 'background-pan': 'backgroundPan 15s linear infinite',
                 'shimmer': 'shimmer 1.5s infinite linear',
                 'draw-line': 'drawLine 1s ease-out forwards',
+                'modal-enter': 'modalEnter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                'glow': 'glow 2s ease-in-out infinite alternate',
               },
               keyframes: {
                   fadeIn: {
@@ -81,6 +92,14 @@
                   drawLine: {
                       'from': { width: '0' },
                       'to': { width: '100%' }
+                  },
+                  modalEnter: {
+                    'from': { opacity: 0, transform: 'scale(0.95)' },
+                    'to': { opacity: 1, transform: 'scale(1)' }
+                  },
+                  glow: {
+                    'from': { 'box-shadow': '0 0 5px #2563EB, 0 0 10px #2563EB' },
+                    'to': { 'box-shadow': '0 0 20px #9333EA, 0 0 30px #9333EA' }
                   }
               }
             }
@@ -90,20 +109,23 @@
     <style>
       body {
         font-family: 'Cairo', sans-serif;
+        background-color: #111827;
+        background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+        background-size: 20px 20px;
       }
       /* Custom scrollbar for better aesthetics */
       ::-webkit-scrollbar {
         width: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #1e293b;
+        background: #1F2937;
       }
       ::-webkit-scrollbar-thumb {
-        background: #334155;
+        background: #374151;
         border-radius: 10px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #475569;
+        background: #4B5563;
       }
       .spotlight-card:before {
         content: '';
@@ -113,7 +135,7 @@
         right: 0;
         bottom: 0;
         border-radius: inherit;
-        background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
+        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(37, 99, 235, 0.15), transparent 40%);
         opacity: 0;
         transition: opacity 0.3s;
       }

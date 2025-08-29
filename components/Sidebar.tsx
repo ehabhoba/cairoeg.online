@@ -1,14 +1,20 @@
 
 import React from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { DashboardIcon } from './icons/DashboardIcon';
 import { CustomersIcon } from './icons/CustomersIcon';
 import { AssistantIcon } from './icons/AssistantIcon';
+import { DocumentTextIcon } from './icons/DocumentTextIcon'; // Reusing for articles
+import { ChatBubbleLeftRightIcon } from './icons/ChatBubbleLeftRightIcon';
 
 const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
+    const { logout } = useAuth();
     const navItems = [
-        { href: '#/dashboard/analytics', label: 'التحليلات', icon: <DashboardIcon /> },
-        { href: '#/dashboard/clients', label: 'العملاء', icon: <CustomersIcon /> },
-        { href: '#/dashboard/assistant', label: 'المساعد الذكي', icon: <AssistantIcon /> },
+        { href: '/dashboard/analytics', label: 'التحليلات', icon: <DashboardIcon /> },
+        { href: '/dashboard/clients', label: 'العملاء', icon: <CustomersIcon /> },
+        { href: '/dashboard/articles', label: 'إدارة المقالات', icon: <DocumentTextIcon /> },
+        { href: '/dashboard/comments', label: 'إدارة التعليقات', icon: <ChatBubbleLeftRightIcon /> },
+        { href: '/dashboard/assistant', label: 'المساعد الذكي', icon: <AssistantIcon /> },
     ];
     
     return (
@@ -20,7 +26,7 @@ const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
             
             <nav className="flex-1 space-y-2">
                 {navItems.map(item => {
-                    const isActive = currentRoute === item.href;
+                    const isActive = currentRoute.startsWith(item.href);
                     return (
                         <a 
                             key={item.href} 
@@ -39,15 +45,15 @@ const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
             </nav>
 
             <div className="mt-auto">
-                <a 
-                    href="#/" 
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100"
+                <button 
+                    onClick={logout} 
+                    className="flex items-center w-full gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
-                    <span>العودة للموقع</span>
-                </a>
+                    <span>تسجيل الخروج</span>
+                </button>
             </div>
         </aside>
     );

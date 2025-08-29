@@ -1,23 +1,22 @@
-
 import React from 'react';
 import { clientInvoices } from '../../data/mockClientData';
 import Badge from '../../components/Badge';
 
 const ClientInvoicesPage: React.FC = () => {
   return (
-    <main className="flex-1 bg-slate-50 p-4 lg:p-6">
+    <main className="flex-1 bg-dark-bg p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">فواتيري</h1>
-            <p className="text-slate-500 mt-1">عرض وإدارة جميع فواتيرك.</p>
+            <h1 className="text-3xl font-bold text-white">فواتيري</h1>
+            <p className="text-slate-400 mt-1">عرض وإدارة جميع فواتيرك.</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-panel-bg rounded-2xl border border-slate-100/10 shadow-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-right">
-                <thead className="bg-slate-50 text-slate-600">
+                <thead className="bg-light-bg/50 text-slate-400">
                   <tr>
                     <th scope="col" className="p-4 font-semibold">رقم الفاتورة</th>
                     <th scope="col" className="p-4 font-semibold">تاريخ الإصدار</th>
@@ -26,14 +25,14 @@ const ClientInvoicesPage: React.FC = () => {
                     <th scope="col" className="p-4 font-semibold">إجراء</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200">
+                <tbody className="divide-y divide-slate-100/10">
                   {clientInvoices.map((invoice) => (
-                    <tr key={invoice.id} className="hover:bg-slate-50">
-                      <td className="p-4 whitespace-nowrap font-medium text-slate-800">
+                    <tr key={invoice.id} className="hover:bg-light-bg/30">
+                      <td className="p-4 whitespace-nowrap font-medium text-white">
                         {invoice.id}
                       </td>
-                      <td className="p-4 whitespace-nowrap text-slate-500">{invoice.issueDate}</td>
-                      <td className="p-4 whitespace-nowrap text-slate-800 font-semibold">{invoice.amount.toLocaleString()} ج.م</td>
+                      <td className="p-4 whitespace-nowrap text-slate-400">{invoice.issueDate}</td>
+                      <td className="p-4 whitespace-nowrap text-white font-semibold">{invoice.amount.toLocaleString()} ج.م</td>
                       <td className="p-4 whitespace-nowrap">
                         <Badge color={invoice.status === 'مدفوعة' ? 'green' : 'yellow'}>
                           {invoice.status}
@@ -41,7 +40,7 @@ const ClientInvoicesPage: React.FC = () => {
                       </td>
                        <td className="p-4 whitespace-nowrap">
                         {invoice.status === 'غير مدفوعة' && (
-                             <a href="#/payments" className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-lg shadow-sm hover:bg-blue-700 transition-colors">
+                             <a href="/payments" className="px-4 py-1.5 bg-primary text-white text-xs font-semibold rounded-full shadow-sm hover:bg-primary-dark transition-colors">
                                 ادفع الآن
                             </a>
                         )}

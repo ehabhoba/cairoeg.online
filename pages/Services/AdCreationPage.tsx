@@ -1,9 +1,9 @@
-
 import React from 'react';
 import SectionHeader from '../../components/SectionHeader';
 import FeatureCard from '../../components/FeatureCard';
 import CTABanner from '../../components/CTABanner';
 import { adCreationProcess } from '../../data/siteData';
+import ServicePageLayout from '../../components/ServicePageLayout';
 
 const AdCreationPage: React.FC = () => {
     const features = [
@@ -18,20 +18,12 @@ const AdCreationPage: React.FC = () => {
     const platforms = ['Meta (Facebook & Instagram)', 'Google Ads (Search & Display)', 'TikTok Ads', 'LinkedIn Ads'];
 
   return (
-    <div className="bg-dark-bg text-slate-300">
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        {/* Hero Section */}
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl">
-            إنشاء ونشر الحملات الإعلانية
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-400">
-            من الفكرة إلى الإطلاق، نتولى جميع خطوات حملتك الإعلانية لضمان وصولها إلى جمهورك وتحقيق أهدافك.
-          </p>
-        </div>
-
+    <ServicePageLayout
+        title="إنشاء ونشر الحملات الإعلانية"
+        subtitle="من الفكرة إلى الإطلاق، نتولى جميع خطوات حملتك الإعلانية لضمان وصولها إلى جمهورك وتحقيق أهدافك."
+    >
         {/* What We Offer Section */}
-        <div className="mt-20">
+        <div>
           <SectionHeader title="ماذا تشمل خدمة إنشاء الإعلانات؟" subtitle="نقدم خدمة متكاملة تغطي جميع جوانب الحملة الإعلانية." />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
              {features.map((feature, i) => (
@@ -48,7 +40,7 @@ const AdCreationPage: React.FC = () => {
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 text-center">
                 {adCreationProcess.map((item) => (
                     <div key={item.step} className="flex flex-col items-center">
-                        <div className="w-20 h-20 flex items-center justify-center bg-slate-800 border-2 border-primary text-primary font-bold text-3xl rounded-full mb-4">{item.step}</div>
+                        <div className="w-20 h-20 flex items-center justify-center bg-light-bg border-2 border-primary text-primary font-bold text-3xl rounded-full mb-4 shadow-lg shadow-primary/20">{item.step}</div>
                         <h3 className="font-bold text-white mb-2">{item.title}</h3>
                         <p className="text-slate-400 text-sm">{item.description}</p>
                     </div>
@@ -61,7 +53,7 @@ const AdCreationPage: React.FC = () => {
             <SectionHeader title="المنصات التي نعمل عليها" />
             <div className="flex flex-wrap justify-center gap-4">
                 {platforms.map(platform => (
-                    <div key={platform} className="bg-slate-800/50 text-slate-300 font-semibold px-5 py-2 rounded-lg border border-slate-700/50">
+                    <div key={platform} className="bg-light-bg text-slate-300 font-semibold px-5 py-2 rounded-lg border border-slate-100/10">
                         {platform}
                     </div>
                 ))}
@@ -72,10 +64,9 @@ const AdCreationPage: React.FC = () => {
             title="هل أنت جاهز لإطلاق حملتك القادمة؟"
             description="دع خبرائنا يتولون المهمة. تواصل معنا الآن لمناقشة أهدافك الإعلانية."
             buttonText="اطلب حملتك الإعلانية"
-            buttonLink="#/contact"
+            buttonLink="/contact"
         />
-      </div>
-    </div>
+    </ServicePageLayout>
   );
 };
 

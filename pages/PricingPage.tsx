@@ -32,14 +32,14 @@ const PricingPage: React.FC = () => {
               <p className="mt-6 text-4xl font-extrabold text-white">{plan.price}</p>
               
               <a
-                href="#/contact"
+                href="/contact"
                 className={`mt-8 block w-full text-center rounded-xl py-3 px-6 text-base font-semibold transition-all ${plan.isFeatured ? 'bg-primary text-white hover:bg-primary/90' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
               >
                 {plan.name === 'الباقة الاحترافية' ? 'تواصل معنا' : 'اطلب الباقة'}
               </a>
                {plan.isFeatured && (
                 <div className="text-center mt-4">
-                    <a href="#/contact" className="text-sm text-slate-400 hover:text-white">لديك أسئلة؟ تواصل معنا</a>
+                    <a href="/contact" className="text-sm text-slate-400 hover:text-white">لديك أسئلة؟ تواصل معنا</a>
                 </div>
                )}
 

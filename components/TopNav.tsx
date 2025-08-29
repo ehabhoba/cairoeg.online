@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { MenuIcon } from './icons/MenuIcon';
 import { XIcon } from './icons/XIcon';
@@ -11,7 +10,7 @@ interface NavLink {
 }
 
 const NavItem: React.FC<{ link: NavLink; isActive?: boolean; onClick?: () => void; }> = ({ link, isActive, onClick }) => (
-    <a href={link.href} onClick={onClick} className={`block px-3 py-2 text-sm font-semibold rounded-md transition-colors ${isActive ? 'text-white bg-white/10' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
+    <a href={link.href} onClick={onClick} className={`block px-3 py-2 text-sm font-semibold rounded-md transition-colors ${isActive ? 'text-white bg-white/10' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
         {link.label}
     </a>
 );
@@ -22,22 +21,22 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
     const servicesMenuRef = useRef<HTMLDivElement>(null);
 
     const navLinks: NavLink[] = [
-        { href: "#/", label: "الرئيسية" },
+        { href: "/", label: "الرئيسية" },
         { 
-            href: "#/services", 
+            href: "/services", 
             label: "الخدمات",
             children: [
-                { href: "#/services/marketing", label: "التسويق الرقمي والإعلانات" },
-                { href: "#/services/ad-creation", label: "إنشاء ونشر الإعلانات" },
-                { href: "#/services/graphic-design", label: "التصميم الجرافيكي والهوية" },
-                { href: "#/services/web-design", label: "تصميم المواقع والمتاجر" },
+                { href: "/services/marketing", label: "التسويق الرقمي والإعلانات" },
+                { href: "/services/ad-creation", label: "إنشاء ونشر الإعلانات" },
+                { href: "/services/graphic-design", label: "التصميم الجرافيكي والهوية" },
+                { href: "/services/web-design", label: "تصميم المواقع والمتاجر" },
             ]
         },
-        { href: "#/pricing", label: "الباقات" },
-        { href: "#/portfolio", label: "أعمالنا" },
-        { href: "#/blog", label: "المدونة" },
-        { href: "#/about", label: "من نحن" },
-        { href: "#/payments", label: "طرق الدفع" },
+        { href: "/pricing", label: "الباقات" },
+        { href: "/portfolio", label: "أعمالنا" },
+        { href: "/blog", label: "المدونة" },
+        { href: "/about", label: "من نحن" },
+        { href: "/payments", label: "طرق الدفع" },
     ];
 
     useEffect(() => {
@@ -53,11 +52,11 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
     const handleLinkClick = () => setIsMenuOpen(false);
 
     return (
-        <header className="bg-dark-bg/80 backdrop-blur-lg border-b border-slate-700/50 sticky top-0 z-40">
+        <header className="bg-dark-bg/70 backdrop-blur-xl border-b border-slate-100/10 sticky top-0 z-40">
             <div className="max-w-7xl mx-auto px-4 lg:px-6">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center gap-4 md:gap-8">
-                        <a href="#/" className="flex items-center gap-2">
+                        <a href="/" className="flex items-center gap-2">
                             <img src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" className="w-8 h-8 filter brightness-0 invert" />
                             <span className="text-lg font-bold text-white hidden sm:block">إعلانات القاهرة</span>
                         </a>
@@ -67,7 +66,7 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                                     <div key={link.label} className="relative" ref={servicesMenuRef}>
                                         <button 
                                             onClick={() => setIsServicesMenuOpen(!isServicesMenuOpen)}
-                                            className={`flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-md transition-colors ${currentRoute.startsWith('#/services') ? 'text-white bg-white/10' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+                                            className={`flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-md transition-colors ${currentRoute.startsWith('/services') ? 'text-white bg-white/10' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
                                             aria-haspopup="true"
                                             aria-expanded={isServicesMenuOpen}
                                             aria-controls="services-menu"
@@ -77,9 +76,9 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                                         </button>
                                         <div 
                                             id="services-menu"
-                                            className={`absolute top-full right-0 mt-2 w-64 bg-slate-800 rounded-lg shadow-lg border border-slate-700 overflow-hidden transition-all duration-200 ease-out origin-top ${isServicesMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                                            className={`absolute top-full right-0 mt-2 w-64 bg-light-bg/80 backdrop-blur-lg rounded-lg shadow-lg border border-slate-100/10 overflow-hidden transition-all duration-200 ease-out origin-top ${isServicesMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                                             {link.children.map(child => (
-                                                <a key={child.href} href={child.href} onClick={() => setIsServicesMenuOpen(false)} className="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white">{child.label}</a>
+                                                <a key={child.href} href={child.href} onClick={() => setIsServicesMenuOpen(false)} className="block px-4 py-3 text-sm text-slate-300 hover:bg-primary/50 hover:text-white">{child.label}</a>
                                             ))}
                                         </div>
                                     </div>
@@ -90,10 +89,10 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                         </nav>
                     </div>
                      <div className="flex items-center gap-2">
-                        <a href="#/login" className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-slate-700 text-white rounded-xl shadow-sm hover:bg-slate-600 transition-all">
+                        <a href="/login" className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-slate-100/10 text-white rounded-xl shadow-sm hover:bg-slate-100/20 transition-all">
                             تسجيل الدخول
                         </a>
-                        <a href="#/contact" className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary/90 hover:scale-105 transition-all">
+                        <a href="/contact" className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark hover:scale-105 transition-all">
                             اطلب استشارة
                         </a>
                         <div className="md:hidden">
@@ -111,7 +110,7 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                 </div>
             </div>
             {isMenuOpen && (
-                <div id="mobile-menu" className="md:hidden bg-dark-bg/95 backdrop-blur-lg border-t border-slate-700/50">
+                <div id="mobile-menu" className="md:hidden bg-dark-bg/95 backdrop-blur-lg border-t border-slate-100/10">
                     <nav className="px-2 pt-2 pb-4 space-y-1">
                          {navLinks.map(link => (
                             link.children ? (
@@ -126,10 +125,10 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                             )
                         ))}
                          <div className="px-3 pt-4 flex flex-col gap-3">
-                             <a href="#/contact" className="block w-full text-center px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary/90 transition-all">
+                             <a href="/contact" className="block w-full text-center px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark transition-all">
                                 اطلب استشارة
                             </a>
-                             <a href="#/login" className="block w-full text-center px-4 py-2 text-sm font-semibold bg-slate-700 text-white rounded-xl shadow-sm hover:bg-slate-600 transition-all">
+                             <a href="/login" className="block w-full text-center px-4 py-2 text-sm font-semibold bg-slate-100/10 text-white rounded-xl shadow-sm hover:bg-slate-100/20 transition-all">
                                 تسجيل الدخول
                             </a>
                         </div>

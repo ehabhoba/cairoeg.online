@@ -1,14 +1,14 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { testimonials, faqItems, services } from '../data/siteData';
-import { ChevronDownIcon } from '../components/icons/ChevronDownIcon';
 import { PaintBrushIcon } from '../components/icons/PaintBrushIcon';
 import { MegaphoneIcon } from '../components/icons/MegaphoneIcon';
 import { CodeBracketIcon } from '../components/icons/CodeBracketIcon';
 import { GlobeIcon } from '../components/icons/GlobeIcon';
 import { RocketLaunchIcon } from '../components/icons/RocketLaunchIcon';
 import SpotlightCard from '../components/SpotlightCard';
+import AdBanner from '../components/AdBanner';
+import { PlusCircleIcon } from '../components/icons/PlusCircleIcon';
+import { MinusCircleIcon } from '../components/icons/MinusCircleIcon';
 
 const iconMap: { [key: string]: React.ReactNode } = {
     'ads': <MegaphoneIcon />,
@@ -91,7 +91,7 @@ const TestimonialCarousel: React.FC = () => {
                     className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
                     style={{ opacity: index === currentIndex ? 1 : 0 }}
                 >
-                    <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 text-center h-full flex flex-col justify-center">
+                    <div className="bg-light-bg/50 p-8 rounded-2xl border border-slate-100/10 text-center h-full flex flex-col justify-center">
                         <p className="text-slate-300 mb-6 italic text-lg">"{testimonial.quote}"</p>
                         <div className="flex items-center justify-center">
                             <div className="ml-4">
@@ -108,58 +108,49 @@ const TestimonialCarousel: React.FC = () => {
 
 
 const HomePage: React.FC = () => {
-    const [openFaq, setOpenFaq] = useState<number | null>(null);
-    const lineRef = useRef<HTMLDivElement>(null);
+    const [openFaq, setOpenFaq] = useState<number | null>(0);
 
     const toggleFaq = (index: number) => {
         setOpenFaq(openFaq === index ? null : index);
     };
 
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    lineRef.current?.classList.add('animate-draw-line');
-                }
-            },
-            { threshold: 0.5 }
-        );
-        if (lineRef.current) observer.observe(lineRef.current);
-        return () => observer.disconnect();
-    }, []);
-
     const serviceLinks: { [id: string]: string } = {
-        'ads': '#/services/marketing',
-        'creation': '#/services/ad-creation',
-        'design': '#/services/graphic-design',
-        'dev': '#/services/web-design',
-        'seo': '#/services/marketing',
+        'ads': '/services/marketing',
+        'creation': '/services/ad-creation',
+        'design': '/services/graphic-design',
+        'dev': '/services/web-design',
+        'seo': '/services/marketing',
     };
 
     return (
         <div className="w-full">
             {/* Hero Section */}
             <section className="relative text-center py-24 px-4 sm:py-32 overflow-hidden">
-                 <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-dark-bg bg-[size:400%_400%] animate-background-pan"></div>
-                 <div className="absolute inset-0 bg-gradient-to-b from-dark-bg/10 to-dark-bg"></div>
+                 <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/30 to-dark-bg"></div>
+                 <div className="absolute inset-0 bg-dark-bg/50"></div>
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.05)_1px,_transparent_1px)] [background-size:20px_20px] animate-pulse"></div>
+
                  <div className="relative z-10 max-w-4xl mx-auto">
-                    <img src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" className="w-48 md:w-56 mx-auto mb-6" />
+                    <img src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" className="w-40 md:w-48 mx-auto mb-6" />
                     <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight animate-fade-in" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-                        إعلانات القاهرة – علامتك التجارية تبدأ من هنا
+                        إعلانات القاهرة: محرك إعلاني ذكي لنمو أعمالك
                     </h1>
                     <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                        شريكك الرقمي الأول لتحقيق النجاح. نقدم حلول تسويق إلكتروني وإعلانات مبتكرة تدعم نمو أعمالك في مصر والوطن العربي.
+                        نساعد الشركات في الوصول لجمهورهم عبر الإنترنت، من خلال الإعلانات الممولة، المقالات المحسّنة، وصفحات العرض الخاصة.
                     </p>
                     <div className="flex justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                        <a href="#/contact" className="px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-primary/90 transition-all transform hover:scale-105">
+                        <a href="/contact" className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all transform hover:scale-105">
                             اطلب استشارة مجانية
                         </a>
-                        <a href="#/portfolio" className="px-6 py-3 bg-slate-700 text-white font-bold rounded-xl shadow-lg hover:bg-slate-600 transition-all transform hover:scale-105">
+                        <a href="/portfolio" className="px-6 py-3 bg-white/10 text-white font-bold rounded-xl shadow-lg hover:bg-white/20 transition-all transform hover:scale-105">
                             شاهد أعمالنا
                         </a>
                     </div>
                 </div>
             </section>
+
+             {/* Ad Banner */}
+            <AdBanner />
 
             {/* Services Section */}
             <section id="services" className="py-20 px-4 lg:px-6 animate-slide-in-up" style={{ animationFillMode: 'backwards' }}>
@@ -181,7 +172,7 @@ const HomePage: React.FC = () => {
             </section>
             
             {/* Our Numbers Section */}
-            <section className="py-20 px-4 lg:px-6 bg-slate-900 border-y border-slate-800 animate-slide-in-up" style={{ animationDelay: '100ms', animationFillMode: 'backwards' }}>
+            <section className="py-20 px-4 lg:px-6 bg-light-bg border-y border-slate-100/10 animate-slide-in-up" style={{ animationDelay: '100ms', animationFillMode: 'backwards' }}>
                 <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                     <div>
                         <div className="text-4xl md:text-5xl font-extrabold text-primary"><AnimatedCounter end={150} />+</div>
@@ -205,33 +196,47 @@ const HomePage: React.FC = () => {
             {/* How We Work Section */}
             <section className="py-20 px-4 lg:px-6 animate-slide-in-up" style={{ animationDelay: '200ms', animationFillMode: 'backwards' }}>
                 <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-12">آلية عملنا.. بسيطة وفعّالة</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-                        {/* Connecting line */}
-                        <div className="hidden md:block absolute top-8 -translate-y-1/2 left-0 w-full h-0.5 bg-slate-700">
-                             <div ref={lineRef} className="h-full bg-primary"></div>
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-16">آلية عملنا.. بسيطة وفعّالة</h2>
+                    <div className="relative">
+                        {/* Desktop Timeline */}
+                        <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-700 -translate-y-1/2"></div>
+                        <div className="hidden md:grid grid-cols-3 gap-16 relative">
+                            {[
+                                { title: "الاستكشاف والتحليل", description: "نستمع لأهدافك ونحلل وضعك الحالي لنبني استراتيجية مخصصة." },
+                                { title: "التنفيذ والإطلاق", description: "نطلق حملاتك ونصمم هويتك بأيدي فريق من الخبراء والمبدعين." },
+                                { title: "التحسين والتقارير", description: "نراقب الأداء، نحسن النتائج، ونقدم لك تقارير دورية وشفافة." }
+                            ].map((step, index) => (
+                                <div key={index} className="flex flex-col items-center">
+                                    <div className="w-16 h-16 mb-4 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-light-bg z-10 shadow-lg shadow-primary/30">
+                                        {index + 1}
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
+                                    <p className="text-slate-400">{step.description}</p>
+                                </div>
+                            ))}
                         </div>
-                        <div className="relative z-10 flex flex-col items-center animate-slide-in-right" style={{ animationDelay: '300ms', animationFillMode: 'backwards' }}>
-                            <div className="w-16 h-16 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-slate-900 mb-4">1</div>
-                            <h3 className="text-xl font-bold text-white mb-2">الاستكشاف والتحليل</h3>
-                            <p className="text-slate-400">نستمع لأهدافك ونحلل وضعك الحالي لنبني استراتيجية مخصصة.</p>
-                        </div>
-                        <div className="relative z-10 flex flex-col items-center animate-slide-in-up" style={{ animationDelay: '400ms', animationFillMode: 'backwards' }}>
-                             <div className="w-16 h-16 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-slate-900 mb-4">2</div>
-                            <h3 className="text-xl font-bold text-white mb-2">التنفيذ والإطلاق</h3>
-                            <p className="text-slate-400">نطلق حملاتك ونصمم هويتك بأيدي فريق من الخبراء والمبدعين.</p>
-                        </div>
-                        <div className="relative z-10 flex flex-col items-center animate-slide-in-left" style={{ animationDelay: '500ms', animationFillMode: 'backwards' }}>
-                             <div className="w-16 h-16 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-slate-900 mb-4">3</div>
-                            <h3 className="text-xl font-bold text-white mb-2">التحسين والتقارير</h3>
-                            <p className="text-slate-400">نراقب الأداء، نحسن النتائج، ونقدم لك تقارير دورية وشفافة.</p>
+                         {/* Mobile Timeline */}
+                        <div className="md:hidden space-y-12">
+                             {[
+                                { title: "الاستكشاف والتحليل", description: "نستمع لأهدافك ونحلل وضعك الحالي لنبني استراتيجية مخصصة." },
+                                { title: "التنفيذ والإطلاق", description: "نطلق حملاتك ونصمم هويتك بأيدي فريق من الخبراء والمبدعين." },
+                                { title: "التحسين والتقارير", description: "نراقب الأداء، نحسن النتائج، ونقدم لك تقارير دورية وشفافة." }
+                            ].map((step, index) => (
+                                <div key={index} className="flex flex-col items-center">
+                                    <div className="w-16 h-16 mb-4 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-light-bg z-10 shadow-lg shadow-primary/30">
+                                        {index + 1}
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
+                                    <p className="text-slate-400">{step.description}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             </section>
 
              {/* Testimonials Section */}
-            <section className="py-20 px-4 lg:px-6 bg-slate-900 border-y border-slate-800 animate-slide-in-up" style={{ animationDelay: '400ms', animationFillMode: 'backwards' }}>
+            <section className="py-20 px-4 lg:px-6 bg-light-bg border-y border-slate-100/10 animate-slide-in-up" style={{ animationDelay: '400ms', animationFillMode: 'backwards' }}>
                 <div className="max-w-5xl mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-12">ماذا يقول عملاؤنا؟</h2>
                     <TestimonialCarousel />
@@ -244,16 +249,18 @@ const HomePage: React.FC = () => {
                     <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-12">أسئلة شائعة</h2>
                     <div className="space-y-4">
                         {faqItems.map((faq, index) => (
-                            <div key={index} className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
-                                <button onClick={() => toggleFaq(index)} aria-expanded={openFaq === index} className="w-full flex justify-between items-center text-right p-5 font-semibold text-white">
+                            <div key={index} className="bg-light-bg/50 rounded-xl border border-slate-100/10 overflow-hidden">
+                                <button onClick={() => toggleFaq(index)} aria-expanded={openFaq === index} className="w-full flex justify-between items-center text-right p-5 font-semibold text-white text-lg">
                                     <span>{faq.question}</span>
-                                    <ChevronDownIcon className={`w-5 h-5 transition-transform ${openFaq === index ? 'rotate-180' : ''}`} />
+                                    {openFaq === index ? <MinusCircleIcon className="w-6 h-6 text-primary flex-shrink-0" /> : <PlusCircleIcon className="w-6 h-6 text-slate-400 flex-shrink-0" />}
                                 </button>
-                                {openFaq === index && (
-                                    <div className="px-5 pb-5 text-slate-400 leading-relaxed animate-fade-in">
-                                        {faq.answer}
+                                <div className={`grid transition-all duration-300 ease-in-out ${openFaq === index ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                                    <div className="overflow-hidden">
+                                        <div className="px-5 pb-5 text-slate-400 leading-relaxed">
+                                            {faq.answer}
+                                        </div>
                                     </div>
-                                )}
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -267,7 +274,7 @@ const HomePage: React.FC = () => {
                     <p className="text-slate-400 mb-8">
                         فريقنا جاهز لمساعدتك في تحقيق أهدافك. تواصل معنا اليوم ودعنا نبدأ في بناء استراتيجية تليق بعلامتك التجارية.
                     </p>
-                    <a href="#/contact" className="inline-block px-8 py-3 bg-gold text-dark-bg font-bold rounded-xl shadow-lg hover:bg-gold/90 transition-all transform hover:scale-105">
+                    <a href="/contact" className="inline-block px-8 py-3 bg-gold text-dark-bg font-bold rounded-xl shadow-lg hover:bg-gold/90 transition-all transform hover:scale-105">
                         تواصل معنا الآن
                     </a>
                 </div>

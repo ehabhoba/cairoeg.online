@@ -1,10 +1,10 @@
-
 import React from 'react';
 import SectionHeader from '../../components/SectionHeader';
 import FeatureCard from '../../components/FeatureCard';
 import CTABanner from '../../components/CTABanner';
 import { designProcess } from '../../data/siteData';
 import Tooltip from '../../components/Tooltip';
+import ServicePageLayout from '../../components/ServicePageLayout';
 
 const GraphicDesignPage: React.FC = () => {
     const features = [
@@ -22,20 +22,12 @@ const GraphicDesignPage: React.FC = () => {
     const tools = ['Adobe Photoshop', 'Adobe Illustrator', 'Adobe InDesign', 'Figma', 'Adobe After Effects'];
 
   return (
-    <div className="bg-dark-bg text-slate-300">
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        {/* Hero Section */}
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl">
-            التصميم الجرافيكي والهوية البصرية
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-400">
-            نترجم أفكارك إلى تصاميم إبداعية تترك انطباعاً دائماً وتعكس قصة علامتك التجارية بأسلوب فريد.
-          </p>
-        </div>
-
+     <ServicePageLayout
+        title="التصميم الجرافيكي والهوية البصرية"
+        subtitle="نترجم أفكارك إلى تصاميم إبداعية تترك انطباعاً دائماً وتعكس قصة علامتك التجارية بأسلوب فريد."
+    >
         {/* What We Offer Section */}
-        <div className="mt-20">
+        <div>
           <SectionHeader title="خدماتنا في التصميم" subtitle="من الفكرة إلى التنفيذ، نقدم حلولاً بصرية متكاملة." />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
              {features.map((feature, i) => (
@@ -52,7 +44,7 @@ const GraphicDesignPage: React.FC = () => {
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 text-center">
                 {designProcess.map((item, index) => (
                     <div key={item.step} className="flex flex-col items-center">
-                        <div className="w-20 h-20 flex items-center justify-center bg-slate-800 border-2 border-primary text-primary font-bold text-3xl rounded-full mb-4">{item.step}</div>
+                        <div className="w-20 h-20 flex items-center justify-center bg-light-bg border-2 border-primary text-primary font-bold text-3xl rounded-full mb-4 shadow-lg shadow-primary/20">{item.step}</div>
                         <h3 className="font-bold text-white mb-2">{item.title}</h3>
                         <p className="text-slate-400 text-sm">{item.description}</p>
                     </div>
@@ -65,7 +57,7 @@ const GraphicDesignPage: React.FC = () => {
             <SectionHeader title="البرامج التي نتقنها" />
             <div className="flex flex-wrap justify-center gap-4">
                 {tools.map(tool => (
-                    <div key={tool} className="bg-slate-800/50 text-slate-300 font-semibold px-5 py-2 rounded-lg border border-slate-700/50">
+                    <div key={tool} className="bg-light-bg text-slate-300 font-semibold px-5 py-2 rounded-lg border border-slate-100/10">
                         {tool}
                     </div>
                 ))}
@@ -76,10 +68,9 @@ const GraphicDesignPage: React.FC = () => {
             title="هل لديك فكرة تحتاج إلى تصميم؟"
             description="فريقنا من المصممين المبدعين جاهز لتحويل رؤيتك إلى حقيقة. دعنا نناقش مشروعك القادم."
             buttonText="اطلب تصميمك الآن"
-            buttonLink="#/contact"
+            buttonLink="/contact"
         />
-      </div>
-    </div>
+    </ServicePageLayout>
   );
 };
 

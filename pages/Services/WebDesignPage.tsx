@@ -1,10 +1,10 @@
-
 import React from 'react';
 import SectionHeader from '../../components/SectionHeader';
 import FeatureCard from '../../components/FeatureCard';
 import CTABanner from '../../components/CTABanner';
 import { webdevProcess } from '../../data/siteData';
 import Tooltip from '../../components/Tooltip';
+import ServicePageLayout from '../../components/ServicePageLayout';
 
 const WebDesignPage: React.FC = () => {
     const features = [
@@ -22,20 +22,12 @@ const WebDesignPage: React.FC = () => {
     const tools = ['React', 'Next.js', 'Tailwind CSS', 'WordPress', 'Shopify', 'Node.js', 'Supabase'];
 
   return (
-    <div className="bg-dark-bg text-slate-300">
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        {/* Hero Section */}
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-white sm:text-5xl md:text-6xl">
-            تصميم المواقع والمتاجر الإلكترونية
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-400">
-            نبني لك واجهة رقمية قوية، سريعة، وآمنة، تضمن أفضل تجربة لعملائك وتزيد من مبيعاتك على الإنترنت.
-          </p>
-        </div>
-
+    <ServicePageLayout
+        title="تصميم المواقع والمتاجر الإلكترونية"
+        subtitle="نبني لك واجهة رقمية قوية، سريعة، وآمنة، تضمن أفضل تجربة لعملائك وتزيد من مبيعاتك على الإنترنت."
+    >
         {/* What We Offer Section */}
-        <div className="mt-20">
+        <div>
           <SectionHeader title="حلولنا في تطوير الويب" subtitle="من المواقع البسيطة إلى المتاجر المعقدة، نقدم حلولاً تقنية متكاملة."/>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
              {features.map((feature, i) => (
@@ -49,23 +41,19 @@ const WebDesignPage: React.FC = () => {
         {/* Our Process Section */}
         <div className="mt-20">
             <SectionHeader title="دورة حياة تطوير المشروع" subtitle="نتبع منهجية منظمة لضمان تسليم مشروعك بأعلى جودة وفي الوقت المحدد." />
-            <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-4">
-                {webdevProcess.map((item, index) => (
-                    <React.Fragment key={item.step}>
-                        <div className="flex md:flex-col items-center gap-4">
-                            <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-dark-bg z-10">{item.step}</div>
-                            <div className="text-right md:text-center">
+            <div className="relative max-w-5xl mx-auto">
+                 <div className="absolute top-8 left-0 hidden md:block w-full h-0.5 bg-slate-700"></div>
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative">
+                    {webdevProcess.map((item, index) => (
+                        <div key={item.step} className="flex flex-col items-center text-center">
+                            <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-dark-bg z-10 shadow-lg shadow-primary/30">{item.step}</div>
+                            <div className="mt-4">
                                 <h3 className="font-bold text-white">{item.title}</h3>
-                                <p className="text-slate-400 text-sm hidden md:block">{item.description}</p>
+                                <p className="text-slate-400 text-sm mt-1">{item.description}</p>
                             </div>
                         </div>
-                        {index < webdevProcess.length - 1 && (
-                             <div className="hidden md:flex items-center">
-                                <div className="w-full h-0.5 bg-slate-700"></div>
-                            </div>
-                        )}
-                    </React.Fragment>
-                ))}
+                    ))}
+                </div>
             </div>
         </div>
 
@@ -74,7 +62,7 @@ const WebDesignPage: React.FC = () => {
             <SectionHeader title="التقنيات التي نستخدمها" />
              <div className="flex flex-wrap justify-center gap-4">
                 {tools.map(tool => (
-                    <div key={tool} className="bg-slate-800/50 text-slate-300 font-semibold px-5 py-2 rounded-lg border border-slate-700/50">
+                    <div key={tool} className="bg-light-bg text-slate-300 font-semibold px-5 py-2 rounded-lg border border-slate-100/10">
                         {tool}
                     </div>
                 ))}
@@ -85,10 +73,9 @@ const WebDesignPage: React.FC = () => {
             title="هل أنت جاهز لإطلاق موقعك؟"
             description="سواء كنت تبدأ من الصفر أو ترغب في تطوير موقعك الحالي، نحن هنا لمساعدتك."
             buttonText="احصل على عرض سعر"
-            buttonLink="#/contact"
+            buttonLink="/contact"
         />
-      </div>
-    </div>
+    </ServicePageLayout>
   );
 };
 
