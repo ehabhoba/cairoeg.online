@@ -53,47 +53,30 @@ export const getActiveAds = async (): Promise<Ad[]> => {
 };
 
 export const getPaidAd = async (): Promise<Ad | null> => {
-    // 1. Try to get a random paid, active ad
     try {
-        const { data: paidData, error: paidError } = await supabase
+        const { data, error } = await supabase
             .from('ads')
             .select('*')
             .eq('status', 'active')
-            .eq('is_paid', true);
+            .order('is_paid', { ascending: false }) // Prioritize paid ads
+            .order('created_at', { ascending: false });
 
-        if (paidError) throw paidError;
+        if (error) throw error;
 
-        if (paidData && paidData.length > 0) {
-            return paidData[Math.floor(Math.random() * paidData.length)];
+        if (data && data.length > 0) {
+             // Prefer paid ads, but fall back to any active ad if none are paid
+            const paidAd = data.find(ad => ad.is_paid);
+            return paidAd || data[Math.floor(Math.random() * data.length)];
         }
     } catch (error: any) {
-        console.error("Error fetching paid ads:", error);
-        // Provide a more helpful message for the likely CORS issue
-        if (error instanceof TypeError && error.message === 'Failed to fetch') {
-            console.warn("This might be a CORS issue. Please ensure your app's URL is in the Supabase CORS settings.");
+        console.error("Error fetching ad:", error.message);
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+             console.warn(
+                "Fetch Error: This is likely a CORS issue. Please ensure your app's URL is added to the 'Allowed Origins' in your Supabase project's CORS settings (API > CORS settings)."
+            );
         }
     }
-
-    // 2. Fallback: If no paid ads were found or if the first query failed
-    try {
-        const { data: anyData, error: anyError } = await supabase
-            .from('ads')
-            .select('*')
-            .eq('status', 'active');
-
-        if (anyError) throw anyError;
-
-        if (anyData && anyData.length > 0) {
-            return anyData[Math.floor(Math.random() * anyData.length)];
-        }
-    } catch (error: any) {
-        console.error("Error fetching any active ad (fallback):", error);
-        if (error instanceof TypeError && error.message === 'Failed to fetch') {
-            console.warn("Fallback fetch failed. This also points to a potential CORS or network issue.");
-        }
-    }
-    
-    return null; // No active ads found at all
+    return null;
 };
 
 export const getClientAds = async (userId: string): Promise<Ad[]> => {
@@ -110,7 +93,6 @@ export const getClientAds = async (userId: string): Promise<Ad[]> => {
     return data;
 };
 
-// FIX: image_url is generated within this function, so it should be omitted from the adData type.
 export const createAd = async (adData: Omit<Ad, 'id' | 'is_paid' | 'status' | 'image_url'>, adImage: File): Promise<void> => {
     const filePath = `public/ads/${adData.user_id}/${Date.now()}_${adImage.name}`;
     const { error: uploadError } = await supabase.storage
@@ -137,7 +119,6 @@ export const createAd = async (adData: Omit<Ad, 'id' | 'is_paid' | 'status' | 'i
     }
 };
 
-// FIX: image_url is generated within this function, so it should be omitted from the adData type.
 export const createPaidAd = async (adData: Omit<Ad, 'id' | 'is_paid' | 'status' | 'user_id' | 'image_url'>, adImage: File): Promise<void> => {
     const admin = await findUserByPhone('01022679250');
     if (!admin) throw new Error('Admin user not found.');

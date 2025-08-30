@@ -1,4 +1,5 @@
 
+
 import { supabase } from '../services/supabaseClient';
 
 export interface User {
@@ -25,27 +26,31 @@ export interface BusinessProfile {
     instagram_handle?: string;
 }
 
-export const getUserProfile = async (userId: string): Promise<User | null> => {
-    const { data, error } = await supabase.from('users').select('*, business_profiles(*)').eq('id', userId).single();
-    if (error || !data) {
-        console.error("Error fetching user profile:", error);
-        return null;
-    }
-    const profile = data.business_profiles && data.business_profiles[0] ? data.business_profiles[0] : {};
+const mapUserFromDb = (dbUser: any): User => {
+    const profile = dbUser.business_profiles && dbUser.business_profiles[0] ? dbUser.business_profiles[0] : {};
     return {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        phone: data.phone_number,
-        role: data.role,
-        bio: data.bio || 'مساهم جديد في منصة إعلانات القاهرة.',
-        has_completed_onboarding: data.has_completed_onboarding,
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        phone: dbUser.phone_number,
+        role: dbUser.role,
+        bio: dbUser.bio || 'مساهم جديد في منصة إعلانات القاهرة.',
+        has_completed_onboarding: dbUser.has_completed_onboarding,
         companyName: profile.company_name,
         websiteUrl: profile.page_link,
         logoUrl: profile.logo_url,
         facebookUrl: profile.facebook_url,
         instagramHandle: profile.instagram_handle,
     };
+};
+
+export const getUserProfile = async (userId: string): Promise<User | null> => {
+    const { data, error } = await supabase.from('users').select('*, business_profiles(*)').eq('id', userId).single();
+    if (error || !data) {
+        console.error("Error fetching user profile:", error);
+        return null;
+    }
+    return mapUserFromDb(data);
 };
 
 export const createPublicUserProfile = async (profileData: {id: string, name: string, email: string, phone_number: string, role: 'client' | 'admin', has_completed_onboarding: boolean}) => {
@@ -60,21 +65,7 @@ export const findUserByPhone = async (phone: string): Promise<User | null> => {
         return null;
     }
     if (!data) return null;
-    const profile = data.business_profiles && data.business_profiles[0] ? data.business_profiles[0] : {};
-    return {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        phone: data.phone_number,
-        role: data.role,
-        bio: data.bio || '',
-        has_completed_onboarding: data.has_completed_onboarding || false,
-        companyName: profile.company_name,
-        websiteUrl: profile.page_link,
-        logoUrl: profile.logo_url,
-        facebookUrl: profile.facebook_url,
-        instagramHandle: profile.instagram_handle,
-    };
+    return mapUserFromDb(data);
 };
 
 export const findUserById = async (id: string): Promise<User | null> => getUserProfile(id);
@@ -83,21 +74,13 @@ export const findAdmin = async (): Promise<User | null> => {
     const { data, error } = await supabase.from('users').select('*').eq('role', 'admin').limit(1).single();
     if (error && error.code !== 'PGRST116') { console.error('Error finding admin user:', error); return null; }
     if (!data) return null;
-    return {
-        id: data.id, name: data.name, email: data.email, phone: data.phone_number,
-        role: data.role, bio: data.bio || '', has_completed_onboarding: data.has_completed_onboarding || false,
-    };
+    return mapUserFromDb(data);
 };
 
 export const getAllClients = async (): Promise<User[]> => {
     const { data, error } = await supabase.from('users').select('*, business_profiles(*)').eq('role', 'client');
     if (error) { console.error('Error fetching clients:', error); return []; }
-    return data.map(d => ({
-        id: d.id, name: d.name, email: d.email, phone: d.phone_number, role: 'client',
-        bio: d.bio || '', has_completed_onboarding: d.has_completed_onboarding,
-        companyName: d.business_profiles[0]?.company_name, websiteUrl: d.business_profiles[0]?.page_link,
-        logoUrl: d.business_profiles[0]?.logo_url,
-    }));
+    return data.map(mapUserFromDb);
 };
 
 export const getBusinessProfile = async (userId: string): Promise<BusinessProfile | null> => {
@@ -121,34 +104,23 @@ export const markOnboardingComplete = async (userId: string): Promise<void> => {
     if (error) { console.error('Error marking onboarding complete:', error); throw new Error('فشل في تحديث حالة الإعداد.'); }
 };
 
-// This function needs to be created as a Supabase Edge Function with 'admin' privileges
-// to be able to modify other users' authentication data.
 export const adminUpdateUserPassword = async (userId: string, newPassword: string): Promise<void> => {
-    // IMPORTANT: This is a placeholder for a secure call to a Supabase Edge Function.
-    // Direct user updates from the client are a major security risk.
-    // You must create a function in Supabase `functions/update-user-password/index.ts`
-    // that uses the admin client to perform this action.
+    // This function MUST be implemented as a secure Supabase Edge Function.
+    // Calling `supabase.auth.admin.updateUserById` from the client-side is a major security vulnerability
+    // as it would expose the service_role key. The correct approach is to create an Edge Function
+    // that takes the userId and newPassword, and uses the Supabase Admin client internally to perform the update.
     
-    console.warn("Invoking a placeholder for a secure Edge Function. Implement the backend function for production.");
-    
-    // Example of invoking an edge function:
+    console.error("SECURITY WARNING: Attempted to call an admin-only function from the client.");
+    throw new Error("فشل تحديث كلمة المرور. هذه الميزة تتطلب إعدادًا آمنًا في الخلفية (Edge Function) لا يمكن تنفيذه من المتصفح مباشرةً.");
+
+    // Example of how the Edge Function would be invoked from the client:
     /*
-    const { error } = await supabase.functions.invoke('update-user-password', {
-        body: { userId, newPassword },
-    });
+    const { data, error } = await supabase.functions.invoke('update-user-password', {
+      body: { userId, newPassword },
+    })
+
     if (error) {
-        throw new Error('فشل تحديث كلمة المرور. تحقق من صلاحيات المدير.');
+      throw new Error(`Failed to update password: ${error.message}`);
     }
     */
-   
-    // For demonstration purposes only, this will fail without the edge function
-     const { data, error } = await supabase.auth.admin.updateUserById(
-       userId,
-       { password: newPassword }
-     )
-    if(error) {
-        console.error("Password change failed. This is expected without a secure Edge Function.", error);
-        throw new Error("فشل تحديث كلمة المرور. هذه الميزة تتطلب إعدادات خلفية آمنة.");
-    }
-
 };

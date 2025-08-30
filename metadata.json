@@ -1,5 +1,7 @@
 {
   "name": "إعلانات القاهرة | Cairoeg",
   "description": "منصة رقمية متخصصة في التسويق الإلكتروني والإعلانات الممولة في مصر والوطن العربي.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera"
+  ]
 }

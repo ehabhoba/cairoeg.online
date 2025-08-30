@@ -4,6 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
 import { CheckCircleIcon } from '../components/icons/CheckCircleIcon';
 import { XCircleIcon } from '../components/icons/XCircleIcon';
+import { useNavigate } from '../hooks/useNavigate';
+
 
 const PasswordRequirement: React.FC<{ isValid: boolean; text: string }> = ({ isValid, text }) => (
     <li className={`flex items-center text-sm ${isValid ? 'text-green-400' : 'text-slate-400'}`}>
@@ -14,34 +16,21 @@ const PasswordRequirement: React.FC<{ isValid: boolean; text: string }> = ({ isV
 
 const RegisterPage: React.FC = () => {
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { register } = useAuth();
     const addNotification = useNotification();
+    const { navigate } = useNavigate();
 
     const passwordValidation = useMemo(() => {
-        const hasLength = password.length >= 8;
-        const hasUpper = /[A-Z]/.test(password);
-        const hasLower = /[a-z]/.test(password);
-        const hasNumber = /[0-9]/.test(password);
+        const hasLength = password.length >= 6;
         const isMatch = password && password === confirmPassword;
-        const allValid = [hasLength, hasUpper, hasLower, hasNumber, isMatch].every(Boolean);
-        const score = [hasLength, hasUpper, hasLower, hasNumber].filter(Boolean).length;
-        return { hasLength, hasUpper, hasLower, hasNumber, isMatch, allValid, score };
+        const allValid = [hasLength, isMatch].every(Boolean);
+        return { hasLength, isMatch, allValid };
     }, [password, confirmPassword]);
     
-    const strengthColor = () => {
-        switch (passwordValidation.score) {
-            case 1: return 'bg-red-500';
-            case 2: return 'bg-yellow-500';
-            case 3: return 'bg-blue-500';
-            case 4: return 'bg-green-500';
-            default: return 'bg-slate-700';
-        }
-    };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -51,12 +40,11 @@ const RegisterPage: React.FC = () => {
         }
         setIsLoading(true);
         try {
-            await register(name, email, phone, password);
-            addNotification('نجاح!', 'تم إنشاء حسابك. برجاء مراجعة بريدك الإلكتروني لتفعيل الحساب.', 'success', 10000);
+            await register(name, phone, password);
+            addNotification('نجاح!', 'تم إنشاء حسابك. سيتم توجيهك لتسجيل الدخول.', 'success', 5000);
             
             setTimeout(() => {
-                window.history.pushState({}, '', '/login');
-                window.dispatchEvent(new Event('popstate'));
+                navigate('/login');
             }, 3000);
         } catch (error: any) {
             addNotification('خطأ في التسجيل', error.message, 'error');
@@ -68,14 +56,14 @@ const RegisterPage: React.FC = () => {
         <div className="min-h-screen flex items-center justify-center bg-dark-bg py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full">
                 <div className="text-center mb-8">
-                    <a href="/">
+                    <button onClick={() => navigate('/')}>
                         <img className="mx-auto h-24 w-auto" src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" />
-                    </a>
+                    </button>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
                         إنشاء حساب عميل جديد
                     </h2>
                     <p className="mt-2 text-center text-sm text-slate-400">
-                        أو <a href="/login" className="font-medium text-primary hover:text-primary/90">العودة لتسجيل الدخول</a>
+                        أو <button onClick={() => navigate('/login')} className="font-medium text-primary hover:text-primary/90">العودة لتسجيل الدخول</button>
                     </p>
                 </div>
                  <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 shadow-lg">
@@ -92,19 +80,6 @@ const RegisterPage: React.FC = () => {
                                     onChange={(e) => setName(e.target.value)}
                                     className="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-light-bg text-slate-300 placeholder-slate-500 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                                     placeholder="الاسم الكامل"
-                                />
-                            </div>
-                             <div>
-                                <label htmlFor="email-address" className="sr-only">البريد الإلكتروني</label>
-                                <input
-                                    id="email-address"
-                                    name="email"
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-light-bg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                                    placeholder="البريد الإلكتروني"
                                 />
                             </div>
                             <div>
@@ -149,15 +124,8 @@ const RegisterPage: React.FC = () => {
                         </div>
 
                         <div className="p-4 bg-light-bg/50 border border-slate-100/10 rounded-lg">
-                            <p className="text-sm font-semibold text-white mb-2">شروط كلمة المرور:</p>
-                            <div className="w-full bg-slate-700 rounded-full h-1.5 mb-3">
-                                <div className={`h-1.5 rounded-full transition-all duration-300 ${strengthColor()}`} style={{ width: `${passwordValidation.score * 25}%` }}></div>
-                            </div>
                             <ul className="space-y-1">
-                                <PasswordRequirement isValid={passwordValidation.hasLength} text="8 أحرف على الأقل" />
-                                <PasswordRequirement isValid={passwordValidation.hasUpper} text="حرف كبير واحد على الأقل (A-Z)" />
-                                <PasswordRequirement isValid={passwordValidation.hasLower} text="حرف صغير واحد على الأقل (a-z)" />
-                                <PasswordRequirement isValid={passwordValidation.hasNumber} text="رقم واحد على الأقل (0-9)" />
+                                <PasswordRequirement isValid={passwordValidation.hasLength} text="6 أحرف على الأقل" />
                                 <PasswordRequirement isValid={passwordValidation.isMatch} text="كلمتا المرور متطابقتان" />
                             </ul>
                         </div>

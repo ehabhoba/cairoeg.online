@@ -2,19 +2,21 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
+import { useNavigate } from '../hooks/useNavigate';
 
 const LoginPage: React.FC = () => {
-    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const addNotification = useNotification();
+    const { navigate } = useNavigate();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setIsLoading(true);
         try {
-            await login(email, password);
+            await login(phone, password);
             addNotification('تم تسجيل الدخول بنجاح!', 'جاري توجيهك إلى لوحة التحكم...', 'success');
         } catch (error: any) {
             addNotification('خطأ في تسجيل الدخول', error.message, 'error');
@@ -26,14 +28,14 @@ const LoginPage: React.FC = () => {
         <div className="min-h-screen flex items-center justify-center bg-dark-bg px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full">
                  <div className="text-center mb-8">
-                    <a href="/">
+                    <button onClick={() => navigate('/')}>
                         <img className="mx-auto h-24 w-auto" src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" />
-                    </a>
+                    </button>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
                         تسجيل الدخول إلى حسابك
                     </h2>
                     <p className="mt-2 text-center text-sm text-slate-400">
-                        أو <a href="/" className="font-medium text-primary hover:text-primary/90">العودة إلى الصفحة الرئيسية</a>
+                        أو <button onClick={() => navigate('/')} className="font-medium text-primary hover:text-primary/90">العودة إلى الصفحة الرئيسية</button>
                     </p>
                 </div>
 
@@ -41,17 +43,17 @@ const LoginPage: React.FC = () => {
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div className="rounded-md shadow-sm -space-y-px">
                             <div>
-                                <label htmlFor="email-address" className="sr-only">البريد الإلكتروني</label>
+                                <label htmlFor="phone-number" className="sr-only">رقم الهاتف</label>
                                 <input
-                                    id="email-address"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
+                                    id="phone-number"
+                                    name="phone"
+                                    type="tel"
+                                    autoComplete="tel"
                                     required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
                                     className="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-slate-900 text-slate-300 placeholder-slate-500 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                                    placeholder="البريد الإلكتروني"
+                                    placeholder="رقم الهاتف"
                                 />
                             </div>
                             <div>
@@ -71,12 +73,12 @@ const LoginPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center justify-between text-sm">
-                            <a href="/register" className="font-medium text-primary hover:text-primary/90">
+                             <button onClick={() => navigate('/register')} className="font-medium text-primary hover:text-primary/90">
                                 ليس لديك حساب؟ سجل الآن
-                            </a>
-                            <a href="/forgot-password" className="font-medium text-primary hover:text-primary/90">
+                            </button>
+                            <button onClick={() => navigate('/forgot-password')} className="font-medium text-primary hover:text-primary/90">
                                 نسيت كلمة المرور؟
-                            </a>
+                            </button>
                         </div>
 
                         <div>

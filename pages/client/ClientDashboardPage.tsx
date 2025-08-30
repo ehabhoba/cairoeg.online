@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { getProjectsByClient, ClientProject, getInvoicesByClient, ClientInvoice, getFilesByClient, ProjectFile, getCampaignsByClient, Campaign } from '../../data/clientData';
 import { ProjectIcon } from '../../components/icons/ProjectIcon';
@@ -8,6 +9,7 @@ import Badge from '../../components/Badge';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import ClientOnboarding from '../../components/ClientOnboarding';
+import { useNavigate } from '../../hooks/useNavigate';
 
 const StatCard: React.FC<{ title: string, value: string | number, icon: React.ReactNode, iconBgColor: string }> = ({ title, value, icon, iconBgColor }) => {
     return (
@@ -26,8 +28,9 @@ const StatCard: React.FC<{ title: string, value: string | number, icon: React.Re
 };
 
 
-const ClientDashboardPage: React.FC<{ navigate: (path: string) => void }> = ({ navigate }) => {
+const ClientDashboardPage: React.FC = () => {
     const { currentUser, setCurrentUser } = useAuth();
+    const { navigate } = useNavigate();
     const [projects, setProjects] = useState<ClientProject[]>([]);
     const [invoices, setInvoices] = useState<ClientInvoice[]>([]);
     const [files, setFiles] = useState<ProjectFile[]>([]);
@@ -73,6 +76,7 @@ const ClientDashboardPage: React.FC<{ navigate: (path: string) => void }> = ({ n
 
     return (
         <>
+{/* @FIX: Pass onNavigate prop to ClientOnboarding */}
         {showOnboarding && <ClientOnboarding onDismiss={handleOnboardingDismiss} onNavigate={navigate} />}
         <main className="flex-1 bg-dark-bg p-4 lg:p-6 overflow-y-auto">
             <div className="max-w-7xl mx-auto">
@@ -137,10 +141,10 @@ const ClientDashboardPage: React.FC<{ navigate: (path: string) => void }> = ({ n
                      <div className="lg:col-span-2 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
                         <h3 className="text-lg font-bold text-white mb-4">إجراءات سريعة</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <a href="/client/requests" onClick={(e) => { e.preventDefault(); navigate('/client/requests'); }} className="block w-full text-center p-4 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-colors">طلب جديد</a>
-                            <a href="/client/invoices" onClick={(e) => { e.preventDefault(); navigate('/client/invoices'); }} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض الفواتير</a>
-                            <a href="/client/projects" onClick={(e) => { e.preventDefault(); navigate('/client/projects'); }} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض المشاريع</a>
-                            <a href="/client/support" onClick={(e) => { e.preventDefault(); navigate('/client/support'); }} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">طلب دعم فني</a>
+                            <button onClick={() => navigate('/client/requests')} className="block w-full text-center p-4 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-colors">طلب جديد</button>
+                            <button onClick={() => navigate('/client/invoices')} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض الفواتير</button>
+                            <button onClick={() => navigate('/client/projects')} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض المشاريع</button>
+                            <button onClick={() => navigate('/client/support')} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">طلب دعم فني</button>
                         </div>
                     </div>
                 </div>

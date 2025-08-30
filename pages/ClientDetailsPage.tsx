@@ -1,6 +1,7 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, findUserByPhone } from '../data/userData';
+import { User, findUserByPhone, adminUpdateUserPassword } from '../data/userData';
 import { ClientProject, ClientInvoice, getProjectsByClient, getInvoicesByClient, addProject, addInvoice, updateProject, updateInvoice } from '../data/clientData';
 import { ClientRequest, getRequestsByClient } from '../data/requestsData';
 import Badge from '../components/Badge';
@@ -9,7 +10,7 @@ import ProjectModal from '../components/ProjectModal';
 import InvoiceModal from '../components/InvoiceModal';
 import PasswordChangeModal from '../components/PasswordChangeModal';
 import { useNotification } from '../hooks/useNotification';
-import { adminUpdateUserPassword } from '../data/userData';
+import { useNavigate } from '../hooks/useNavigate';
 
 const InfoItem: React.FC<{ label: string, value?: string | React.ReactNode }> = ({ label, value }) => (
     <div>
@@ -30,6 +31,7 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
     const [editingProject, setEditingProject] = useState<ClientProject | null>(null);
     const [editingInvoice, setEditingInvoice] = useState<ClientInvoice | null>(null);
     const addNotification = useNotification();
+    const { navigate } = useNavigate();
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -146,10 +148,10 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
                         </div>
                         <div className="space-y-3">
                             {projects.map(p => (
-                                <a key={p.id} href={`/dashboard/project/${p.id}`} className="block bg-light-bg p-3 rounded-lg flex justify-between items-center transition-colors hover:bg-slate-700/50">
+                                <button key={p.id} onClick={() => navigate(`/dashboard/project/${p.id}`)} className="w-full text-right block bg-light-bg p-3 rounded-lg flex justify-between items-center transition-colors hover:bg-slate-700/50">
                                     <p className="font-medium text-white">{p.name}</p>
                                     <Badge color={p.status === 'مكتمل' ? 'green' : 'blue'}>{p.status}</Badge>
-                                </a>
+                                </button>
                             ))}
                         </div>
                     </div>

@@ -1,12 +1,12 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
 import { useAuth } from './hooks/useAuth';
-// FIX: findUserById was not imported.
 import { findUserByPhone, findUserById } from './data/userData';
 import { getAdById } from './data/adsData';
+import { useNavigate } from './hooks/useNavigate';
 
 // Layouts
 import TopNav from './components/TopNav';
@@ -96,41 +96,8 @@ const updateStructuredData = (data: object | null) => {
 
 
 const App: React.FC = () => {
-  const [route, setRoute] = useState(window.location.pathname);
+  const { route, navigate } = useNavigate();
   const { currentUser, loading } = useAuth();
-
-  const navigate = (path: string) => {
-    window.history.pushState({}, '', path);
-    setRoute(path);
-    window.scrollTo(0, 0);
-  }
-
-  useEffect(() => {
-    const handlePopState = () => {
-      setRoute(window.location.pathname);
-      window.scrollTo(0, 0);
-    };
-    
-    const handleLinkClick = (event: MouseEvent) => {
-        const target = event.target as HTMLElement;
-        const anchor = target.closest('a');
-        if (anchor && anchor.origin === window.location.origin && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && anchor.target !== '_blank') {
-            event.preventDefault();
-            const newRoute = anchor.pathname + anchor.search + anchor.hash;
-            if (newRoute !== (window.location.pathname + window.location.search + window.location.hash)) {
-                navigate(newRoute);
-            }
-        }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    document.addEventListener('click', handleLinkClick);
-
-    return () => {
-        window.removeEventListener('popstate', handlePopState);
-        document.removeEventListener('click', handleLinkClick);
-    };
-  }, []);
 
   useEffect(() => {
     const updateTitleAndMeta = async () => {
@@ -199,8 +166,8 @@ const App: React.FC = () => {
             case 'blog': 
                 if (slug) {
                     const post = await getPostBySlug(slug);
-                    if (post) {
-                        const author = post.authorId ? await findUserById(post.authorId) : null;
+                    if (post && post.authorId) {
+                        const author = await findUserById(post.authorId);
                         pageTitle = `${post.title} - بقلم ${author?.name || 'فريقنا'} | ${baseTitle}`;
                         pageDescription = post.excerpt;
                         pageKeywords = [...new Set([...post.tags, post.category, ...post.title.split(' ').filter(w => w.length > 3)])].join(', ');
@@ -284,7 +251,7 @@ const App: React.FC = () => {
   const renderClientPortalPage = () => {
       const [_, __, page, param] = route.split('/');
       switch(page) {
-          case 'dashboard': return <ClientDashboardPage navigate={navigate} />;
+          case 'dashboard': return <ClientDashboardPage />;
           case 'profile': return <ClientProfilePage />;
           case 'projects': return <ClientProjectsPage />;
           case 'project': return param ? <ClientProjectDetailsPage projectId={param} /> : <ClientProjectsPage />;
@@ -293,7 +260,7 @@ const App: React.FC = () => {
           case 'ai-publisher': return <AiPublisherPage />;
           case 'support': return <ClientSupportPage />;
           case 'ads': return <ClientAdsPage />;
-          default: return <ClientDashboardPage navigate={navigate} />;
+          default: return <ClientDashboardPage />;
       }
   }
   
@@ -315,6 +282,7 @@ const App: React.FC = () => {
       if (!currentUser) { navigate('/login'); return null; }
       if (currentUser.role !== 'admin') { navigate('/client/dashboard'); return null; }
       return (
+// @FIX: Pass currentRoute prop to DashboardLayout
         <DashboardLayout currentRoute={route}>
           {renderDashboardPage()}
         </DashboardLayout>
@@ -325,7 +293,7 @@ const App: React.FC = () => {
       if (!currentUser) { navigate('/login'); return null; }
        if (currentUser.role !== 'client') { navigate('/dashboard/overview'); return null; }
       return (
-        <ClientLayout currentRoute={route} navigate={navigate}>
+        <ClientLayout>
             {renderClientPortalPage()}
         </ClientLayout>
       );
@@ -333,6 +301,7 @@ const App: React.FC = () => {
 
     return (
       <div className="flex flex-col min-h-screen font-sans bg-dark-bg text-slate-300">
+{/* @FIX: Pass currentRoute prop to TopNav */}
         <TopNav currentRoute={route} currentUser={currentUser} />
         <main className="flex-grow">
           <div key={route} className="animate-fade-in">

@@ -1,16 +1,16 @@
 
 import React, { createContext, useState, useEffect, useCallback, ReactNode, Dispatch, SetStateAction } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { User, getUserProfile, createPublicUserProfile } from '../data/userData';
+import { User, getUserProfile, createPublicUserProfile, findAdmin } from '../data/userData';
 import type { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   currentUser: User | null;
   setCurrentUser: Dispatch<SetStateAction<User | null>>;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (phone: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (name: string, email: string, phone: string, password: string) => Promise<void>;
+  register: (name: string, phone: string, password: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -21,6 +21,9 @@ export const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   register: async () => {},
 });
+
+// Helper to create a unique, stable email from a phone number for Supabase Auth
+const createEmailFromPhone = (phone: string) => `${phone}@cairoeg.online`;
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -44,7 +47,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     setLoading(true);
     
-    // v2: Check active session on initial load
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       await handleSession(session);
@@ -52,7 +54,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     checkSession();
 
-    // v2: Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         await handleSession(session);
@@ -64,32 +65,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, [handleSession]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (phone: string, password: string) => {
+    // Special hardcoded admin login
+    if (phone === '01022679250' && password === 'P@ssw0rd') {
+        const adminProfile = await findAdmin();
+        if(adminProfile) {
+            // This is a mock session for the frontend only.
+            // A real implementation would involve a secure server-side session.
+            setCurrentUser(adminProfile);
+            return;
+        } else {
+            throw new Error("ملف المدير غير موجود في قاعدة البيانات.");
+        }
+    }
+
+    // Regular client login
+    const email = createEmailFromPhone(phone);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error("البريد الإلكتروني أو كلمة المرور غير صحيحة.");
+    if (error) throw new Error("رقم الهاتف أو كلمة المرور غير صحيحة.");
   }, []);
 
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     setCurrentUser(null);
-    window.history.pushState({}, '', '/login');
-    window.dispatchEvent(new Event('popstate'));
+    // Force a reload to clear all state, handled by navigation provider
+    window.location.href = '/login';
   }, []);
 
-  const register = useCallback(async (name: string, email: string, phone: string, password: string) => {
+  const register = useCallback(async (name: string, phone: string, password: string) => {
+    const email = createEmailFromPhone(phone);
+    
+    const { data: existingUser, error: fetchError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('phone_number', phone)
+        .single();
+        
+    if (existingUser) {
+        throw new Error("هذا الرقم مسجل بالفعل.");
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          name,
-          phone_number: phone,
-        }
-      }
     });
     if (error) {
         if (error.message.includes("User already registered")) {
-            throw new Error("هذا البريد الإلكتروني مسجل بالفعل.");
+            throw new Error("هذا الرقم مسجل بالفعل.");
         }
         throw new Error(error.message);
     }
@@ -97,7 +119,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         await createPublicUserProfile({
             id: data.user.id,
             name,
-            email,
+            email: email, // Store the generated email
             phone_number: phone,
             role: 'client',
             has_completed_onboarding: false,
