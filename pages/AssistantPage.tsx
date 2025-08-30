@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ChatWindow from '../components/ChatWindow';
 import QuickActions from '../components/QuickActions';
@@ -181,8 +182,8 @@ const AssistantPage: React.FC = () => {
   }, [isLoading, initializeChat, messages]);
 
   return (
-    <>
-      <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100">
+    <div className="bg-dark-bg p-4 lg:p-6 h-full">
+      <main className="flex-1 overflow-hidden h-full">
         <div className="max-w-7xl mx-auto h-full grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-4 xl:col-span-3 h-full overflow-y-auto">
              <QuickActions onActionClick={handleSendMessage} isLoading={isLoading} onNewChat={handleNewChatRequest} />
@@ -205,7 +206,7 @@ const AssistantPage: React.FC = () => {
         title="بدء محادثة جديدة"
         description="هل أنت متأكد أنك تريد بدء محادثة جديدة؟ سيتم حذف سجل المحادثة الحالي نهائياً."
       />
-    </>
+    </div>
   );
 };
 

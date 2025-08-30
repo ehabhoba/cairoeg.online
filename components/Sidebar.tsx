@@ -1,29 +1,34 @@
 
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { DashboardIcon } from './icons/DashboardIcon';
+import { HomeIcon } from './icons/HomeIcon';
 import { CustomersIcon } from './icons/CustomersIcon';
-import { AssistantIcon } from './icons/AssistantIcon';
-import { DocumentTextIcon } from './icons/DocumentTextIcon'; // Reusing for articles
+import { DocumentTextIcon } from './icons/DocumentTextIcon';
 import { ChatBubbleLeftRightIcon } from './icons/ChatBubbleLeftRightIcon';
 import { SparklesIcon } from './icons/SparklesIcon';
+import { ClipboardDocumentListIcon } from './icons/ClipboardDocumentListIcon';
+import NotificationBell from './NotificationBell';
 
 const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
-    const { logout } = useAuth();
+    const { logout, currentUser } = useAuth();
     const navItems = [
-        { href: '/dashboard/analytics', label: 'التحليلات', icon: <DashboardIcon /> },
+        { href: '/dashboard/overview', label: 'نظرة عامة', icon: <HomeIcon /> },
         { href: '/dashboard/clients', label: 'العملاء', icon: <CustomersIcon /> },
+        { href: '/dashboard/requests', label: 'إدارة الطلبات', icon: <ClipboardDocumentListIcon /> },
         { href: '/dashboard/articles', label: 'إدارة المقالات', icon: <DocumentTextIcon /> },
         { href: '/dashboard/comments', label: 'إدارة التعليقات', icon: <ChatBubbleLeftRightIcon /> },
-        { href: '/dashboard/assistant', label: 'المساعد الذكي', icon: <AssistantIcon /> },
         { href: '/dashboard/aistudio', label: 'استوديو AI', icon: <SparklesIcon /> },
+        { href: '/dashboard/content-automator', label: 'أتمتة المحتوى', icon: <SparklesIcon /> },
     ];
     
     return (
         <aside className="w-64 bg-panel-bg p-4 flex flex-col border-l border-slate-100/10">
-             <div className="flex items-center gap-2 mb-8 px-2">
-                <img src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" className="w-8 h-8 filter brightness-0 invert" />
-                <span className="text-lg font-bold text-white">لوحة التحكم</span>
+             <div className="flex items-center justify-between gap-2 mb-8 px-2">
+                <a href="/dashboard/overview" className="flex items-center gap-2">
+                    <img src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" className="w-8 h-8 filter brightness-0 invert" />
+                    <span className="text-lg font-bold text-white">لوحة التحكم</span>
+                </a>
+                {currentUser && <NotificationBell userPhone={currentUser.phone} userRole='admin' />}
             </div>
             
             <nav className="flex-1 space-y-2">

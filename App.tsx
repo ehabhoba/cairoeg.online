@@ -4,7 +4,7 @@ import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
 import { useAuth } from './hooks/useAuth';
 import { findUserByPhone } from './data/userData';
-import { User } from './data/userData';
+import type { User } from './data/userData';
 
 // Layouts
 import TopNav from './components/TopNav';
@@ -38,18 +38,25 @@ import WebDesignPage from './pages/Services/WebDesignPage';
 import AdCreationPage from './pages/Services/AdCreationPage';
 
 // Admin Dashboard Pages
-import AnalyticsPage from './pages/AnalyticsPage';
+import DashboardOverviewPage from './pages/dashboard/DashboardOverviewPage';
 import ClientsPage from './pages/ClientsPage';
-import AssistantPage from './pages/AssistantPage';
+import ClientDetailsPage from './pages/ClientDetailsPage';
 import ArticleManagerPage from './pages/ArticleManagerPage';
 import CommentManagerPage from './pages/CommentManagerPage';
 import AIStudioPage from './pages/AIStudioPage';
+import RequestsManagerPage from './pages/dashboard/RequestsManagerPage';
+import ContentAutomatorPage from './pages/dashboard/ContentAutomatorPage';
+
 
 // Client Portal Pages
 import ClientDashboardPage from './pages/client/ClientDashboardPage';
 import ClientProjectsPage from './pages/client/ClientProjectsPage';
 import ClientInvoicesPage from './pages/client/ClientInvoicesPage';
 import ClientSupportPage from './pages/client/ClientSupportPage';
+import ClientProfilePage from './pages/client/ClientProfilePage';
+import ClientRequestsPage from './pages/client/ClientRequestsPage';
+import AiPublisherPage from './pages/client/AiPublisherPage';
+
 
 // Helper function to update a meta tag
 const updateMetaTag = (property: 'name' | 'property', value: string, content: string) => {
@@ -119,7 +126,7 @@ const App: React.FC = () => {
         let ogImage = "https://i.postimg.cc/1RN16091/image.png";
 
         const path = route;
-        const [_, baseRoute, slug] = path.split('/');
+        const [_, baseRoute, slug, ...rest] = path.split('/');
         
         // Reset structured data by default
         updateStructuredData({
@@ -234,13 +241,28 @@ const App: React.FC = () => {
                 break;
             case 'dashboard':
                 switch (slug) {
+                    case 'overview': pageTitle = `نظرة عامة - ${baseTitle}`; break;
+                    case 'clients': pageTitle = `إدارة العملاء - ${baseTitle}`; break;
+                    case 'requests': pageTitle = `إدارة الطلبات - ${baseTitle}`; break;
                     case 'articles': pageTitle = `إدارة المقالات - ${baseTitle}`; break;
                     case 'comments': pageTitle = `إدارة التعليقات - ${baseTitle}`; break;
                     case 'aistudio': pageTitle = `استوديو الذكاء الاصطناعي - ${baseTitle}`; break;
+                    case 'content-automator': pageTitle = `أتمتة المحتوى - ${baseTitle}`; break;
                     default: pageTitle = `لوحة التحكم - ${baseTitle}`;
                 }
                 break;
-            case 'client': pageTitle = `بوابة العميل - ${baseTitle}`; break;
+            case 'client':
+                switch (slug) {
+                    case 'dashboard': pageTitle = `لوحة التحكم - ${baseTitle}`; break;
+                    case 'profile': pageTitle = `ملفي الشخصي - ${baseTitle}`; break;
+                    case 'projects': pageTitle = `مشاريعي - ${baseTitle}`; break;
+                    case 'invoices': pageTitle = `فواتيري - ${baseTitle}`; break;
+                    case 'requests': pageTitle = `طلباتي - ${baseTitle}`; break;
+                    case 'ai-publisher': pageTitle = `الناشر الذكي - ${baseTitle}`; break;
+                    case 'support': pageTitle = `الدعم الفني - ${baseTitle}`; break;
+                    default: pageTitle = `بوابة العميل - ${baseTitle}`;
+                }
+                break;
         }
 
         document.title = pageTitle;
@@ -295,15 +317,17 @@ const App: React.FC = () => {
   };
   
   const renderDashboardPage = () => {
-      const [_, __, page] = route.split('/');
+      const [_, __, page, param] = route.split('/');
       switch (page) {
-          case 'analytics': return <AnalyticsPage />;
-          case 'clients': return <ClientsPage />;
-          case 'assistant': return <AssistantPage />;
+          case 'overview': return <DashboardOverviewPage />;
+          case 'clients': 
+            return param ? <ClientDetailsPage clientPhone={param} /> : <ClientsPage />;
+          case 'requests': return <RequestsManagerPage />;
           case 'articles': return <ArticleManagerPage />;
           case 'comments': return <CommentManagerPage />;
           case 'aistudio': return <AIStudioPage />;
-          default: return <AnalyticsPage />;
+          case 'content-automator': return <ContentAutomatorPage />;
+          default: return <DashboardOverviewPage />;
       }
   };
 
@@ -311,8 +335,11 @@ const App: React.FC = () => {
       const [_, __, page] = route.split('/');
       switch(page) {
           case 'dashboard': return <ClientDashboardPage />;
+          case 'profile': return <ClientProfilePage />;
           case 'projects': return <ClientProjectsPage />;
           case 'invoices': return <ClientInvoicesPage />;
+          case 'requests': return <ClientRequestsPage />;
+          case 'ai-publisher': return <AiPublisherPage />;
           case 'support': return <ClientSupportPage />;
           default: return <ClientDashboardPage />;
       }
@@ -328,7 +355,7 @@ const App: React.FC = () => {
     const isClientPortalRoute = route.startsWith('/client');
 
     if (currentUser && isAuthRoute) {
-        navigate(currentUser.role === 'admin' ? '/dashboard' : '/client/dashboard');
+        navigate(currentUser.role === 'admin' ? '/dashboard/overview' : '/client/dashboard');
         return null;
     }
 
@@ -348,7 +375,7 @@ const App: React.FC = () => {
     if (isClientPortalRoute) {
       if (!currentUser) { navigate('/login'); return null; }
        if (currentUser.role !== 'client') {
-          navigate('/dashboard');
+          navigate('/dashboard/overview');
           return null;
       }
       return (

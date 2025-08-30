@@ -1,20 +1,37 @@
 
-import React, { useState, useMemo } from 'react';
-import { clientProjects, type ClientProject } from '../../data/mockClientData';
+import React, { useState, useMemo, useEffect } from 'react';
+import { getProjectsByClient, type ClientProject } from '../../data/clientData';
 import Badge from '../../components/Badge';
+import { useAuth } from '../../hooks/useAuth';
 
 type Status = 'الكل' | 'قيد التنفيذ' | 'مكتمل' | 'متوقف';
 const statuses: Status[] = ['الكل', 'قيد التنفيذ', 'مكتمل', 'متوقف'];
 
 const ClientProjectsPage: React.FC = () => {
+    const [projects, setProjects] = useState<ClientProject[]>([]);
     const [statusFilter, setStatusFilter] = useState<Status>('الكل');
+    const [loading, setLoading] = useState(true);
+    const { currentUser } = useAuth();
+    
+    useEffect(() => {
+        if(currentUser){
+            const fetchProjects = async () => {
+                setLoading(true);
+                const clientProjects = await getProjectsByClient(currentUser.phone);
+                setProjects(clientProjects);
+                setLoading(false);
+            };
+            fetchProjects();
+        }
+    }, [currentUser]);
+
 
     const filteredProjects = useMemo(() => {
         if (statusFilter === 'الكل') {
-            return clientProjects;
+            return projects;
         }
-        return clientProjects.filter(project => project.status === statusFilter);
-    }, [statusFilter]);
+        return projects.filter(project => project.status === statusFilter);
+    }, [statusFilter, projects]);
 
     const getStatusColor = (status: ClientProject['status']) => {
         switch (status) {
@@ -60,20 +77,26 @@ const ClientProjectsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/10">
-                  {filteredProjects.map((project) => (
-                    <tr key={project.id} className="hover:bg-light-bg/30 transition-colors">
-                      <td className="p-4 whitespace-nowrap font-medium text-white">
-                        {project.name}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        <Badge color={getStatusColor(project.status)}>
-                          {project.status}
-                        </Badge>
-                      </td>
-                      <td className="p-4 whitespace-nowrap text-slate-400">{project.startDate}</td>
-                      <td className="p-4 whitespace-nowrap text-slate-400">{project.dueDate}</td>
-                    </tr>
-                  ))}
+                    {loading ? (
+                        <tr><td colSpan={4} className="text-center p-4 text-slate-400">جاري تحميل المشاريع...</td></tr>
+                    ) : filteredProjects.length > 0 ? (
+                        filteredProjects.map((project) => (
+                            <tr key={project.id} className="hover:bg-light-bg/30 transition-colors">
+                            <td className="p-4 whitespace-nowrap font-medium text-white">
+                                {project.name}
+                            </td>
+                            <td className="p-4 whitespace-nowrap">
+                                <Badge color={getStatusColor(project.status)}>
+                                {project.status}
+                                </Badge>
+                            </td>
+                            <td className="p-4 whitespace-nowrap text-slate-400">{project.startDate}</td>
+                            <td className="p-4 whitespace-nowrap text-slate-400">{project.dueDate}</td>
+                            </tr>
+                        ))
+                    ) : (
+                         <tr><td colSpan={4} className="text-center p-8 text-slate-400">لا توجد مشاريع تطابق هذا الفلتر.</td></tr>
+                    )}
                 </tbody>
               </table>
             </div>

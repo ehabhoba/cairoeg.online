@@ -1,23 +1,46 @@
-import React, { useState, useMemo } from 'react';
-import { mockClients } from '../data/mockClients';
+
+import React, { useState, useMemo, useEffect } from 'react';
+import { User, getAllClients } from '../data/userData';
 import Badge from '../components/Badge';
 import { PlusIcon } from '../components/icons/PlusIcon';
 import { PencilIcon } from '../components/icons/PencilIcon';
+import { useAuth } from '../hooks/useAuth';
 
 type Status = 'Active' | 'Inactive' | 'All';
 
 const ClientsPage: React.FC = () => {
+  const [clients, setClients] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Status>('All');
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+
+  useEffect(() => {
+    const fetchClients = async () => {
+        setLoading(true);
+        const allClients = await getAllClients();
+        setClients(allClients);
+        setLoading(false);
+    };
+    fetchClients();
+  }, []);
 
   const filteredClients = useMemo(() => {
-    return mockClients.filter(client => {
-        const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              client.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === 'All' || client.status === statusFilter;
-        return matchesSearch && matchesStatus;
+    return clients.filter(client => {
+        if (client.role === 'admin') return false; // Exclude admin
+        const name = client.name || '';
+        const phone = client.phone || '';
+        const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              phone.toLowerCase().includes(searchTerm.toLowerCase());
+        // Note: status is not part of user data yet, so this filter is disabled for now.
+        // const matchesStatus = statusFilter === 'All' || client.status === statusFilter;
+        return matchesSearch;
     });
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, clients]);
+
+  if (loading) {
+    return <div className="p-6 text-white">جاري تحميل العملاء...</div>;
+  }
 
   return (
     <main className="flex-1 bg-dark-bg p-4 lg:p-6">
@@ -28,10 +51,10 @@ const ClientsPage: React.FC = () => {
             <h1 className="text-3xl font-bold text-white">إدارة العملاء</h1>
             <p className="text-slate-400 mt-1">عرض، بحث، وإدارة قائمة العملاء الخاصة بك.</p>
           </div>
-          <button className="mt-4 md:mt-0 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-colors">
+          <a href="/register" className="mt-4 md:mt-0 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-colors">
             <PlusIcon className="w-5 h-5" />
             <span>إضافة عميل</span>
-          </button>
+          </a>
         </div>
 
         {/* Filters */}
@@ -39,7 +62,7 @@ const ClientsPage: React.FC = () => {
             <div className="relative flex-grow">
               <input 
                 type="text" 
-                placeholder="ابحث بالاسم أو البريد الإلكتروني..." 
+                placeholder="ابحث بالاسم أو رقم الهاتف..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-light-bg border border-slate-700/50 rounded-lg text-white focus:ring-2 focus:ring-primary focus:border-primary" 
@@ -48,17 +71,7 @@ const ClientsPage: React.FC = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </div>
             </div>
-            <div className="flex items-center gap-2 bg-light-bg p-1 rounded-lg border border-slate-700/50">
-                {(['All', 'Active', 'Inactive'] as Status[]).map(status => (
-                    <button 
-                        key={status}
-                        onClick={() => setStatusFilter(status)}
-                        className={`px-3 py-1 text-sm font-semibold rounded-md transition-colors ${statusFilter === status ? 'bg-primary text-white' : 'text-slate-400 hover:bg-slate-700/50'}`}
-                    >
-                        {status === 'All' ? 'الكل' : status === 'Active' ? 'نشط' : 'غير نشط'}
-                    </button>
-                ))}
-            </div>
+            {/* Status filter can be added back when status is part of User data */}
         </div>
 
         {/* Clients Table */}
@@ -68,15 +81,14 @@ const ClientsPage: React.FC = () => {
                 <thead className="bg-light-bg/50 text-slate-400">
                   <tr>
                     <th scope="col" className="p-4 font-semibold">اسم العميل</th>
-                    <th scope="col" className="p-4 font-semibold">الحالة</th>
-                    <th scope="col" className="p-4 font-semibold">البريد الإلكتروني</th>
-                    <th scope="col" className="p-4 font-semibold">تاريخ الانضمام</th>
-                    <th scope="col" className="p-4 font-semibold">إجراءات</th>
+                    <th scope="col" className="p-4 font-semibold">رقم الهاتف</th>
+                    <th scope="col" className="p-4 font-semibold">الشركة</th>
+                    <th scope="col" className="p-4 font-semibold">الموقع الإلكتروني</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/10">
                   {filteredClients.map((client) => (
-                    <tr key={client.id} className="hover:bg-light-bg/30 transition-colors">
+                    <tr key={client.phone} className="hover:bg-light-bg/30 transition-colors cursor-pointer" onClick={() => window.location.href = `/dashboard/clients/${client.phone}`}>
                       <td className="p-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-bold text-white">
@@ -85,17 +97,10 @@ const ClientsPage: React.FC = () => {
                             <span className="font-medium text-white">{client.name}</span>
                         </div>
                       </td>
-                      <td className="p-4 whitespace-nowrap">
-                        <Badge color={client.status === 'Active' ? 'green' : 'gray'}>
-                          {client.status === 'Active' ? 'نشط' : 'غير نشط'}
-                        </Badge>
-                      </td>
-                      <td className="p-4 whitespace-nowrap text-slate-400">{client.email}</td>
-                      <td className="p-4 whitespace-nowrap text-slate-400">{client.joinDate}</td>
-                      <td className="p-4 whitespace-nowrap">
-                        <button className="p-2 text-slate-400 hover:text-primary rounded-md hover:bg-light-bg transition-colors" aria-label={`Edit ${client.name}`}>
-                          <PencilIcon className="w-5 h-5" />
-                        </button>
+                      <td className="p-4 whitespace-nowrap text-slate-400">{client.phone}</td>
+                      <td className="p-4 whitespace-nowrap text-slate-400">{client.companyName || '-'}</td>
+                      <td className="p-4 whitespace-nowrap text-slate-400">
+                        {client.websiteUrl ? <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="hover:text-primary" onClick={e => e.stopPropagation()}>{client.websiteUrl}</a> : '-'}
                       </td>
                     </tr>
                   ))}

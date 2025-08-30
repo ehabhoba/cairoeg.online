@@ -108,11 +108,12 @@ const savePosts = async (posts: BlogPost[]): Promise<void> => {
 };
 
 export const getAllPosts = async (): Promise<BlogPost[]> => {
-    return await getPosts();
+    const posts = await getPosts();
+    return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };
 
 export const getApprovedPosts = async (): Promise<BlogPost[]> => {
-    const allPosts = await getPosts();
+    const allPosts = await getAllPosts();
     return allPosts.filter(p => p.status === 'approved');
 };
 
@@ -130,13 +131,27 @@ export const addPost = async (post: Omit<BlogPost, 'slug' | 'date' | 'status'>):
     const posts = await getPosts();
     const newPost: BlogPost = {
         ...post,
-        slug: post.title.toLowerCase().replace(/\s+/g, '-').slice(0, 50),
+        slug: post.title.toLowerCase().replace(/[^\w\s\u0600-\u06FF-]/g, '').replace(/\s+/g, '-').slice(0, 50),
         date: new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }),
         status: 'pending'
     };
     posts.unshift(newPost); // Add to the beginning
     await savePosts(posts);
 };
+
+
+export const publishPost = async (post: Omit<BlogPost, 'slug' | 'date' | 'status'>): Promise<void> => {
+    const posts = await getPosts();
+    const newPost: BlogPost = {
+        ...post,
+        slug: post.title.toLowerCase().replace(/[^\w\s\u0600-\u06FF-]/g, '').replace(/\s+/g, '-').slice(0, 50) + `-${Date.now()}`, // Ensure unique slug
+        date: new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }),
+        status: 'approved' // Publish directly
+    };
+    posts.unshift(newPost);
+    await savePosts(posts);
+}
+
 
 export const updatePostStatus = async (slug: string, status: 'approved' | 'rejected' | 'pending'): Promise<void> => {
     let posts = await getPosts();

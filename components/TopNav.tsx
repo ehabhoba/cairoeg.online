@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MenuIcon } from './icons/MenuIcon';
 import { XIcon } from './icons/XIcon';
@@ -91,7 +92,7 @@ const TopNav: React.FC<{ currentRoute: string; currentUser: User | null }> = ({ 
                     </div>
                      <div className="flex items-center gap-2">
                         {currentUser ? (
-                             <a href={currentUser.role === 'admin' ? "/dashboard" : "/client/dashboard"} className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark hover:scale-105 transition-all">
+                             <a href={currentUser.role === 'admin' ? "/dashboard/overview" : "/client/dashboard"} className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark hover:scale-105 transition-all">
                                 لوحة التحكم
                             </a>
                         ) : (
@@ -135,7 +136,7 @@ const TopNav: React.FC<{ currentRoute: string; currentUser: User | null }> = ({ 
                         ))}
                          <div className="px-3 pt-4 flex flex-col gap-3">
                             {currentUser ? (
-                                <a href={currentUser.role === 'admin' ? "/dashboard" : "/client/dashboard"} className="block w-full text-center px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark transition-all">
+                                <a href={currentUser.role === 'admin' ? "/dashboard/overview" : "/client/dashboard"} className="block w-full text-center px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark transition-all">
                                     لوحة التحكم
                                 </a>
                             ) : (
