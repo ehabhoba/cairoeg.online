@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import { getProjectsByClient, ClientProject, getInvoicesByClient, ClientInvoice, getFilesByClient, ProjectFile, getCampaignsByClient, Campaign } from '../../data/clientData';
 import { ProjectIcon } from '../../components/icons/ProjectIcon';
@@ -76,8 +77,7 @@ const ClientDashboardPage: React.FC = () => {
 
     return (
         <>
-{/* @FIX: Pass onNavigate prop to ClientOnboarding */}
-        {showOnboarding && <ClientOnboarding onDismiss={handleOnboardingDismiss} onNavigate={navigate} />}
+        {showOnboarding && <ClientOnboarding onDismiss={handleOnboardingDismiss} />}
         <main className="flex-1 bg-dark-bg p-4 lg:p-6 overflow-y-auto">
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-3xl font-bold text-white mb-2">مرحباً بك، {currentUser?.name || 'عميلنا العزيز'}</h1>

@@ -58,25 +58,40 @@ export const getPaidAd = async (): Promise<Ad | null> => {
             .from('ads')
             .select('*')
             .eq('status', 'active')
-            .order('is_paid', { ascending: false }) // Prioritize paid ads
+            .order('is_paid', { ascending: false })
             .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+            throw error;
+        }
 
         if (data && data.length > 0) {
-             // Prefer paid ads, but fall back to any active ad if none are paid
             const paidAd = data.find(ad => ad.is_paid);
             return paidAd || data[Math.floor(Math.random() * data.length)];
         }
+
+        return null;
+
     } catch (error: any) {
-        console.error("Error fetching ad:", error.message);
-        if (error instanceof TypeError && error.message.includes('fetch')) {
-             console.warn(
-                "Fetch Error: This is likely a CORS issue. Please ensure your app's URL is added to the 'Allowed Origins' in your Supabase project's CORS settings (API > CORS settings)."
+        if (error.message.includes('Failed to fetch')) {
+            console.error(
+                '--- FETCH ERROR DETECTED --- \n' +
+                'This is almost always a CORS (Cross-Origin Resource Sharing) issue in your Supabase project settings.\n' +
+                'It is NOT a bug in the application code.\n\n' +
+                'TO FIX THIS:\n' +
+                '1. Go to your Supabase project dashboard.\n' +
+                '2. Go to API settings (the `<>` icon).\n' +
+                '3. Find the "CORS settings" section.\n' +
+                '4. Add your website\'s URL (e.g., https://your-domain.com) to the list of allowed origins.\n' +
+                '   If you are testing locally, add http://localhost:3000 (or your port).\n' +
+                '-----------------------------'
             );
+        } else {
+            console.error("An unexpected error occurred while fetching ads:", error);
         }
+        
+        return null;
     }
-    return null;
 };
 
 export const getClientAds = async (userId: string): Promise<Ad[]> => {
@@ -93,6 +108,7 @@ export const getClientAds = async (userId: string): Promise<Ad[]> => {
     return data;
 };
 
+// FIX: Add 'image_url' to Omit as it's generated internally, not passed in adData.
 export const createAd = async (adData: Omit<Ad, 'id' | 'is_paid' | 'status' | 'image_url'>, adImage: File): Promise<void> => {
     const filePath = `public/ads/${adData.user_id}/${Date.now()}_${adImage.name}`;
     const { error: uploadError } = await supabase.storage
@@ -119,6 +135,7 @@ export const createAd = async (adData: Omit<Ad, 'id' | 'is_paid' | 'status' | 'i
     }
 };
 
+// FIX: Add 'image_url' to Omit as it's generated internally, not passed in adData.
 export const createPaidAd = async (adData: Omit<Ad, 'id' | 'is_paid' | 'status' | 'user_id' | 'image_url'>, adImage: File): Promise<void> => {
     const admin = await findUserByPhone('01022679250');
     if (!admin) throw new Error('Admin user not found.');

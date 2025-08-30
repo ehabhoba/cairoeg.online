@@ -6,18 +6,18 @@ import { markOnboardingComplete } from '../data/userData';
 import { CheckCircleIcon } from './icons/CheckCircleIcon';
 import { XIcon } from './icons/XIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
+import { useNavigate } from '../hooks/useNavigate';
 
-interface OnboardingChecklistProps {
-    onNavigate: (path: string) => void;
-}
+interface OnboardingChecklistProps { }
 
-const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ onNavigate }) => {
+const OnboardingChecklist: React.FC<OnboardingChecklistProps> = () => {
     const { currentUser } = useAuth();
-    const [tasks, setTasks] = useState([
+    const { navigate } = useNavigate();
+    const tasks = [
         { id: 1, text: 'إكمال ملفك الشخصي وبيانات الشركة', completed: !!(currentUser?.companyName), link: '/client/profile' },
         { id: 2, text: 'إضافة روابط التواصل الاجتماعي', completed: !!(currentUser?.facebookUrl || currentUser?.instagramHandle), link: '/client/profile' },
         { id: 3, text: 'تقديم أول طلب خدمة (تصميم أو حملة)', completed: false, link: '/client/requests' },
-    ]);
+    ];
 
     return (
         <div className="mt-6 space-y-4">
@@ -28,7 +28,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ onNavigate })
                         <span>{task.text}</span>
                     </div>
                     {!task.completed && (
-                        <button onClick={() => onNavigate(task.link)} className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-light">
+                        <button onClick={() => navigate(task.link)} className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-light">
                             <span>ابدأ الآن</span>
                             <ArrowLeftIcon className="w-4 h-4" />
                         </button>
@@ -42,10 +42,9 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ onNavigate })
 
 interface ClientOnboardingProps {
     onDismiss: () => void;
-    onNavigate: (path: string) => void;
 }
 
-const ClientOnboarding: React.FC<ClientOnboardingProps> = ({ onDismiss, onNavigate }) => {
+const ClientOnboarding: React.FC<ClientOnboardingProps> = ({ onDismiss }) => {
     const { currentUser } = useAuth();
     const addNotification = useNotification();
 
@@ -68,7 +67,7 @@ const ClientOnboarding: React.FC<ClientOnboardingProps> = ({ onDismiss, onNaviga
                 </button>
                 <h2 className="text-3xl font-bold text-white">مرحباً بك في منصة إعلانات القاهرة!</h2>
                 <p className="mt-2 text-slate-400">يسعدنا انضمامك إلينا. لنبدأ بتجهيز حسابك لتحقيق أفضل النتائج.</p>
-                <OnboardingChecklist onNavigate={onNavigate} />
+                <OnboardingChecklist />
                 <div className="mt-8 flex justify-end">
                     <button onClick={handleDismiss} className="text-sm text-slate-400 hover:text-white">تخطي في الوقت الحالي</button>
                 </div>

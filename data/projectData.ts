@@ -1,6 +1,6 @@
 
 import { supabase } from '../services/supabaseClient';
-import { User } from './userData';
+import { User, mapUserFromDb } from './userData';
 
 export type TaskStatus = 'to_do' | 'in_progress' | 'done';
 
@@ -19,22 +19,26 @@ export interface ProjectUpdate { id: number; update_text: string; created_at: st
 export interface Message { id: number; message: string; sender_role: 'admin' | 'client'; created_at: string; }
 
 export const getProjectDetails = async (projectId: string): Promise<Project | null> => {
-    const { data, error } = await supabase.from('orders').select(`*, users (*), services (service_name)`).eq('id', projectId).single();
+    const { data, error } = await supabase
+        .from('orders')
+        .select(`
+            *, 
+            users (*, business_profiles (*)), 
+            services (service_name)
+        `)
+        .eq('id', projectId)
+        .single();
+
     if (error || !data || !data.users) { 
         console.error('Error fetching project details or missing user:', error); 
         return null; 
     }
+    
     return {
-        id: data.id, name: data.notes || `Project #${data.id}`, status: data.status,
-        client: {
-            id: data.users.id, 
-            email: data.users.email, 
-            name: data.users.name, 
-            phone: data.users.phone_number,
-            role: data.users.role, 
-            bio: data.users.bio || '', 
-            has_completed_onboarding: data.users.has_completed_onboarding || false
-        },
+        id: data.id,
+        name: data.notes || `Project #${data.id}`,
+        status: data.status,
+        client: mapUserFromDb(data.users),
         serviceName: data.services?.service_name || 'خدمة غير محددة', 
         startDate: data.created_at,
     };

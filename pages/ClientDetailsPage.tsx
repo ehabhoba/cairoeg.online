@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, findUserByPhone, adminUpdateUserPassword } from '../data/userData';
 import { ClientProject, ClientInvoice, getProjectsByClient, getInvoicesByClient, addProject, addInvoice, updateProject, updateInvoice } from '../data/clientData';
@@ -100,7 +99,7 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
             setPasswordModalOpen(false);
             addNotification('نجاح!', 'تم تغيير كلمة مرور العميل بنجاح.', 'success');
         } catch (error: any) {
-            addNotification('خطأ', error.message, 'error');
+            addNotification('خطأ فني', error.message, 'error');
         }
     };
 

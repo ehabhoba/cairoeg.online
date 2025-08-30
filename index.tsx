@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AuthProvider } from './providers/AuthProvider';
 import { NavigationProvider } from './providers/NavigationProvider';
+import { NotificationProvider } from './providers/NotificationProvider';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -13,10 +14,12 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-      <NavigationProvider>
-        <App />
-      </NavigationProvider>
-    </AuthProvider>
+    <NavigationProvider>
+      <NotificationProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </NotificationProvider>
+    </NavigationProvider>
   </React.StrictMode>
 );

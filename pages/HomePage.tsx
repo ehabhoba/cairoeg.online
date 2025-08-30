@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { testimonials, faqItems, services } from '../data/siteData';
 import { PaintBrushIcon } from '../components/icons/PaintBrushIcon';
@@ -9,6 +11,10 @@ import SpotlightCard from '../components/SpotlightCard';
 import AdBanner from '../components/AdBanner';
 import { PlusCircleIcon } from '../components/icons/PlusCircleIcon';
 import { MinusCircleIcon } from '../components/icons/MinusCircleIcon';
+import { KeyIcon } from '../components/icons/KeyIcon';
+import { AssistantIcon } from '../components/icons/AssistantIcon';
+import { ProjectIcon } from '../components/icons/ProjectIcon';
+import { PortfolioIcon } from '../components/icons/PortfolioIcon';
 
 const iconMap: { [key: string]: React.ReactNode } = {
     'ads': <MegaphoneIcon />,
@@ -122,6 +128,13 @@ const HomePage: React.FC = () => {
         'seo': '/services/marketing',
     };
 
+    const platformFeatures = [
+        { icon: <AssistantIcon />, title: "المساعد الذكي", description: "استخدم قوة الذكاء الاصطناعي لاقتراح أفكار إعلانية، كتابة المحتوى، وتحليل الأداء." },
+        { icon: <ProjectIcon />, title: "بوابة العميل التفاعلية", description: "تابع مشاريعك، تواصل مع الفريق، وادفع فواتيرك من مكان واحد منظم وآمن." },
+        { icon: <MegaphoneIcon />, title: "نظام إعلانات متكامل", description: "انشر إعلاناتك مجاناً أو اختر الباقات المدفوعة للوصول إلى جمهور أوسع داخل المنصة." },
+        { icon: <PortfolioIcon />, title: "معرض أعمال ديناميكي", description: "تلقائياً، يتم عرض أعمالك المنجزة في معرض أعمالنا، مما يعزز من علامتك التجارية." }
+    ];
+
     return (
         <div className="w-full">
             {/* Hero Section */}
@@ -151,20 +164,21 @@ const HomePage: React.FC = () => {
              {/* Ad Banner */}
             <AdBanner />
 
-            {/* Services Section */}
-            <section id="services" className="py-20 px-4 lg:px-6 animate-slide-in-up" style={{ animationFillMode: 'backwards' }}>
+            {/* Platform Features Section */}
+            <section id="features" className="py-20 px-4 lg:px-6 animate-slide-in-up">
                 <div className="max-w-7xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-2">خدمات احترافية لدعم علامتك التجارية</h2>
-                    <p className="text-center text-slate-400 mb-12 max-w-2xl mx-auto">من الاستراتيجية إلى التنفيذ، نقدم كل ما تحتاجه للتميز في العالم الرقمي.</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {services.map(service => (
-                             <SpotlightCard 
-                                key={service.id} 
-                                title={service.title}
-                                description={service.description}
-                                link={serviceLinks[service.id]}
-                                icon={iconMap[service.id]}
-                            />
+                    <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-2">منصة متكاملة لإدارة وتسويق أعمالك</h2>
+                    <p className="text-center text-slate-400 mb-12 max-w-2xl mx-auto">كل ما تحتاجه للنجاح الرقمي، في مكان واحد.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {platformFeatures.map(feature => (
+                             <div key={feature.title} className="bg-light-bg/50 p-6 rounded-2xl border border-slate-100/10 text-center">
+                                 <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary/20 text-primary rounded-xl">
+                                    {/* FIX: Use spread props to fix TypeScript error with React.cloneElement type inference. */}
+                                    {React.cloneElement(feature.icon, { ...feature.icon.props, className: "w-8 h-8" })}
+                                 </div>
+                                <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                                <p className="text-slate-400 text-sm">{feature.description}</p>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -192,47 +206,17 @@ const HomePage: React.FC = () => {
                 </div>
             </section>
 
-            {/* How We Work Section */}
-            <section className="py-20 px-4 lg:px-6 animate-slide-in-up" style={{ animationDelay: '200ms', animationFillMode: 'backwards' }}>
-                <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-16">آلية عملنا.. بسيطة وفعّالة</h2>
-                    <div className="relative">
-                        {/* Desktop Timeline */}
-                        <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-700 -translate-y-1/2"></div>
-                        <div className="hidden md:grid grid-cols-3 gap-16 relative">
-                            {[
-                                { title: "الاستكشاف والتحليل", description: "نستمع لأهدافك ونحلل وضعك الحالي لنبني استراتيجية مخصصة." },
-                                { title: "التنفيذ والإطلاق", description: "نطلق حملاتك ونصمم هويتك بأيدي فريق من الخبراء والمبدعين." },
-                                { title: "التحسين والتقارير", description: "نراقب الأداء، نحسن النتائج، ونقدم لك تقارير دورية وشفافة." }
-                            ].map((step, index) => (
-                                <div key={index} className="flex flex-col items-center">
-                                    <div className="w-16 h-16 mb-4 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-light-bg z-10 shadow-lg shadow-primary/30">
-                                        {index + 1}
-                                    </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
-                                    <p className="text-slate-400">{step.description}</p>
-                                </div>
-                            ))}
-                        </div>
-                         {/* Mobile Timeline */}
-                        <div className="md:hidden space-y-12">
-                             {[
-                                { title: "الاستكشاف والتحليل", description: "نستمع لأهدافك ونحلل وضعك الحالي لنبني استراتيجية مخصصة." },
-                                { title: "التنفيذ والإطلاق", description: "نطلق حملاتك ونصمم هويتك بأيدي فريق من الخبراء والمبدعين." },
-                                { title: "التحسين والتقارير", description: "نراقب الأداء، نحسن النتائج، ونقدم لك تقارير دورية وشفافة." }
-                            ].map((step, index) => (
-                                <div key={index} className="flex flex-col items-center">
-                                    <div className="w-16 h-16 mb-4 flex items-center justify-center bg-primary text-white font-bold text-2xl rounded-full border-4 border-light-bg z-10 shadow-lg shadow-primary/30">
-                                        {index + 1}
-                                    </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
-                                    <p className="text-slate-400">{step.description}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+             {/* Publish Article CTA */}
+            <section className="py-20 px-4 text-center bg-dark-bg">
+                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">شارك خبرتك مع مجتمعنا</h2>
+                 <p className="text-slate-400 mb-8 max-w-2xl mx-auto">
+                     هل لديك قصة نجاح، نصيحة تسويقية، أو رؤية تود مشاركتها؟ انشر مقالتك على مدونتنا مجاناً وساهم في إثراء المحتوى العربي.
+                 </p>
+                 <a href="/publish-article" className="inline-block px-8 py-3 bg-gold text-dark-bg font-bold rounded-xl shadow-lg hover:bg-gold/90 transition-all transform hover:scale-105">
+                     + انشر مقالتك الآن
+                 </a>
             </section>
+
 
              {/* Testimonials Section */}
             <section className="py-20 px-4 lg:px-6 bg-light-bg border-y border-slate-100/10 animate-slide-in-up" style={{ animationDelay: '400ms', animationFillMode: 'backwards' }}>
@@ -263,19 +247,6 @@ const HomePage: React.FC = () => {
                             </div>
                         ))}
                     </div>
-                </div>
-            </section>
-
-            {/* Final CTA Section */}
-            <section className="py-20 px-4 text-center">
-                <div className="max-w-3xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">جاهز لتبدأ قصة نجاحك الرقمية؟</h2>
-                    <p className="text-slate-400 mb-8">
-                        فريقنا جاهز لمساعدتك في تحقيق أهدافك. تواصل معنا اليوم ودعنا نبدأ في بناء استراتيجية تليق بعلامتك التجارية.
-                    </p>
-                    <a href="/contact" className="inline-block px-8 py-3 bg-gold text-dark-bg font-bold rounded-xl shadow-lg hover:bg-gold/90 transition-all transform hover:scale-105">
-                        تواصل معنا الآن
-                    </a>
                 </div>
             </section>
         </div>

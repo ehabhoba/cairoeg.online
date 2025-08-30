@@ -26,7 +26,8 @@ export interface BusinessProfile {
     instagram_handle?: string;
 }
 
-const mapUserFromDb = (dbUser: any): User => {
+// FIX: Export mapUserFromDb to be used in other modules.
+export const mapUserFromDb = (dbUser: any): User => {
     const profile = dbUser.business_profiles && dbUser.business_profiles[0] ? dbUser.business_profiles[0] : {};
     return {
         id: dbUser.id,
@@ -58,9 +59,14 @@ export const createPublicUserProfile = async (profileData: {id: string, name: st
     if (error) console.error("Error creating public user profile:", error);
 };
 
+export const createBusinessProfile = async (userId: string) => {
+    const { error } = await supabase.from('business_profiles').insert({ user_id: userId });
+    if (error) console.error("Error creating business profile for new user:", error);
+};
+
 export const findUserByPhone = async (phone: string): Promise<User | null> => {
     const { data, error } = await supabase.from('users').select('*, business_profiles(*)').eq('phone_number', phone).single();
-    if (error && error.code !== 'PGRST116') {
+    if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found, which is not an error here
         console.error('Error finding user by phone:', error);
         return null;
     }
@@ -71,7 +77,7 @@ export const findUserByPhone = async (phone: string): Promise<User | null> => {
 export const findUserById = async (id: string): Promise<User | null> => getUserProfile(id);
 
 export const findAdmin = async (): Promise<User | null> => {
-    const { data, error } = await supabase.from('users').select('*').eq('role', 'admin').limit(1).single();
+    const { data, error } = await supabase.from('users').select('*, business_profiles(*)').eq('role', 'admin').limit(1).single();
     if (error && error.code !== 'PGRST116') { console.error('Error finding admin user:', error); return null; }
     if (!data) return null;
     return mapUserFromDb(data);
@@ -112,15 +118,4 @@ export const adminUpdateUserPassword = async (userId: string, newPassword: strin
     
     console.error("SECURITY WARNING: Attempted to call an admin-only function from the client.");
     throw new Error("فشل تحديث كلمة المرور. هذه الميزة تتطلب إعدادًا آمنًا في الخلفية (Edge Function) لا يمكن تنفيذه من المتصفح مباشرةً.");
-
-    // Example of how the Edge Function would be invoked from the client:
-    /*
-    const { data, error } = await supabase.functions.invoke('update-user-password', {
-      body: { userId, newPassword },
-    })
-
-    if (error) {
-      throw new Error(`Failed to update password: ${error.message}`);
-    }
-    */
 };

@@ -1,7 +1,9 @@
 
 
+
+
+
 import React, { useEffect } from 'react';
-import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
 import { useAuth } from './hooks/useAuth';
 import { findUserByPhone, findUserById } from './data/userData';
@@ -282,8 +284,7 @@ const App: React.FC = () => {
       if (!currentUser) { navigate('/login'); return null; }
       if (currentUser.role !== 'admin') { navigate('/client/dashboard'); return null; }
       return (
-// @FIX: Pass currentRoute prop to DashboardLayout
-        <DashboardLayout currentRoute={route}>
+        <DashboardLayout>
           {renderDashboardPage()}
         </DashboardLayout>
       );
@@ -301,8 +302,7 @@ const App: React.FC = () => {
 
     return (
       <div className="flex flex-col min-h-screen font-sans bg-dark-bg text-slate-300">
-{/* @FIX: Pass currentRoute prop to TopNav */}
-        <TopNav currentRoute={route} currentUser={currentUser} />
+        <TopNav />
         <main className="flex-grow">
           <div key={route} className="animate-fade-in">
             {renderPublicPage()}
@@ -315,9 +315,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <NotificationProvider>
+    <>
         {renderContent()}
-    </NotificationProvider>
+    </>
   );
 };
 

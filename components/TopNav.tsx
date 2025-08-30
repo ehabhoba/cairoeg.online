@@ -4,6 +4,8 @@ import { MenuIcon } from './icons/MenuIcon';
 import { XIcon } from './icons/XIcon';
 import { ChevronDownIcon } from './icons/ChevronDownIcon';
 import type { User } from '../data/userData';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from '../hooks/useNavigate';
 
 interface NavLink {
     href: string;
@@ -17,10 +19,12 @@ const NavItem: React.FC<{ link: NavLink; isActive?: boolean; onClick?: () => voi
     </a>
 );
 
-const TopNav: React.FC<{ currentRoute: string; currentUser: User | null }> = ({ currentRoute, currentUser }) => {
+const TopNav: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
     const servicesMenuRef = useRef<HTMLDivElement>(null);
+    const { currentUser } = useAuth();
+    const { route } = useNavigate();
 
     const navLinks: NavLink[] = [
         { href: "/", label: "الرئيسية" },
@@ -68,7 +72,7 @@ const TopNav: React.FC<{ currentRoute: string; currentUser: User | null }> = ({ 
                                     <div key={link.label} className="relative" ref={servicesMenuRef}>
                                         <button 
                                             onClick={() => setIsServicesMenuOpen(!isServicesMenuOpen)}
-                                            className={`flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-md transition-colors ${currentRoute.startsWith('/services') ? 'text-white bg-white/10' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
+                                            className={`flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-md transition-colors ${route.startsWith('/services') ? 'text-white bg-white/10' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
                                             aria-haspopup="true"
                                             aria-expanded={isServicesMenuOpen}
                                             aria-controls="services-menu"
@@ -85,7 +89,7 @@ const TopNav: React.FC<{ currentRoute: string; currentUser: User | null }> = ({ 
                                         </div>
                                     </div>
                                 ) : (
-                                    <NavItem key={link.href} link={link} isActive={currentRoute === link.href} />
+                                    <NavItem key={link.href} link={link} isActive={route === link.href} />
                                 )
                             ))}
                         </nav>
@@ -131,7 +135,7 @@ const TopNav: React.FC<{ currentRoute: string; currentUser: User | null }> = ({ 
                                     ))}
                                 </div>
                             ) : (
-                                <NavItem key={link.href} link={link} isActive={currentRoute === link.href} onClick={handleLinkClick} />
+                                <NavItem key={link.href} link={link} isActive={route === link.href} onClick={handleLinkClick} />
                             )
                         ))}
                          <div className="px-3 pt-4 flex flex-col gap-3">
