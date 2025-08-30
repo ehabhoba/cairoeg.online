@@ -4,6 +4,7 @@ import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
 import { useAuth } from './hooks/useAuth';
 import { findUserByPhone } from './data/userData';
+import { User } from './data/userData';
 
 // Layouts
 import TopNav from './components/TopNav';
@@ -42,6 +43,7 @@ import ClientsPage from './pages/ClientsPage';
 import AssistantPage from './pages/AssistantPage';
 import ArticleManagerPage from './pages/ArticleManagerPage';
 import CommentManagerPage from './pages/CommentManagerPage';
+import AIStudioPage from './pages/AIStudioPage';
 
 // Client Portal Pages
 import ClientDashboardPage from './pages/client/ClientDashboardPage';
@@ -181,8 +183,15 @@ const App: React.FC = () => {
                     if (post) {
                         const author = await findUserByPhone(post.authorPhone);
                         pageTitle = `${post.title} - بقلم ${author?.name || 'فريقنا'} | ${baseTitle}`;
-                        pageDescription = `مقال بتاريخ ${post.date} بقلم ${author?.name || 'فريق إعلانات القاهرة'}. ${post.excerpt}`;
-                        pageKeywords = post.tags.join(', ');
+                        
+                        // SEO Improvement: Unique and descriptive meta description
+                        pageDescription = `اكتشف في قسم "${post.category}": ${post.excerpt}`;
+
+                        // SEO Improvement: Enriched keywords from title, category, and tags
+                        const titleKeywords = post.title.split(' ').filter(word => word.length > 3);
+                        const allKeywords = [...post.tags, post.category, ...titleKeywords];
+                        pageKeywords = [...new Set(allKeywords)].join(', ');
+
                         ogImage = post.imageUrl;
 
                         updateStructuredData({
@@ -227,6 +236,7 @@ const App: React.FC = () => {
                 switch (slug) {
                     case 'articles': pageTitle = `إدارة المقالات - ${baseTitle}`; break;
                     case 'comments': pageTitle = `إدارة التعليقات - ${baseTitle}`; break;
+                    case 'aistudio': pageTitle = `استوديو الذكاء الاصطناعي - ${baseTitle}`; break;
                     default: pageTitle = `لوحة التحكم - ${baseTitle}`;
                 }
                 break;
@@ -292,6 +302,7 @@ const App: React.FC = () => {
           case 'assistant': return <AssistantPage />;
           case 'articles': return <ArticleManagerPage />;
           case 'comments': return <CommentManagerPage />;
+          case 'aistudio': return <AIStudioPage />;
           default: return <AnalyticsPage />;
       }
   };
@@ -349,7 +360,7 @@ const App: React.FC = () => {
 
     return (
       <div className="flex flex-col min-h-screen font-sans bg-dark-bg text-slate-300">
-        <TopNav currentRoute={route} />
+        <TopNav currentRoute={route} currentUser={currentUser} />
         <main className="flex-grow">
           <div key={route} className="animate-fade-in">
             {renderPublicPage()}

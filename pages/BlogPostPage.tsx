@@ -1,12 +1,23 @@
+
 import React, { useState, useEffect } from 'react';
-import { BlogPost, getPostBySlug, addComment, getApprovedComments, Comment, getPostsByAuthor } from '../data/blogData';
+import { BlogPost, getPostBySlug, addComment, getApprovedComments, Comment, getPostsByAuthor, getApprovedPosts } from '../data/blogData';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
 import { User, findUserByPhone } from '../data/userData';
 import ShareButtons from '../components/ShareButtons';
-import AdBanner from '../components/AdBanner';
+import ReadingProgressBar from '../components/ReadingProgressBar';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PostNavigation from '../components/PostNavigation';
+
+interface TocItem {
+    level: number;
+    text: string;
+    slug: string;
+}
 
 const renderMarkdown = (markdown: string) => {
+    const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u0600-\u06FF\w-]+/g, '');
+
     const parseInline = (text: string) => {
         const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|\[.*?\]\(.*?\))/g);
         return parts.map((part, index) => {
@@ -32,7 +43,9 @@ const renderMarkdown = (markdown: string) => {
     const blocks = markdown.trim().split(/\n\s*\n/); 
     return blocks.map((block, blockIndex) => {
         if (block.startsWith('### ')) {
-            return <h3 key={blockIndex} className="text-2xl font-bold text-white mt-8 mb-4">{parseInline(block.substring(4))}</h3>;
+            const headingText = block.substring(4);
+            const slug = slugify(headingText);
+            return <h3 key={blockIndex} id={slug} className="text-2xl font-bold text-white mt-8 mb-4">{parseInline(headingText)}</h3>;
         }
         if (block.startsWith('> ')) {
             return (
@@ -60,6 +73,8 @@ const BlogPostPage: React.FC<{ slug: string }> = ({ slug }) => {
     const [author, setAuthor] = useState<User | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
     const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
+    const [tocItems, setTocItems] = useState<TocItem[]>([]);
+    const [navPosts, setNavPosts] = useState<{ prev?: BlogPost, next?: BlogPost }>({});
     const [newComment, setNewComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -69,18 +84,40 @@ const BlogPostPage: React.FC<{ slug: string }> = ({ slug }) => {
     useEffect(() => {
         const fetchPostData = async () => {
             setLoading(true);
-            const foundPost = await getPostBySlug(slug);
+            const [foundPost, allPosts] = await Promise.all([
+                getPostBySlug(slug),
+                getApprovedPosts()
+            ]);
+
             if (foundPost && foundPost.status === 'approved') {
                 setPost(foundPost);
+
+                // Find next/previous posts
+                const currentIndex = allPosts.findIndex(p => p.slug === foundPost.slug);
+                setNavPosts({
+                    prev: allPosts[currentIndex + 1], // The list is newest first, so +1 is older
+                    next: allPosts[currentIndex - 1],
+                });
+
+                // Generate Table of Contents
+                const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u0600-\u06FF\w-]+/g, '');
+                const headingRegex = /### (.*)/g;
+                const headings = Array.from(foundPost.content.matchAll(headingRegex));
+                const toc = headings.map(match => ({
+                    level: 3,
+                    text: match[1],
+                    slug: slugify(match[1])
+                }));
+                setTocItems(toc);
+
                 const postAuthor = await findUserByPhone(foundPost.authorPhone);
                 setAuthor(postAuthor || null);
                 const postComments = await getApprovedComments(foundPost.slug);
                 setComments(postComments);
 
-                // Fetch related posts
                 if (postAuthor) {
                     const authorPosts = await getPostsByAuthor(postAuthor.phone);
-                    setRelatedPosts(authorPosts.filter(p => p.slug !== foundPost.slug).slice(0, 3));
+                    setRelatedPosts(authorPosts.filter(p => p.slug !== foundPost.slug).slice(0, 2));
                 }
             } else {
                 setPost(null);
@@ -119,114 +156,151 @@ const BlogPostPage: React.FC<{ slug: string }> = ({ slug }) => {
         );
     }
 
+    const breadcrumbItems = [
+        { label: 'الرئيسية', href: '/' },
+        { label: 'المدونة', href: '/blog' },
+        { label: post.title }
+    ];
+
     const currentUrl = window.location.href;
 
     return (
-        <div className="py-16 sm:py-24">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <article>
-                    <header className="text-center mb-12">
-                        <a href="/blog" className="text-base text-primary font-semibold tracking-wide uppercase hover:underline">{post.category}</a>
-                        <h1 className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
-                            {post.title}
-                        </h1>
-                        <p className="mt-4 text-slate-400">نشر في {post.date}</p>
-                    </header>
-                    <img src={post.imageUrl} alt={post.title} className="w-full h-auto max-h-96 object-cover rounded-xl shadow-lg mb-12" />
-                    <div className="prose prose-invert prose-lg mx-auto">
-                        {renderMarkdown(post.content)}
-                    </div>
-                    <footer className="mt-12 pt-8 border-t border-slate-700/50">
-                        <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                {author && (
-                                    <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-xl">
-                                        {author.name.charAt(0)}
+        <>
+            <ReadingProgressBar />
+            <div className="py-16 sm:py-24">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <Breadcrumbs items={breadcrumbItems} />
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
+                        {/* Main Content */}
+                        <article className="lg:col-span-2">
+                            <header className="mb-12">
+                                <p className="text-base text-primary font-semibold tracking-wide uppercase">{post.category}</p>
+                                <h1 className="mt-2 block text-3xl leading-tight font-extrabold tracking-tight text-white sm:text-4xl">
+                                    {post.title}
+                                </h1>
+                                <p className="mt-4 text-slate-400">نشر في {post.date}</p>
+                            </header>
+                            <img src={post.imageUrl} alt={post.title} className="w-full h-auto max-h-96 object-cover rounded-xl shadow-lg mb-12" />
+                            
+                            {/* Table of Contents */}
+                            {tocItems.length > 0 && (
+                                <div className="mb-12 p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+                                    <h2 className="text-xl font-bold text-white mb-4">جدول المحتويات</h2>
+                                    <ul className="space-y-2">
+                                        {tocItems.map(item => (
+                                            <li key={item.slug}>
+                                                <a href={`#${item.slug}`} className="text-slate-300 hover:text-primary transition-colors">
+                                                    - {item.text}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            <div className="prose prose-invert prose-lg mx-auto">
+                                {renderMarkdown(post.content)}
+                            </div>
+                            
+                            <PostNavigation previousPost={navPosts.prev} nextPost={navPosts.next} />
+
+                        </article>
+
+                        {/* Sidebar */}
+                        <aside className="lg:col-span-1 space-y-8 sticky top-24">
+                            {/* Author Card */}
+                            {author && (
+                                <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-2xl flex-shrink-0">
+                                            {author.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-slate-400">كتبه</p>
+                                            <a href={`/author/${author.phone}`} className="font-semibold text-white text-lg hover:text-primary">{author.name}</a>
+                                        </div>
                                     </div>
+                                    <p className="text-sm text-slate-300">{author.bio}</p>
+                                </div>
+                            )}
+
+                            {/* Share Buttons */}
+                            <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">
+                                <h3 className="text-lg font-bold text-white mb-4">مشاركة المقال</h3>
+                                <ShareButtons url={currentUrl} title={post.title} />
+                            </div>
+
+                            {/* Related Posts */}
+                            {relatedPosts.length > 0 && (
+                                <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">
+                                    <h3 className="text-lg font-bold text-white mb-4">مقالات ذات صلة</h3>
+                                    <div className="space-y-4">
+                                        {relatedPosts.map(relatedPost => (
+                                            <a key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group flex items-center gap-4">
+                                                <img src={relatedPost.imageUrl} alt={relatedPost.title} className="w-20 h-16 object-cover rounded-lg flex-shrink-0" />
+                                                <div>
+                                                    <h4 className="font-semibold text-white group-hover:text-primary leading-tight">{relatedPost.title}</h4>
+                                                </div>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </aside>
+                    </div>
+
+                    {/* Comments Section */}
+                    <div className="max-w-4xl mx-auto mt-16 pt-12 border-t border-slate-700/50">
+                        <section>
+                            <h2 className="text-2xl font-bold text-white mb-6">التعليقات ({comments.length})</h2>
+                            <div className="space-y-6">
+                                {comments.map(comment => (
+                                    <div key={comment.id} className="flex items-start gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-slate-300 flex-shrink-0">
+                                            {comment.authorName.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-white">{comment.authorName}</p>
+                                            <p className="text-slate-300">{comment.content}</p>
+                                            <p className="text-xs text-slate-500 mt-1">{new Date(comment.date).toLocaleDateString('ar-EG')}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Comment Form */}
+                            <div className="mt-10">
+                                <h3 className="text-xl font-bold text-white mb-4">أضف تعليقك</h3>
+                                {currentUser ? (
+                                    <form onSubmit={handleCommentSubmit}>
+                                        <textarea
+                                            value={newComment}
+                                            onChange={(e) => setNewComment(e.target.value)}
+                                            rows={4}
+                                            placeholder="اكتب تعليقك هنا..."
+                                            className="w-full p-3 bg-slate-900 border border-slate-700 text-white rounded-xl shadow-sm focus:ring-primary focus:border-primary"
+                                            required
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className="mt-4 px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                                        >
+                                            {isSubmitting ? 'جاري الإرسال...' : 'إرسال التعليق'}
+                                        </button>
+                                    </form>
+                                ) : (
+                                    <p className="text-slate-400">
+                                        <a href="/login" className="text-primary hover:underline">سجل الدخول</a> لتتمكن من إضافة تعليق.
+                                    </p>
                                 )}
-                                <div>
-                                    <p className="text-sm text-slate-400">كتبه</p>
-                                    {author ? (
-                                        <a href={`/author/${author.phone}`} className="font-semibold text-white hover:text-primary">{author.name}</a>
-                                    ) : (
-                                        <p className="font-semibold text-white">كاتب غير معروف</p>
-                                    )}
-                                </div>
                             </div>
-                           <ShareButtons url={currentUrl} title={post.title} />
-                        </div>
-                         {author && (
-                            <div className="mt-6 bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
-                                <p className="text-sm text-slate-300">{author.bio}</p>
-                            </div>
-                        )}
-                    </footer>
-                </article>
-
-                 {/* Related Posts */}
-                {relatedPosts.length > 0 && (
-                    <section className="mt-16">
-                         <h2 className="text-2xl font-bold text-white mb-6 border-b-2 border-primary pb-2">مقالات ذات صلة</h2>
-                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {relatedPosts.map(relatedPost => (
-                                <a key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group">
-                                    <img src={relatedPost.imageUrl} alt={relatedPost.title} className="w-full h-40 object-cover rounded-lg mb-2" />
-                                    <h3 className="font-semibold text-white group-hover:text-primary">{relatedPost.title}</h3>
-                                </a>
-                            ))}
-                         </div>
-                    </section>
-                )}
-
-
-                {/* Comments Section */}
-                <section className="mt-16">
-                    <h2 className="text-2xl font-bold text-white mb-6 border-b-2 border-primary pb-2">التعليقات ({comments.length})</h2>
-                    <div className="space-y-6">
-                        {comments.map(comment => (
-                            <div key={comment.id} className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-slate-300 flex-shrink-0">
-                                    {comment.authorName.charAt(0)}
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-white">{comment.authorName}</p>
-                                    <p className="text-slate-300">{comment.content}</p>
-                                    <p className="text-xs text-slate-500 mt-1">{new Date(comment.date).toLocaleDateString('ar-EG')}</p>
-                                </div>
-                            </div>
-                        ))}
+                        </section>
                     </div>
 
-                    {/* Comment Form */}
-                    <div className="mt-10">
-                        <h3 className="text-xl font-bold text-white mb-4">أضف تعليقك</h3>
-                        {currentUser ? (
-                            <form onSubmit={handleCommentSubmit}>
-                                <textarea
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                    rows={4}
-                                    placeholder="اكتب تعليقك هنا..."
-                                    className="w-full p-3 bg-slate-900 border border-slate-700 text-white rounded-xl shadow-sm focus:ring-primary focus:border-primary"
-                                    required
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="mt-4 px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 disabled:opacity-50"
-                                >
-                                    {isSubmitting ? 'جاري الإرسال...' : 'إرسال التعليق'}
-                                </button>
-                            </form>
-                        ) : (
-                            <p className="text-slate-400">
-                                <a href="/login" className="text-primary hover:underline">سجل الدخول</a> لتتمكن من إضافة تعليق.
-                            </p>
-                        )}
-                    </div>
-                </section>
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

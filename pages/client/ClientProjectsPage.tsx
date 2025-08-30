@@ -1,5 +1,5 @@
+
 import React, { useState, useMemo } from 'react';
-// FIX: Import ClientProject type for correct type annotation.
 import { clientProjects, type ClientProject } from '../../data/mockClientData';
 import Badge from '../../components/Badge';
 
@@ -16,7 +16,6 @@ const ClientProjectsPage: React.FC = () => {
         return clientProjects.filter(project => project.status === statusFilter);
     }, [statusFilter]);
 
-    // FIX: Corrected the type of the 'status' parameter. 'ClientProjectsPage.propTypes.status' is not a valid type.
     const getStatusColor = (status: ClientProject['status']) => {
         switch (status) {
             case 'مكتمل': return 'green';

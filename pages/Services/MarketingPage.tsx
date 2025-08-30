@@ -2,12 +2,37 @@ import React from 'react';
 import SectionHeader from '../../components/SectionHeader';
 import FeatureCard from '../../components/FeatureCard';
 import CTABanner from '../../components/CTABanner';
-import { marketingProcess } from '../../data/siteData';
+import { marketingProcess, portfolioItems } from '../../data/siteData';
+import { getApprovedPosts, BlogPost } from '../../data/blogData';
 import Tooltip from '../../components/Tooltip';
 import AIHeadlineGenerator from '../../components/AIHeadlineGenerator';
 import ServicePageLayout from '../../components/ServicePageLayout';
 
+const RelatedResourceCard: React.FC<{item: BlogPost | any, type: 'blog' | 'portfolio'}> = ({ item, type }) => (
+    <a href={type === 'blog' ? `/blog/${item.slug}` : `/portfolio`} className="group block bg-slate-800/50 rounded-xl overflow-hidden shadow-lg border border-slate-700/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-primary/20">
+        <div className="overflow-hidden h-40">
+            <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" />
+        </div>
+        <div className="p-4">
+            <p className="text-xs font-semibold text-primary mb-1">{type === 'blog' ? 'من مدونتنا' : 'من أعمالنا'}</p>
+            <h4 className="font-bold text-white group-hover:text-primary transition-colors text-sm leading-tight">{item.title}</h4>
+        </div>
+    </a>
+);
+
 const MarketingPage: React.FC = () => {
+    const [relatedContent, setRelatedContent] = React.useState<{blog: BlogPost[], portfolio: any[]}>({blog: [], portfolio: []});
+
+    React.useEffect(() => {
+        const fetchRelated = async () => {
+            const allPosts = await getApprovedPosts();
+            const relatedBlog = allPosts.filter(p => p.category === 'الإعلانات الممولة' || p.category === 'تحسين محركات البحث').slice(0, 2);
+            const relatedPortfolio = portfolioItems.filter(p => p.category === 'إعلانات ممولة' || p.category === 'SEO').slice(0, 2);
+            setRelatedContent({ blog: relatedBlog, portfolio: relatedPortfolio });
+        };
+        fetchRelated();
+    }, []);
+
     const features = [
         { 
             title: <span>إدارة حملات الإعلانات الممولة (<Tooltip text="Pay-Per-Click: إعلانات تدفع فيها مقابل كل نقرة">PPC</Tooltip>)</span>, 
@@ -41,6 +66,17 @@ const MarketingPage: React.FC = () => {
             ))}
           </div>
         </div>
+
+        {/* Related Resources */}
+        {(relatedContent.blog.length > 0 || relatedContent.portfolio.length > 0) && (
+             <div className="mt-20">
+                <SectionHeader title="مصادر ذات صلة" subtitle="شاهد كيف نطبق هذه الخدمات في مقالاتنا وأعمالنا السابقة." />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                    {relatedContent.blog.map(item => <RelatedResourceCard key={item.slug} item={item} type="blog" />)}
+                    {relatedContent.portfolio.map(item => <RelatedResourceCard key={item.id} item={item} type="portfolio" />)}
+                </div>
+            </div>
+        )}
 
         {/* AI Tool Section */}
         <div className="mt-20">

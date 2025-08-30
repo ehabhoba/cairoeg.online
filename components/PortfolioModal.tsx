@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { PortfolioItem } from '../data/siteData';
 import { XIcon } from './icons/XIcon';
@@ -8,6 +7,13 @@ interface PortfolioModalProps {
     onClose: () => void;
     item: PortfolioItem | null;
 }
+
+const categoryToServiceLink: { [key: string]: string } = {
+    'إعلانات ممولة': '/services/marketing',
+    'تصميم جرافيكي': '/services/graphic-design',
+    'تصميم مواقع': '/services/web-design',
+    'SEO': '/services/marketing',
+};
 
 const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }) => {
     useEffect(() => {
@@ -19,6 +25,8 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
     }, [onClose]);
 
     if (!isOpen || !item) return null;
+
+    const serviceLink = categoryToServiceLink[item.category];
 
     return (
         <div 
@@ -38,7 +46,16 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
                 <div className="p-8">
                     <p className="text-sm font-semibold text-primary mb-1">{item.category}</p>
                     <h2 className="text-3xl font-bold text-white mb-4">{item.title}</h2>
-                    <p className="text-slate-300 leading-relaxed">{item.description}</p>
+                    <p className="text-slate-300 leading-relaxed mb-6">{item.description}</p>
+                    {serviceLink && (
+                        <a 
+                            href={serviceLink} 
+                            onClick={onClose}
+                            className="inline-block px-6 py-2 bg-primary/20 text-primary-light font-semibold rounded-lg border border-primary/30 hover:bg-primary/40 transition-colors"
+                        >
+                            عرض تفاصيل الخدمة
+                        </a>
+                    )}
                 </div>
             </div>
         </div>

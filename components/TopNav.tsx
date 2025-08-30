@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MenuIcon } from './icons/MenuIcon';
 import { XIcon } from './icons/XIcon';
 import { ChevronDownIcon } from './icons/ChevronDownIcon';
+import type { User } from '../data/userData';
 
 interface NavLink {
     href: string;
@@ -15,7 +16,7 @@ const NavItem: React.FC<{ link: NavLink; isActive?: boolean; onClick?: () => voi
     </a>
 );
 
-const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
+const TopNav: React.FC<{ currentRoute: string; currentUser: User | null }> = ({ currentRoute, currentUser }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
     const servicesMenuRef = useRef<HTMLDivElement>(null);
@@ -89,12 +90,20 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                         </nav>
                     </div>
                      <div className="flex items-center gap-2">
-                        <a href="/login" className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-slate-100/10 text-white rounded-xl shadow-sm hover:bg-slate-100/20 transition-all">
-                            تسجيل الدخول
-                        </a>
-                        <a href="/contact" className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark hover:scale-105 transition-all">
-                            اطلب استشارة
-                        </a>
+                        {currentUser ? (
+                             <a href={currentUser.role === 'admin' ? "/dashboard" : "/client/dashboard"} className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark hover:scale-105 transition-all">
+                                لوحة التحكم
+                            </a>
+                        ) : (
+                            <>
+                                <a href="/login" className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-slate-100/10 text-white rounded-xl shadow-sm hover:bg-slate-100/20 transition-all">
+                                    تسجيل الدخول
+                                </a>
+                                <a href="/contact" className="hidden sm:inline-block px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark hover:scale-105 transition-all">
+                                    اطلب استشارة
+                                </a>
+                            </>
+                        )}
                         <div className="md:hidden">
                             <button 
                                 onClick={() => setIsMenuOpen(!isMenuOpen)} 
@@ -125,12 +134,20 @@ const TopNav: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
                             )
                         ))}
                          <div className="px-3 pt-4 flex flex-col gap-3">
-                             <a href="/contact" className="block w-full text-center px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark transition-all">
-                                اطلب استشارة
-                            </a>
-                             <a href="/login" className="block w-full text-center px-4 py-2 text-sm font-semibold bg-slate-100/10 text-white rounded-xl shadow-sm hover:bg-slate-100/20 transition-all">
-                                تسجيل الدخول
-                            </a>
+                            {currentUser ? (
+                                <a href={currentUser.role === 'admin' ? "/dashboard" : "/client/dashboard"} className="block w-full text-center px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark transition-all">
+                                    لوحة التحكم
+                                </a>
+                            ) : (
+                                <>
+                                    <a href="/contact" className="block w-full text-center px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl shadow-sm hover:bg-primary-dark transition-all">
+                                        اطلب استشارة
+                                    </a>
+                                    <a href="/login" className="block w-full text-center px-4 py-2 text-sm font-semibold bg-slate-100/10 text-white rounded-xl shadow-sm hover:bg-slate-100/20 transition-all">
+                                        تسجيل الدخول
+                                    </a>
+                                </>
+                            )}
                         </div>
                     </nav>
                 </div>

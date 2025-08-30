@@ -58,3 +58,18 @@ export const recentActivities = [
         icon: 'Task'
     }
 ];
+
+
+export const campaignPerformance = [
+    { id: 1, name: 'حملة الصيف 2024', platform: 'فيسبوك', spend: 12000, conversions: 150, status: 'نشطة' as 'نشطة' | 'متوقفة' },
+    { id: 2, name: 'إعلانات البحث عن خدمات SEO', platform: 'جوجل', spend: 8500, conversions: 45, status: 'نشطة' as 'نشطة' | 'متوقفة' },
+    { id: 3, name: 'حملة رمضان', platform: 'انستغرام', spend: 15000, conversions: 210, status: 'متوقفة' as 'نشطة' | 'متوقفة' },
+    { id: 4, name: 'حملة توعية بالبراند', platform: 'تيك توك', spend: 5000, conversions: 8, status: 'نشطة' as 'نشطة' | 'متوقفة' },
+];
+
+export const recentSignups = [
+    { id: 1, name: 'علي حسن', joinDate: '2024-07-20' },
+    { id: 2, name: 'نور خالد', joinDate: '2024-07-19' },
+    { id: 3, name: 'ياسين محمد', joinDate: '2024-07-18' },
+    { id: 4, name: 'جنى إبراهيم', joinDate: '2024-07-16' },
+];

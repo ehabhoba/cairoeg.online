@@ -1,17 +1,14 @@
 import React from 'react';
-import { kpiData, monthlyRevenue, recentActivities } from '../data/mockAnalytics';
+import { kpiData, monthlyRevenue, campaignPerformance, recentSignups } from '../data/mockAnalytics';
 import { CurrencyDollarIcon } from '../components/icons/CurrencyDollarIcon';
 import { UsersGroupIcon } from '../components/icons/UsersGroupIcon';
 import { ArrowTrendingUpIcon } from '../components/icons/ArrowTrendingUpIcon';
-import { CheckCircleIcon } from '../components/icons/CheckCircleIcon';
-import { SpeakerphoneIcon } from '../components/icons/SpeakerphoneIcon';
+import Badge from '../components/Badge';
 
 const iconMap: { [key: string]: React.ReactNode } = {
     'Revenue': <CurrencyDollarIcon />,
     'Clients': <UsersGroupIcon />,
     'Conversion': <ArrowTrendingUpIcon />,
-    'Campaign': <SpeakerphoneIcon />,
-    'Task': <CheckCircleIcon />,
 };
 
 const StatCard: React.FC<{ title: string; value: string; change: string; changeType: 'increase' | 'decrease' | 'neutral', icon: React.ReactNode }> = ({ title, value, change, changeType, icon }) => {
@@ -22,14 +19,14 @@ const StatCard: React.FC<{ title: string; value: string; change: string; changeT
                 <div>
                     <p className="text-sm font-medium text-slate-400">{title}</p>
                     <p className="text-3xl font-bold text-white mt-1">{value}</p>
+                    <p className={`text-xs mt-2 ${changeColor}`}>
+                        {change}
+                    </p>
                 </div>
                 <div className="w-12 h-12 flex items-center justify-center bg-primary/10 text-primary rounded-lg border border-primary/20">
                     {icon}
                 </div>
             </div>
-            <p className={`text-xs mt-2 ${changeColor}`}>
-                {change}
-            </p>
         </div>
     );
 };
@@ -37,7 +34,7 @@ const StatCard: React.FC<{ title: string; value: string; change: string; changeT
 const BarChart: React.FC<{ data: { month: string, revenue: number }[] }> = ({ data }) => {
     const maxRevenue = Math.max(...data.map(d => d.revenue));
     return (
-        <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
+        <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg h-full">
             <h3 className="text-lg font-bold text-white mb-4">نظرة عامة على الإيرادات الشهرية</h3>
             <div className="flex items-end justify-between gap-2 h-64 pt-4">
                 {data.map(({ month, revenue }) => (
@@ -56,7 +53,6 @@ const BarChart: React.FC<{ data: { month: string, revenue: number }[] }> = ({ da
         </div>
     );
 };
-
 
 const AnalyticsPage: React.FC = () => {
   return (
@@ -84,22 +80,51 @@ const AnalyticsPage: React.FC = () => {
                     <BarChart data={monthlyRevenue} />
                 </div>
                 
-                {/* Recent Activity */}
+                {/* Recent Signups */}
                 <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
-                    <h3 className="text-lg font-bold text-white mb-4">أحدث الأنشطة</h3>
+                    <h3 className="text-lg font-bold text-white mb-4">أحدث العملاء</h3>
                     <ul className="space-y-4">
-                        {recentActivities.map(activity => (
-                             <li key={activity.id} className="flex items-start gap-3">
-                                <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-dark-bg text-slate-300 rounded-full border border-slate-100/10">
-                                    {iconMap[activity.icon]}
+                        {recentSignups.map(client => (
+                             <li key={client.id} className="flex items-center gap-3">
+                                <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-primary to-accent text-white font-bold rounded-full">
+                                    {client.name.charAt(0)}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-slate-200">{activity.description}</p>
-                                    <p className="text-xs text-slate-500">{activity.timestamp}</p>
+                                    <p className="text-sm font-medium text-slate-200">{client.name}</p>
+                                    <p className="text-xs text-slate-500">{client.joinDate}</p>
                                 </div>
                              </li>
                         ))}
                     </ul>
+                </div>
+
+                {/* Campaign Performance Table */}
+                <div className="lg:col-span-3 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-4">أداء الحملات</h3>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-right">
+                            <thead className="text-slate-400">
+                                <tr>
+                                    <th className="p-2 font-semibold">الحملة</th>
+                                    <th className="p-2 font-semibold">المنصة</th>
+                                    <th className="p-2 font-semibold">الإنفاق</th>
+                                    <th className="p-2 font-semibold">النتائج (التحويلات)</th>
+                                    <th className="p-2 font-semibold">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800">
+                                {campaignPerformance.map(campaign => (
+                                    <tr key={campaign.id}>
+                                        <td className="p-2 text-white font-medium">{campaign.name}</td>
+                                        <td className="p-2 text-slate-300">{campaign.platform}</td>
+                                        <td className="p-2 text-slate-300">{campaign.spend.toLocaleString()} ج.م</td>
+                                        <td className="p-2 text-slate-300">{campaign.conversions}</td>
+                                        <td className="p-2"><Badge color={campaign.status === 'نشطة' ? 'green' : 'gray'}>{campaign.status}</Badge></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

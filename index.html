@@ -57,7 +57,7 @@
                 'slide-in-up': 'slideInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
                 'slide-in-left': 'slideInLeft 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
                 'slide-in-right': 'slideInRight 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-                'background-pan': 'backgroundPan 15s linear infinite',
+                'background-pan': 'backgroundPan 25s linear infinite',
                 'shimmer': 'shimmer 1.5s infinite linear',
                 'draw-line': 'drawLine 1s ease-out forwards',
                 'modal-enter': 'modalEnter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
@@ -107,6 +107,9 @@
         }
       </script>
     <style>
+      html {
+        scroll-behavior: smooth;
+      }
       body {
         font-family: 'Cairo', sans-serif;
         background-color: #111827;
@@ -153,6 +156,11 @@
         clip: rect(0, 0, 0, 0);
         white-space: nowrap;
         border-width: 0;
+      }
+      .hero-gradient {
+        background: linear-gradient(-45deg, #111827, #1d4ed8, #7e22ce, #111827);
+        background-size: 400% 400%;
+        animation: backgroundPan 25s ease infinite;
       }
     </style>
 

@@ -125,8 +125,7 @@ const HomePage: React.FC = () => {
     return (
         <div className="w-full">
             {/* Hero Section */}
-            <section className="relative text-center py-24 px-4 sm:py-32 overflow-hidden">
-                 <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/30 to-dark-bg"></div>
+            <section className="relative hero-gradient text-center py-24 px-4 sm:py-32 overflow-hidden">
                  <div className="absolute inset-0 bg-dark-bg/50"></div>
                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.05)_1px,_transparent_1px)] [background-size:20px_20px] animate-pulse"></div>
 

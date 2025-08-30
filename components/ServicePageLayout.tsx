@@ -1,4 +1,5 @@
 import React from 'react';
+import Breadcrumbs from './Breadcrumbs';
 
 interface ServicePageLayoutProps {
     title: string;
@@ -7,6 +8,12 @@ interface ServicePageLayoutProps {
 }
 
 const ServicePageLayout: React.FC<ServicePageLayoutProps> = ({ title, subtitle, children }) => {
+    const breadcrumbItems = [
+        { label: 'الرئيسية', href: '/' },
+        { label: 'الخدمات', href: '/services' },
+        { label: title },
+    ];
+    
     return (
         <div className="bg-dark-bg text-slate-300">
             {/* Hero Section */}
@@ -25,6 +32,7 @@ const ServicePageLayout: React.FC<ServicePageLayoutProps> = ({ title, subtitle, 
 
             {/* Content Area */}
             <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                <Breadcrumbs items={breadcrumbItems} />
                 {children}
             </div>
         </div>

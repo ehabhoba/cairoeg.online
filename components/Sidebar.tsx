@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { DashboardIcon } from './icons/DashboardIcon';
@@ -5,6 +6,7 @@ import { CustomersIcon } from './icons/CustomersIcon';
 import { AssistantIcon } from './icons/AssistantIcon';
 import { DocumentTextIcon } from './icons/DocumentTextIcon'; // Reusing for articles
 import { ChatBubbleLeftRightIcon } from './icons/ChatBubbleLeftRightIcon';
+import { SparklesIcon } from './icons/SparklesIcon';
 
 const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
     const { logout } = useAuth();
@@ -14,6 +16,7 @@ const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
         { href: '/dashboard/articles', label: 'إدارة المقالات', icon: <DocumentTextIcon /> },
         { href: '/dashboard/comments', label: 'إدارة التعليقات', icon: <ChatBubbleLeftRightIcon /> },
         { href: '/dashboard/assistant', label: 'المساعد الذكي', icon: <AssistantIcon /> },
+        { href: '/dashboard/aistudio', label: 'استوديو AI', icon: <SparklesIcon /> },
     ];
     
     return (
