@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, findUserByPhone } from '../data/userData';
 import { ClientProject, ClientInvoice, getProjectsByClient, getInvoicesByClient, addProject, addInvoice, updateProject, updateInvoice } from '../data/clientData';
@@ -6,7 +7,9 @@ import Badge from '../components/Badge';
 import { PlusIcon } from '../components/icons/PlusIcon';
 import ProjectModal from '../components/ProjectModal';
 import InvoiceModal from '../components/InvoiceModal';
+import PasswordChangeModal from '../components/PasswordChangeModal';
 import { useNotification } from '../hooks/useNotification';
+import { adminUpdateUserPassword } from '../data/userData';
 
 const InfoItem: React.FC<{ label: string, value?: string | React.ReactNode }> = ({ label, value }) => (
     <div>
@@ -23,6 +26,7 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
     const [loading, setLoading] = useState(true);
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isInvoiceModalOpen, setInvoiceModalOpen] = useState(false);
+    const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
     const [editingProject, setEditingProject] = useState<ClientProject | null>(null);
     const [editingInvoice, setEditingInvoice] = useState<ClientInvoice | null>(null);
     const addNotification = useNotification();
@@ -87,6 +91,17 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
         }
     };
     
+    const handlePasswordChange = async (newPassword: string) => {
+        if (!client) return;
+        try {
+            await adminUpdateUserPassword(client.id, newPassword);
+            setPasswordModalOpen(false);
+            addNotification('نجاح!', 'تم تغيير كلمة مرور العميل بنجاح.', 'success');
+        } catch (error: any) {
+            addNotification('خطأ', error.message, 'error');
+        }
+    };
+
     if (loading) return <div className="p-6 text-white">جاري تحميل بيانات العميل...</div>;
     if (!client) return <div className="p-6 text-white">لم يتم العثور على العميل.</div>;
 
@@ -107,10 +122,12 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
                     <div>
                         <h1 className="text-3xl font-bold text-white">{client.name}</h1>
                         <p className="text-slate-400">{client.phone}</p>
+                         <button onClick={() => setPasswordModalOpen(true)} className="mt-2 text-sm text-yellow-400 hover:text-yellow-300">
+                            تغيير كلمة المرور
+                        </button>
                     </div>
                 </div>
 
-                {/* Client Info */}
                 <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg mb-6">
                     <h2 className="text-xl font-bold text-white mb-4">معلومات العميل</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -122,13 +139,10 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    {/* Projects Section */}
                     <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-bold text-white">المشاريع</h2>
-                            <button onClick={() => { setEditingProject(null); setProjectModalOpen(true); }} className="flex items-center gap-1 text-sm text-primary hover:text-primary-light">
-                                <PlusIcon className="w-4 h-4" /> إضافة مشروع
-                            </button>
+                            <button onClick={() => { setEditingProject(null); setProjectModalOpen(true); }} className="flex items-center gap-1 text-sm text-primary hover:text-primary-light"><PlusIcon className="w-4 h-4" /> إضافة مشروع</button>
                         </div>
                         <div className="space-y-3">
                             {projects.map(p => (
@@ -140,13 +154,10 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
                         </div>
                     </div>
 
-                    {/* Invoices Section */}
                     <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-bold text-white">الفواتير</h2>
-                            <button onClick={() => { setEditingInvoice(null); setInvoiceModalOpen(true); }} className="flex items-center gap-1 text-sm text-primary hover:text-primary-light">
-                                <PlusIcon className="w-4 h-4" /> إضافة فاتورة
-                            </button>
+                            <button onClick={() => { setEditingInvoice(null); setInvoiceModalOpen(true); }} className="flex items-center gap-1 text-sm text-primary hover:text-primary-light"><PlusIcon className="w-4 h-4" /> إضافة فاتورة</button>
                         </div>
                         <div className="space-y-3">
                             {invoices.map(i => (
@@ -160,7 +171,6 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
                             ))}
                         </div>
                     </div>
-                     {/* Requests Section */}
                     <div className="xl:col-span-2 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
                         <h2 className="text-xl font-bold text-white mb-4">الطلبات</h2>
                         <div className="space-y-3">
@@ -179,21 +189,9 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
                 </div>
             </div>
 
-            <ProjectModal
-                isOpen={isProjectModalOpen}
-                onClose={() => setProjectModalOpen(false)}
-                onSave={handleProjectSave}
-                clientPhone={clientPhone}
-                project={editingProject}
-            />
-
-            <InvoiceModal
-                isOpen={isInvoiceModalOpen}
-                onClose={() => setInvoiceModalOpen(false)}
-                onSave={handleInvoiceSave}
-                clientPhone={clientPhone}
-                invoice={editingInvoice}
-            />
+            <ProjectModal isOpen={isProjectModalOpen} onClose={() => setProjectModalOpen(false)} onSave={handleProjectSave} clientPhone={clientPhone} project={editingProject}/>
+            <InvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setInvoiceModalOpen(false)} onSave={handleInvoiceSave} clientPhone={clientPhone} invoice={editingInvoice}/>
+            <PasswordChangeModal isOpen={isPasswordModalOpen} onClose={() => setPasswordModalOpen(false)} onConfirm={handlePasswordChange}/>
         </main>
     );
 };

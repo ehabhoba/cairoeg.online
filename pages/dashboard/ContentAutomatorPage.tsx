@@ -55,13 +55,19 @@ const ContentAutomatorPage: React.FC = () => {
         
         setIsLoading(true);
         try {
+            // FIX: Fetch the image from the Unsplash URL and convert it to a File object
+            const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(topic.split(' ')[0] || 'business')}`;
+            const imageResponse = await fetch(imageUrl);
+            const blob = await imageResponse.blob();
+            const imageFile = new File([blob], `${topic.split(' ')[0] || 'article'}.jpg`, { type: 'image/jpeg' });
+
             await publishPost({
                 title: generatedArticle.title,
                 content: generatedArticle.content,
                 authorPhone: '01022679250', // Admin phone
                 category: 'تحسين محركات البحث', // Default category
                 tags: topic.split(' '),
-                imageUrl: `https://source.unsplash.com/800x600/?${encodeURIComponent(topic.split(' ')[0])}`, // Random image based on topic
+                imageFile: imageFile,
                 excerpt: generatedArticle.content.substring(0, 150) + '...'
             });
             addNotification("تم النشر!", "تم نشر المقال في المدونة بنجاح.", "success");

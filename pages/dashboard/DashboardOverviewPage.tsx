@@ -1,9 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
-import { kpiData as mockKpiData } from '../../data/mockAnalytics';
 import { getKpiData, getMonthlyRevenue, KpiData, MonthlyRevenue } from '../../data/analyticsData';
 import { CurrencyDollarIcon } from '../../components/icons/CurrencyDollarIcon';
 import { UsersGroupIcon } from '../../components/icons/UsersGroupIcon';
-import { ArrowTrendingUpIcon } from '../../components/icons/ArrowTrendingUpIcon';
 import Badge from '../../components/Badge';
 import { ClientRequest, getAllRequests } from '../../data/requestsData';
 import { Notification, getNotifications } from '../../data/notificationsData';
@@ -12,21 +11,13 @@ import { ClipboardDocumentListIcon } from '../../components/icons/ClipboardDocum
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 
-const iconMap: { [key: string]: React.ReactNode } = {
-    'Revenue': <CurrencyDollarIcon />,
-    'Clients': <UsersGroupIcon />,
-    'Conversion': <ArrowTrendingUpIcon />,
-};
-
-const StatCard: React.FC<{ title: string; value: string; change?: string; changeType?: 'increase' | 'decrease' | 'neutral', icon: React.ReactNode }> = ({ title, value, change, changeType, icon }) => {
-    const changeColor = changeType === 'increase' ? 'text-green-400' : changeType === 'decrease' ? 'text-red-400' : 'text-slate-400';
+const StatCard: React.FC<{ title: string; value: string; icon: React.ReactNode }> = ({ title, value, icon }) => {
     return (
         <div className="relative bg-gradient-to-br from-light-bg to-panel-bg p-6 rounded-2xl border border-slate-700/50 shadow-lg overflow-hidden">
             <div className="flex items-start justify-between">
                 <div>
                     <p className="text-sm font-medium text-slate-400">{title}</p>
                     <p className="text-3xl font-bold text-white mt-1">{value}</p>
-                    {change && <p className={`text-xs mt-2 ${changeColor}`}>{change}</p>}
                 </div>
                 <div className="w-12 h-12 flex items-center justify-center bg-primary/10 text-primary rounded-lg border border-primary/20">
                     {icon}
@@ -97,34 +88,24 @@ const DashboardOverviewPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
             <h1 className="text-3xl font-bold text-white mb-6">نظرة عامة</h1>
             
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <StatCard 
                     title="إجمالي الإيرادات"
                     value={`${kpiData?.totalRevenue.toLocaleString() || 0} ج.م`}
-                    icon={iconMap['Revenue']}
+                    icon={<CurrencyDollarIcon />}
                 />
                  <StatCard 
                     title="إجمالي العملاء"
                     value={kpiData?.clientCount.toString() || '0'}
                     icon={<UsersGroupIcon />}
                 />
-                 <StatCard 
-                    title={mockKpiData[0].title}
-                    value={mockKpiData[0].value}
-                    change={mockKpiData[0].change}
-                    changeType={mockKpiData[0].changeType}
-                    icon={iconMap['Conversion']}
-                />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Bar Chart */}
                 <div className="lg:col-span-3">
                     <BarChart data={monthlyRevenue} />
                 </div>
                 
-                {/* Recent Requests */}
                  <div className="lg:col-span-2 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
                     <h3 className="text-lg font-bold text-white mb-4">أحدث الطلبات</h3>
                     {recentRequests.length > 0 ? (
@@ -145,7 +126,6 @@ const DashboardOverviewPage: React.FC = () => {
                     ) : <p className="text-slate-400 text-center py-4">لا توجد طلبات جديدة.</p>}
                 </div>
                 
-                {/* Recent Notifications */}
                 <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
                     <h3 className="text-lg font-bold text-white mb-4">أحدث الإشعارات</h3>
                     {recentNotifications.length > 0 ? (

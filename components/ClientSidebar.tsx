@@ -8,10 +8,15 @@ import { SupportIcon } from './icons/SupportIcon';
 import { UserIcon } from './icons/UserIcon';
 import { WrenchScrewdriverIcon } from './icons/WrenchScrewdriverIcon';
 import { DocumentPlusIcon } from './icons/DocumentPlusIcon';
+import { MegaphoneIcon } from './icons/MegaphoneIcon';
 import NotificationBell from './NotificationBell';
 
+interface ClientSidebarProps {
+    currentRoute: string;
+    navigate: (path: string) => void;
+}
 
-const ClientSidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
+const ClientSidebar: React.FC<ClientSidebarProps> = ({ currentRoute, navigate }) => {
     const { logout, currentUser } = useAuth();
     const navItems = [
         { href: '/client/dashboard', label: 'لوحة التحكم', icon: <HomeIcon /> },
@@ -19,14 +24,20 @@ const ClientSidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => 
         { href: '/client/projects', label: 'مشاريعي', icon: <ProjectIcon /> },
         { href: '/client/invoices', label: 'فواتيري', icon: <InvoiceIcon /> },
         { href: '/client/requests', label: 'طلباتي', icon: <WrenchScrewdriverIcon /> },
+        { href: '/client/ads', label: 'إعلاناتي', icon: <MegaphoneIcon /> },
         { href: '/client/ai-publisher', label: 'الناشر الذكي', icon: <DocumentPlusIcon /> },
         { href: '/client/support', label: 'الدعم الفني', icon: <SupportIcon /> },
     ];
     
+    const handleNavigate = (e: React.MouseEvent, path: string) => {
+        e.preventDefault();
+        navigate(path);
+    };
+
     return (
         <aside className="w-64 bg-panel-bg p-4 flex flex-col border-l border-slate-100/10">
             <div className="flex items-center justify-between gap-2 mb-8 px-2">
-                <a href="/client/dashboard" className="flex items-center gap-2">
+                <a href="/client/dashboard" onClick={(e) => handleNavigate(e, '/client/dashboard')} className="flex items-center gap-2">
                     <img src="https://i.postimg.cc/1RN16091/image.png" alt="Cairoeg Logo" className="w-8 h-8 filter brightness-0 invert" />
                     <span className="text-lg font-bold text-white">بوابة العميل</span>
                 </a>
@@ -40,6 +51,7 @@ const ClientSidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => 
                         <a 
                             key={item.href} 
                             href={item.href}
+                            onClick={(e) => handleNavigate(e, item.href)}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                                 isActive 
                                 ? 'bg-primary text-white shadow-sm' 

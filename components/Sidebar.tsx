@@ -8,19 +8,22 @@ import { ChatBubbleLeftRightIcon } from './icons/ChatBubbleLeftRightIcon';
 import { SparklesIcon } from './icons/SparklesIcon';
 import { ClipboardDocumentListIcon } from './icons/ClipboardDocumentListIcon';
 import { AssistantIcon } from './icons/AssistantIcon';
+import { MegaphoneIcon } from './icons/MegaphoneIcon';
+import { CurrencyDollarIcon } from './icons/CurrencyDollarIcon';
 import NotificationBell from './NotificationBell';
 
 const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
     const { logout, currentUser } = useAuth();
     const navItems = [
         { href: '/dashboard/overview', label: 'نظرة عامة', icon: <HomeIcon /> },
+        { href: '/dashboard/financials', label: 'المالية', icon: <CurrencyDollarIcon /> },
         { href: '/dashboard/clients', label: 'العملاء', icon: <CustomersIcon /> },
         { href: '/dashboard/assistant', label: 'المساعد الذكي', icon: <AssistantIcon /> },
         { href: '/dashboard/requests', label: 'إدارة الطلبات', icon: <ClipboardDocumentListIcon /> },
         { href: '/dashboard/articles', label: 'إدارة المقالات', icon: <DocumentTextIcon /> },
+        { href: '/dashboard/ads', label: 'إدارة الإعلانات', icon: <MegaphoneIcon /> },
         { href: '/dashboard/comments', label: 'إدارة التعليقات', icon: <ChatBubbleLeftRightIcon /> },
         { href: '/dashboard/aistudio', label: 'استوديو AI', icon: <SparklesIcon /> },
-        { href: '/dashboard/content-automator', label: 'أتمتة المحتوى', icon: <SparklesIcon /> },
     ];
     
     return (

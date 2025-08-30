@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ai } from '../../services/geminiService';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
@@ -10,6 +11,7 @@ const AiPublisherPage: React.FC = () => {
     const addNotification = useNotification();
     const [topic, setTopic] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [generatedArticle, setGeneratedArticle] = useState<{ title: string; content: string } | null>(null);
 
     const handleGenerate = async () => {
@@ -45,8 +47,12 @@ const AiPublisherPage: React.FC = () => {
         }
     };
     
-    const handlePublish = async () => {
-        if (!generatedArticle || !currentUser) return;
+    const handlePublish = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!generatedArticle || !currentUser || !imageFile) {
+            addNotification("خطأ", "الرجاء إنشاء مقال ورفع صورة قبل النشر.", "error");
+            return;
+        };
         
         setIsLoading(true);
         try {
@@ -56,12 +62,14 @@ const AiPublisherPage: React.FC = () => {
                 authorPhone: currentUser.phone,
                 category: 'مقالات العملاء', 
                 tags: topic.split(' '),
-                imageUrl: `https://source.unsplash.com/800x600/?${encodeURIComponent(topic.split(' ')[0])}`,
+                imageFile: imageFile,
                 excerpt: generatedArticle.content.substring(0, 150) + '...'
             });
             addNotification("تم النشر!", "تم نشر مقالك في المدونة بنجاح.", "success");
             setGeneratedArticle(null);
             setTopic('');
+            setImageFile(null);
+            (e.target as HTMLFormElement).reset();
         } catch (error) {
              addNotification("خطأ", "فشل نشر المقال.", "error");
         } finally {
@@ -94,20 +102,24 @@ const AiPublisherPage: React.FC = () => {
                 </div>
                 
                 {generatedArticle && (
-                     <div className="mt-8 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg animate-fade-in">
+                     <form onSubmit={handlePublish} className="mt-8 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg animate-fade-in">
                          <h2 className="text-xl font-bold text-white mb-4">2. مراجعة ونشر</h2>
                          <div className="bg-slate-900 rounded-lg p-4 max-h-96 text-slate-300 whitespace-pre-wrap overflow-y-auto border border-slate-700">
                              <h3 className="text-2xl font-bold text-white mb-4">{generatedArticle.title}</h3>
                              <p>{generatedArticle.content}</p>
                          </div>
+                         <div className="mt-4">
+                            <label htmlFor="imageFile" className="block text-sm font-medium text-slate-300">ارفع صورة للمقال</label>
+                            <input type="file" id="imageFile" accept="image/*" onChange={e => setImageFile(e.target.files ? e.target.files[0] : null)} required className="mt-1 block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30"/>
+                        </div>
                          <button
-                            onClick={handlePublish}
+                            type="submit"
                             disabled={isLoading}
                             className="mt-4 w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-base font-medium rounded-xl text-dark-bg bg-gold hover:bg-gold/90 disabled:opacity-50"
                          >
                             {isLoading ? <LoadingSpinner /> : 'نشر المقال الآن'}
                          </button>
-                    </div>
+                    </form>
                 )}
             </div>
         </main>

@@ -11,7 +11,7 @@ const PublishArticlePage: React.FC = () => {
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
     const [content, setContent] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [category, setCategory] = useState(blogCategories[1]);
     const [tags, setTags] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +22,10 @@ const PublishArticlePage: React.FC = () => {
             addNotification('خطأ', 'يجب عليك تسجيل الدخول أولاً لنشر مقال.', 'error');
             return;
         }
+        if (!imageFile) {
+            addNotification('خطأ', 'الرجاء رفع صورة للمقال.', 'error');
+            return;
+        }
 
         setIsLoading(true);
         try {
@@ -29,16 +33,18 @@ const PublishArticlePage: React.FC = () => {
                 title,
                 excerpt,
                 content,
-                imageUrl,
+                imageFile,
                 category,
                 tags: tags.split(',').map(t => t.trim()),
                 authorPhone: currentUser.phone
             });
             addNotification('نجاح!', 'تم إرسال مقالك بنجاح للمراجعة.', 'success');
+            // Reset form
             setTitle('');
             setExcerpt('');
             setContent('');
-            setImageUrl('');
+            setImageFile(null);
+            (e.target as HTMLFormElement).reset();
             setTags('');
         } catch (error) {
             addNotification('خطأ', 'حدث خطأ أثناء إرسال مقالك.', 'error');
@@ -78,8 +84,8 @@ const PublishArticlePage: React.FC = () => {
                             <input type="text" id="excerpt" value={excerpt} onChange={e => setExcerpt(e.target.value)} required className="mt-1 block w-full px-4 py-3 bg-slate-900 border border-slate-700 text-white rounded-xl shadow-sm focus:ring-primary focus:border-primary" />
                         </div>
                         <div>
-                            <label htmlFor="imageUrl" className="block text-sm font-medium text-slate-300">رابط صورة المقال</label>
-                            <input type="url" id="imageUrl" value={imageUrl} onChange={e => setImageUrl(e.target.value)} required className="mt-1 block w-full px-4 py-3 bg-slate-900 border border-slate-700 text-white rounded-xl shadow-sm focus:ring-primary focus:border-primary" />
+                            <label htmlFor="imageFile" className="block text-sm font-medium text-slate-300">صورة المقال</label>
+                            <input type="file" id="imageFile" accept="image/*" onChange={e => setImageFile(e.target.files ? e.target.files[0] : null)} required className="mt-1 block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" />
                         </div>
                         <div>
                             <label htmlFor="content" className="block text-sm font-medium text-slate-300">محتوى المقال (يدعم الماركدون)</label>

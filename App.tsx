@@ -1,10 +1,12 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
 import { useAuth } from './hooks/useAuth';
-import { findUserByPhone } from './data/userData';
-import type { User } from './data/userData';
+// FIX: findUserById was not imported.
+import { findUserByPhone, findUserById } from './data/userData';
+import { getAdById } from './data/adsData';
 
 // Layouts
 import TopNav from './components/TopNav';
@@ -32,6 +34,7 @@ import PublishArticlePage from './pages/PublishArticlePage';
 import AuthorProfilePage from './pages/AuthorProfilePage';
 import PortfolioClientPage from './pages/PortfolioClientPage';
 import PlatformGuidePage from './pages/PlatformGuidePage';
+import AdsShowcasePage from './pages/AdsShowcasePage';
 
 // Service Pages
 import MarketingPage from './pages/Services/MarketingPage';
@@ -50,7 +53,8 @@ import RequestsManagerPage from './pages/dashboard/RequestsManagerPage';
 import ContentAutomatorPage from './pages/dashboard/ContentAutomatorPage';
 import ProjectDetailsPage from './pages/dashboard/ProjectDetailsPage';
 import AssistantPage from './pages/AssistantPage';
-
+import AdManagerPage from './pages/dashboard/AdManagerPage';
+import FinancialsPage from './pages/dashboard/FinancialsPage';
 
 // Client Portal Pages
 import ClientDashboardPage from './pages/client/ClientDashboardPage';
@@ -60,6 +64,8 @@ import ClientSupportPage from './pages/client/ClientSupportPage';
 import ClientProfilePage from './pages/client/ClientProfilePage';
 import ClientRequestsPage from './pages/client/ClientRequestsPage';
 import AiPublisherPage from './pages/client/AiPublisherPage';
+import ClientAdsPage from './pages/client/ClientAdsPage';
+import ClientProjectDetailsPage from './pages/client/ClientProjectDetailsPage';
 
 
 // Helper function to update a meta tag
@@ -93,6 +99,12 @@ const App: React.FC = () => {
   const [route, setRoute] = useState(window.location.pathname);
   const { currentUser, loading } = useAuth();
 
+  const navigate = (path: string) => {
+    window.history.pushState({}, '', path);
+    setRoute(path);
+    window.scrollTo(0, 0);
+  }
+
   useEffect(() => {
     const handlePopState = () => {
       setRoute(window.location.pathname);
@@ -105,9 +117,8 @@ const App: React.FC = () => {
         if (anchor && anchor.origin === window.location.origin && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && anchor.target !== '_blank') {
             event.preventDefault();
             const newRoute = anchor.pathname + anchor.search + anchor.hash;
-            if (newRoute !== window.location.pathname) {
-                window.history.pushState({}, '', newRoute);
-                handlePopState();
+            if (newRoute !== (window.location.pathname + window.location.search + window.location.hash)) {
+                navigate(newRoute);
             }
         }
     };
@@ -132,7 +143,6 @@ const App: React.FC = () => {
         const path = route;
         const [_, baseRoute, slug, ...rest] = path.split('/');
         
-        // Reset structured data by default
         updateStructuredData({
             "@context": "https://schema.org",
             "@type": "Organization",
@@ -140,35 +150,20 @@ const App: React.FC = () => {
             "url": "https://cairoeg.online/",
             "logo": "https://i.postimg.cc/1RN16091/image.png",
             "contactPoint": { "@type": "ContactPoint", "telephone": "+20-102-267-9250", "contactType": "Customer Service" },
-            "sameAs": ["https://wa.me/201022679250", "https://www.facebook.com/cairoeg.online"]
+            "sameAs": ["https://wa.me/201022679250", "https://www.facebook.com/cairoeg.online", "https://www.instagram.com/cairo_eg.online/"]
         });
         
         switch (baseRoute) {
             case 'services':
                 switch (slug) {
-                    case 'marketing': 
-                        pageTitle = `التسويق الرقمي - ${baseTitle}`;
-                        pageDescription = "خدمات تسويق رقمي وإعلانات ممولة احترافية لزيادة مبيعاتك ونمو علامتك التجارية على الإنترنت.";
-                        break;
-                    case 'graphic-design': 
-                        pageTitle = `التصميم الجرافيكي - ${baseTitle}`;
-                        pageDescription = "تصميم هويات بصرية وشعارات إبداعية تعكس قصة علامتك التجارية وتجذب انتباه جمهورك.";
-                        break;
-                    case 'web-design': 
-                        pageTitle = `تصميم المواقع - ${baseTitle}`;
-                        pageDescription = "نطور مواقع ومتاجر إلكترونية سريعة، آمنة، ومتجاوبة تضمن أفضل تجربة لعملائك.";
-                        break;
-                    case 'ad-creation': 
-                        pageTitle = `إنشاء الإعلانات - ${baseTitle}`;
-                        pageDescription = "نتولى جميع خطوات حملتك الإعلانية من الفكرة إلى الإطلاق والمتابعة لضمان تحقيق أهدافك.";
-                        break;
+                    case 'marketing': pageTitle = `التسويق الرقمي - ${baseTitle}`; pageDescription = "خدمات تسويق رقمي وإعلانات ممولة احترافية لزيادة مبيعاتك ونمو علامتك التجارية على الإنترنت."; break;
+                    case 'graphic-design': pageTitle = `التصميم الجرافيكي - ${baseTitle}`; pageDescription = "تصميم هويات بصرية وشعارات إبداعية تعكس قصة علامتك التجارية وتجذب انتباه جمهورك."; break;
+                    case 'web-design': pageTitle = `تصميم المواقع - ${baseTitle}`; pageDescription = "نطور مواقع ومتاجر إلكترونية سريعة، آمنة، ومتجاوبة تضمن أفضل تجربة لعملائك."; break;
+                    case 'ad-creation': pageTitle = `إنشاء الإعلانات - ${baseTitle}`; pageDescription = "نتولى جميع خطوات حملتك الإعلانية من الفكرة إلى الإطلاق والمتابعة لضمان تحقيق أهدافك."; break;
                     default: pageTitle = `الخدمات - ${baseTitle}`;
                 }
                 break;
-            case 'pricing':
-                pageTitle = `باقات وأسعار التسويق الرقمي - ${baseTitle}`;
-                pageDescription = "اكتشف باقات أسعارنا المرنة التي تناسب جميع أحجام الشركات، من الناشئة إلى الكبيرة.";
-                break;
+            case 'pricing': pageTitle = `باقات وأسعار التسويق الرقمي - ${baseTitle}`; pageDescription = "اكتشف باقات أسعارنا المرنة التي تناسب جميع أحجام الشركات، من الناشئة إلى الكبيرة."; break;
             case 'portfolio':
                 if (slug) {
                     const client = await findUserByPhone(slug);
@@ -176,19 +171,23 @@ const App: React.FC = () => {
                         pageTitle = `أعمالنا مع ${client.name} - ${baseTitle}`;
                         pageDescription = `شاهد معرض أعمالنا ومشاريعنا الناجحة التي قمنا بتنفيذها مع ${client.name}.`;
                     }
+                } else { pageTitle = `معرض أعمالنا في التسويق الرقمي - ${baseTitle}`; pageDescription = "شاهد قصص نجاح عملائنا وتعرف على جودة المشاريع التي نفخر بتقديمها في مختلف المجالات."; }
+                break;
+            case 'ads': 
+                 if (slug) {
+                    const ad = await getAdById(slug);
+                     if (ad) {
+                        pageTitle = `${ad.title} | إعلانات المنصة`;
+                        pageDescription = ad.description;
+                        ogImage = ad.image_url;
+                    }
                 } else {
-                     pageTitle = `معرض أعمالنا في التسويق الرقمي - ${baseTitle}`;
-                    pageDescription = "شاهد قصص نجاح عملائنا وتعرف على جودة المشاريع التي نفخر بتقديمها في مختلف المجالات.";
+                    pageTitle = `إعلانات المنصة - ${baseTitle}`;
+                    pageDescription = "تصفح الإعلانات والخدمات المقدمة من عملاء وشركاء منصة إعلانات القاهرة.";
                 }
                 break;
-            case 'about':
-                pageTitle = `عن وكالة إعلانات القاهرة للتسويق - ${baseTitle}`;
-                pageDescription = "تعرف على رؤيتنا، رسالتنا، وفريق الخبراء الذي يعمل بشغف ليكون شريك نجاحك الرقمي.";
-                break;
-            case 'contact':
-                pageTitle = `تواصل معنا لاستشارة تسويقية مجانية - ${baseTitle}`;
-                pageDescription = "لديك سؤال أو مشروع جديد؟ فريقنا جاهز لمساعدتك. تواصل معنا الآن لبدء قصة نجاحك.";
-                break;
+            case 'about': pageTitle = `عن وكالة إعلانات القاهرة للتسويق - ${baseTitle}`; pageDescription = "تعرف على رؤيتنا، رسالتنا، وفريق الخبراء الذي يعمل بشغف ليكون شريك نجاحك الرقمي."; break;
+            case 'contact': pageTitle = `تواصل معنا لاستشارة تسويقية مجانية - ${baseTitle}`; pageDescription = "لديك سؤال أو مشروع جديد؟ فريقنا جاهز لمساعدتك. تواصل معنا الآن لبدء قصة نجاحك."; break;
             case 'login': pageTitle = `تسجيل الدخول - ${baseTitle}`; break;
             case 'register': pageTitle = `إنشاء حساب جديد - ${baseTitle}`; break;
             case 'forgot-password': pageTitle = `استعادة كلمة المرور - ${baseTitle}`; break;
@@ -201,78 +200,20 @@ const App: React.FC = () => {
                 if (slug) {
                     const post = await getPostBySlug(slug);
                     if (post) {
-                        const author = await findUserByPhone(post.authorPhone);
+                        const author = post.authorId ? await findUserById(post.authorId) : null;
                         pageTitle = `${post.title} - بقلم ${author?.name || 'فريقنا'} | ${baseTitle}`;
-                        pageDescription = `اكتشف في قسم "${post.category}": ${post.excerpt}`;
-                        const titleKeywords = post.title.split(' ').filter(word => word.length > 3);
-                        const allKeywords = [...post.tags, post.category, ...titleKeywords];
-                        pageKeywords = [...new Set(allKeywords)].join(', ');
+                        pageDescription = post.excerpt;
+                        pageKeywords = [...new Set([...post.tags, post.category, ...post.title.split(' ').filter(w => w.length > 3)])].join(', ');
                         ogImage = post.imageUrl;
-
-                        updateStructuredData({
-                            "@context": "https://schema.org",
-                            "@type": "Article",
-                            "mainEntityOfPage": {
-                                "@type": "WebPage",
-                                "@id": `${window.location.origin}/blog/${post.slug}`
-                            },
-                            "headline": post.title,
-                            "description": post.excerpt,
-                            "image": post.imageUrl,
-                            "author": {
-                                "@type": "Person",
-                                "name": author?.name || 'فريق إعلانات القاهرة'
-                            },
-                            "publisher": {
-                                "@type": "Organization",
-                                "name": "إعلانات القاهرة | Cairoeg",
-                                "logo": {
-                                    "@type": "ImageObject",
-                                    "url": "https://i.postimg.cc/1RN16091/image.png"
-                                }
-                            },
-                            "datePublished": new Date(post.date).toISOString()
-                        });
-                    } else {
-                        pageTitle = `المقال غير موجود - ${baseTitle}`;
-                    }
-                } else {
-                    pageTitle = `المدونة - ${baseTitle}`;
-                    pageDescription = "مقالات ورؤى حول أحدث استراتيجيات التسويق الرقمي لمساعدتك على النمو في السوق المصري والعربي.";
-                }
+                        updateStructuredData({ "@context": "https://schema.org", "@type": "Article", "mainEntityOfPage": { "@type": "WebPage", "@id": `${window.location.origin}/blog/${post.slug}` }, "headline": post.title, "description": post.excerpt, "image": post.imageUrl, "author": { "@type": "Person", "name": author?.name || 'فريق إعلانات القاهرة' }, "publisher": { "@type": "Organization", "name": "إعلانات القاهرة | Cairoeg", "logo": { "@type": "ImageObject", "url": "https://i.postimg.cc/1RN16091/image.png" } }, "datePublished": new Date(post.date).toISOString() });
+                    } else { pageTitle = `المقال غير موجود - ${baseTitle}`; }
+                } else { pageTitle = `المدونة - ${baseTitle}`; pageDescription = "مقالات ورؤى حول أحدث استراتيجيات التسويق الرقمي لمساعدتك على النمو في السوق المصري والعربي."; }
                 break;
             case 'author': 
-                if (slug) {
-                    const author = await findUserByPhone(slug);
-                    pageTitle = `مقالات الكاتب ${author?.name || ''} - ${baseTitle}`;
-                }
+                if (slug) { const author = await findUserByPhone(slug); pageTitle = `مقالات الكاتب ${author?.name || ''} - ${baseTitle}`; }
                 break;
-            case 'dashboard':
-                switch (slug) {
-                    case 'overview': pageTitle = `نظرة عامة - ${baseTitle}`; break;
-                    case 'clients': pageTitle = `إدارة العملاء - ${baseTitle}`; break;
-                    case 'project': pageTitle = `تفاصيل المشروع - ${baseTitle}`; break;
-                    case 'requests': pageTitle = `إدارة الطلبات - ${baseTitle}`; break;
-                    case 'articles': pageTitle = `إدارة المقالات - ${baseTitle}`; break;
-                    case 'comments': pageTitle = `إدارة التعليقات - ${baseTitle}`; break;
-                    case 'aistudio': pageTitle = `استوديو الذكاء الاصطناعي - ${baseTitle}`; break;
-                    case 'assistant': pageTitle = `المساعد الذكي - ${baseTitle}`; break;
-                    case 'content-automator': pageTitle = `أتمتة المحتوى - ${baseTitle}`; break;
-                    default: pageTitle = `لوحة التحكم - ${baseTitle}`;
-                }
-                break;
-            case 'client':
-                switch (slug) {
-                    case 'dashboard': pageTitle = `لوحة التحكم - ${baseTitle}`; break;
-                    case 'profile': pageTitle = `ملفي الشخصي - ${baseTitle}`; break;
-                    case 'projects': pageTitle = `مشاريعي - ${baseTitle}`; break;
-                    case 'invoices': pageTitle = `فواتيري - ${baseTitle}`; break;
-                    case 'requests': pageTitle = `طلباتي - ${baseTitle}`; break;
-                    case 'ai-publisher': pageTitle = `الناشر الذكي - ${baseTitle}`; break;
-                    case 'support': pageTitle = `الدعم الفني - ${baseTitle}`; break;
-                    default: pageTitle = `بوابة العميل - ${baseTitle}`;
-                }
-                break;
+            case 'dashboard': pageTitle = `لوحة التحكم - ${baseTitle}`; break;
+            case 'client': pageTitle = `بوابة العميل - ${baseTitle}`; break;
         }
 
         document.title = pageTitle;
@@ -290,12 +231,7 @@ const App: React.FC = () => {
     updateTitleAndMeta();
   }, [route]);
   
-  const navigate = (path: string) => {
-    window.history.pushState({}, '', path);
-    setRoute(path);
-    window.scrollTo(0, 0);
-  }
-
+  
   const renderPublicPage = () => {
     const [_, mainRoute, slug] = route.split('/');
     switch (mainRoute) {
@@ -309,8 +245,8 @@ const App: React.FC = () => {
                 default: return <ServicesPage />; 
             }
         case 'pricing': return <PricingPage />;
-        case 'portfolio': 
-            return slug ? <PortfolioClientPage clientPhone={slug} /> : <PortfolioPage />;
+        case 'portfolio': return slug ? <PortfolioClientPage clientPhone={slug} /> : <PortfolioPage />;
+        case 'ads': return <AdsShowcasePage />;
         case 'about': return <AboutPage />;
         case 'contact': return <ContactPage />;
         case 'login': return <LoginPage />;
@@ -322,8 +258,7 @@ const App: React.FC = () => {
         case 'publish-article': return <PublishArticlePage />;
         case 'guide': return <PlatformGuidePage />;
         case 'author': return slug ? <AuthorProfilePage authorPhone={slug} /> : <BlogPage />;
-        case 'blog': 
-            return slug ? <BlogPostPage slug={slug} /> : <BlogPage />;
+        case 'blog': return slug ? <BlogPostPage slug={slug} /> : <BlogPage />;
         default: return <HomePage />;
     }
   };
@@ -332,31 +267,33 @@ const App: React.FC = () => {
       const [_, __, page, param] = route.split('/');
       switch (page) {
           case 'overview': return <DashboardOverviewPage />;
-          case 'clients': 
-            return param ? <ClientDetailsPage clientPhone={param} /> : <ClientsPage />;
-          case 'project':
-            return param ? <ProjectDetailsPage projectId={param} /> : <DashboardOverviewPage />;
+          case 'clients': return param ? <ClientDetailsPage clientPhone={param} /> : <ClientsPage />;
+          case 'project': return param ? <ProjectDetailsPage projectId={param} /> : <DashboardOverviewPage />;
           case 'requests': return <RequestsManagerPage />;
           case 'articles': return <ArticleManagerPage />;
           case 'comments': return <CommentManagerPage />;
           case 'aistudio': return <AIStudioPage />;
           case 'assistant': return <AssistantPage />;
           case 'content-automator': return <ContentAutomatorPage />;
+          case 'ads': return <AdManagerPage />;
+          case 'financials': return <FinancialsPage />;
           default: return <DashboardOverviewPage />;
       }
   };
 
   const renderClientPortalPage = () => {
-      const [_, __, page] = route.split('/');
+      const [_, __, page, param] = route.split('/');
       switch(page) {
-          case 'dashboard': return <ClientDashboardPage />;
+          case 'dashboard': return <ClientDashboardPage navigate={navigate} />;
           case 'profile': return <ClientProfilePage />;
           case 'projects': return <ClientProjectsPage />;
+          case 'project': return param ? <ClientProjectDetailsPage projectId={param} /> : <ClientProjectsPage />;
           case 'invoices': return <ClientInvoicesPage />;
           case 'requests': return <ClientRequestsPage />;
           case 'ai-publisher': return <AiPublisherPage />;
           case 'support': return <ClientSupportPage />;
-          default: return <ClientDashboardPage />;
+          case 'ads': return <ClientAdsPage />;
+          default: return <ClientDashboardPage navigate={navigate} />;
       }
   }
   
@@ -376,10 +313,7 @@ const App: React.FC = () => {
 
     if (isDashboardRoute) {
       if (!currentUser) { navigate('/login'); return null; }
-      if (currentUser.role !== 'admin') {
-          navigate('/client/dashboard');
-          return null;
-      }
+      if (currentUser.role !== 'admin') { navigate('/client/dashboard'); return null; }
       return (
         <DashboardLayout currentRoute={route}>
           {renderDashboardPage()}
@@ -389,12 +323,9 @@ const App: React.FC = () => {
 
     if (isClientPortalRoute) {
       if (!currentUser) { navigate('/login'); return null; }
-       if (currentUser.role !== 'client') {
-          navigate('/dashboard/overview');
-          return null;
-      }
+       if (currentUser.role !== 'client') { navigate('/dashboard/overview'); return null; }
       return (
-        <ClientLayout currentRoute={route}>
+        <ClientLayout currentRoute={route} navigate={navigate}>
             {renderClientPortalPage()}
         </ClientLayout>
       );

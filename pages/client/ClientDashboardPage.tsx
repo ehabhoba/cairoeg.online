@@ -1,12 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { getProjectsByClient, ClientProject, getInvoicesByClient, ClientInvoice, getFilesByClient, ProjectFile, getCampaignsByClient, Campaign } from '../../data/clientData';
 import { ProjectIcon } from '../../components/icons/ProjectIcon';
 import { InvoiceIcon } from '../../components/icons/InvoiceIcon';
 import { DocumentIcon } from '../../components/icons/DocumentIcon';
-import { MegaphoneIcon } from '../../components/icons/MegaphoneIcon';
 import Badge from '../../components/Badge';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
+import ClientOnboarding from '../../components/ClientOnboarding';
 
 const StatCard: React.FC<{ title: string, value: string | number, icon: React.ReactNode, iconBgColor: string }> = ({ title, value, icon, iconBgColor }) => {
     return (
@@ -25,16 +26,18 @@ const StatCard: React.FC<{ title: string, value: string | number, icon: React.Re
 };
 
 
-const ClientDashboardPage: React.FC = () => {
-    const { currentUser } = useAuth();
+const ClientDashboardPage: React.FC<{ navigate: (path: string) => void }> = ({ navigate }) => {
+    const { currentUser, setCurrentUser } = useAuth();
     const [projects, setProjects] = useState<ClientProject[]>([]);
     const [invoices, setInvoices] = useState<ClientInvoice[]>([]);
     const [files, setFiles] = useState<ProjectFile[]>([]);
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showOnboarding, setShowOnboarding] = useState(false);
     
     useEffect(() => {
         if (currentUser) {
+            setShowOnboarding(!currentUser.has_completed_onboarding);
             const fetchData = async () => {
                 setLoading(true);
                 const [clientProjects, clientInvoices, clientFiles, clientCampaigns] = await Promise.all([
@@ -53,6 +56,14 @@ const ClientDashboardPage: React.FC = () => {
         }
     }, [currentUser]);
 
+    const handleOnboardingDismiss = () => {
+        setShowOnboarding(false);
+        // Optimistically update the UI
+        if(currentUser) {
+            setCurrentUser({ ...currentUser, has_completed_onboarding: true });
+        }
+    };
+
     const activeProjects = projects.filter(p => p.status === 'قيد التنفيذ').length;
     const unpaidInvoices = invoices.filter(i => i.status === 'غير مدفوعة').length;
 
@@ -61,6 +72,8 @@ const ClientDashboardPage: React.FC = () => {
     }
 
     return (
+        <>
+        {showOnboarding && <ClientOnboarding onDismiss={handleOnboardingDismiss} onNavigate={navigate} />}
         <main className="flex-1 bg-dark-bg p-4 lg:p-6 overflow-y-auto">
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-3xl font-bold text-white mb-2">مرحباً بك، {currentUser?.name || 'عميلنا العزيز'}</h1>
@@ -124,16 +137,17 @@ const ClientDashboardPage: React.FC = () => {
                      <div className="lg:col-span-2 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
                         <h3 className="text-lg font-bold text-white mb-4">إجراءات سريعة</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <a href="/client/requests" className="block w-full text-center p-4 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-colors">طلب جديد</a>
-                             <a href="/client/invoices" className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض الفواتير</a>
-                             <a href="/client/projects" className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض المشاريع</a>
-                             <a href="/client/support" className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">طلب دعم فني</a>
+                            <a href="/client/requests" onClick={(e) => { e.preventDefault(); navigate('/client/requests'); }} className="block w-full text-center p-4 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-colors">طلب جديد</a>
+                            <a href="/client/invoices" onClick={(e) => { e.preventDefault(); navigate('/client/invoices'); }} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض الفواتير</a>
+                            <a href="/client/projects" onClick={(e) => { e.preventDefault(); navigate('/client/projects'); }} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض المشاريع</a>
+                            <a href="/client/support" onClick={(e) => { e.preventDefault(); navigate('/client/support'); }} className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">طلب دعم فني</a>
                         </div>
                     </div>
                 </div>
 
             </div>
         </main>
+        </>
     );
 };
 

@@ -52,7 +52,6 @@ const ClientProjectsPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Filters */}
         <div className="mb-4 flex items-center gap-2 bg-light-bg p-1 rounded-lg border border-slate-700/50 w-full md:w-auto">
             {statuses.map(status => (
                 <button 
@@ -73,29 +72,29 @@ const ClientProjectsPage: React.FC = () => {
                     <th scope="col" className="p-4 font-semibold">اسم المشروع</th>
                     <th scope="col" className="p-4 font-semibold">الحالة</th>
                     <th scope="col" className="p-4 font-semibold">تاريخ البدء</th>
-                    <th scope="col" className="p-4 font-semibold">تاريخ التسليم المتوقع</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/10">
                     {loading ? (
-                        <tr><td colSpan={4} className="text-center p-4 text-slate-400">جاري تحميل المشاريع...</td></tr>
+                        <tr><td colSpan={3} className="text-center p-4 text-slate-400">جاري تحميل المشاريع...</td></tr>
                     ) : filteredProjects.length > 0 ? (
                         filteredProjects.map((project) => (
-                            <tr key={project.id} className="hover:bg-light-bg/30 transition-colors">
-                            <td className="p-4 whitespace-nowrap font-medium text-white">
-                                {project.name}
-                            </td>
-                            <td className="p-4 whitespace-nowrap">
-                                <Badge color={getStatusColor(project.status)}>
-                                {project.status}
-                                </Badge>
-                            </td>
-                            <td className="p-4 whitespace-nowrap text-slate-400">{project.startDate}</td>
-                            <td className="p-4 whitespace-nowrap text-slate-400">{project.dueDate}</td>
+                            <tr key={project.id}>
+                                <td className="p-4 whitespace-nowrap font-medium text-white">
+                                    <a href={`/client/project/${project.id}`} className="hover:text-primary transition-colors">
+                                        {project.name}
+                                    </a>
+                                </td>
+                                <td className="p-4 whitespace-nowrap">
+                                    <Badge color={getStatusColor(project.status)}>
+                                    {project.status}
+                                    </Badge>
+                                </td>
+                                <td className="p-4 whitespace-nowrap text-slate-400">{project.startDate}</td>
                             </tr>
                         ))
                     ) : (
-                         <tr><td colSpan={4} className="text-center p-8 text-slate-400">لا توجد مشاريع تطابق هذا الفلتر.</td></tr>
+                         <tr><td colSpan={3} className="text-center p-8 text-slate-400">لا توجد مشاريع تطابق هذا الفلتر.</td></tr>
                     )}
                 </tbody>
               </table>
