@@ -7,6 +7,7 @@ import { DocumentTextIcon } from './icons/DocumentTextIcon';
 import { ChatBubbleLeftRightIcon } from './icons/ChatBubbleLeftRightIcon';
 import { SparklesIcon } from './icons/SparklesIcon';
 import { ClipboardDocumentListIcon } from './icons/ClipboardDocumentListIcon';
+import { AssistantIcon } from './icons/AssistantIcon';
 import NotificationBell from './NotificationBell';
 
 const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
@@ -14,6 +15,7 @@ const Sidebar: React.FC<{ currentRoute: string }> = ({ currentRoute }) => {
     const navItems = [
         { href: '/dashboard/overview', label: 'نظرة عامة', icon: <HomeIcon /> },
         { href: '/dashboard/clients', label: 'العملاء', icon: <CustomersIcon /> },
+        { href: '/dashboard/assistant', label: 'المساعد الذكي', icon: <AssistantIcon /> },
         { href: '/dashboard/requests', label: 'إدارة الطلبات', icon: <ClipboardDocumentListIcon /> },
         { href: '/dashboard/articles', label: 'إدارة المقالات', icon: <DocumentTextIcon /> },
         { href: '/dashboard/comments', label: 'إدارة التعليقات', icon: <ChatBubbleLeftRightIcon /> },

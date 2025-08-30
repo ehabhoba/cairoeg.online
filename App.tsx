@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
@@ -48,6 +49,7 @@ import AIStudioPage from './pages/AIStudioPage';
 import RequestsManagerPage from './pages/dashboard/RequestsManagerPage';
 import ContentAutomatorPage from './pages/dashboard/ContentAutomatorPage';
 import ProjectDetailsPage from './pages/dashboard/ProjectDetailsPage';
+import AssistantPage from './pages/AssistantPage';
 
 
 // Client Portal Pages
@@ -254,6 +256,7 @@ const App: React.FC = () => {
                     case 'articles': pageTitle = `إدارة المقالات - ${baseTitle}`; break;
                     case 'comments': pageTitle = `إدارة التعليقات - ${baseTitle}`; break;
                     case 'aistudio': pageTitle = `استوديو الذكاء الاصطناعي - ${baseTitle}`; break;
+                    case 'assistant': pageTitle = `المساعد الذكي - ${baseTitle}`; break;
                     case 'content-automator': pageTitle = `أتمتة المحتوى - ${baseTitle}`; break;
                     default: pageTitle = `لوحة التحكم - ${baseTitle}`;
                 }
@@ -337,6 +340,7 @@ const App: React.FC = () => {
           case 'articles': return <ArticleManagerPage />;
           case 'comments': return <CommentManagerPage />;
           case 'aistudio': return <AIStudioPage />;
+          case 'assistant': return <AssistantPage />;
           case 'content-automator': return <ContentAutomatorPage />;
           default: return <DashboardOverviewPage />;
       }

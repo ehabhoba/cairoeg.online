@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FacebookIcon } from './icons/FacebookIcon';
 import { InstagramIcon } from './icons/InstagramIcon';
@@ -24,7 +25,7 @@ const Footer: React.FC = () => {
     const socialLinks = [
         { href: "https://wa.me/201022679250", icon: <WhatsappIcon className="w-5 h-5" />, name: "WhatsApp" },
         { href: "https://www.facebook.com/cairoeg.online", icon: <FacebookIcon className="w-5 h-5" />, name: "Facebook" },
-        { href: "https://www.instagram.com/cairoeg.online", icon: <InstagramIcon className="w-5 h-5" />, name: "Instagram" },
+        { href: "https://www.instagram.com/cairo_eg.online/", icon: <InstagramIcon className="w-5 h-5" />, name: "Instagram" },
         { href: "https://www.tiktok.com/@cairoeg.online", icon: <TiktokIcon className="w-5 h-5" />, name: "TikTok" },
         { href: "https://www.linkedin.com/company/cairoeg-online", icon: <LinkedInIcon className="w-5 h-5" />, name: "LinkedIn" },
     ];

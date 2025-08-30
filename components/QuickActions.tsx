@@ -1,11 +1,12 @@
+
 import React from 'react';
 import { ChartBarIcon } from './icons/ChartBarIcon';
 import { UsersIcon } from './icons/UsersIcon';
 import { MegaphoneIcon } from './icons/MegaphoneIcon';
 import { DocumentTextIcon } from './icons/DocumentTextIcon';
 import { LightBulbIcon } from './icons/LightBulbIcon';
-import { CalendarIcon } from './icons/CalendarIcon';
 import { NewChatIcon } from './icons/NewChatIcon';
+import { ProjectIcon } from './icons/ProjectIcon';
 
 interface ActionItemProps {
   icon: React.ReactNode;
@@ -36,17 +37,27 @@ interface QuickActionsProps {
     onActionClick: (prompt: string) => void;
     isLoading: boolean;
     onNewChat: () => void;
+    userRole: 'admin' | 'client';
 }
 
-const QuickActions: React.FC<QuickActionsProps> = ({ onActionClick, isLoading, onNewChat }) => {
-    const actions = [
-        { icon: <ChartBarIcon />, title: "تحليل حملة فيسبوك", description: "احصل على تحليل لأداء حملة إعلانية", prompt: "قم بتحليل أداء حملة فيسبوك الأخيرة مع التركيز على نسبة النقر إلى الظهور والتكلفة لكل نتيجة." },
-        { icon: <LightBulbIcon />, title: "أفكار إعلانية جديدة", description: "اقتراح 3 أفكار إعلانية لمشروعك", prompt: "اقترح لي 3 أفكار إعلانية جديدة ومبتكرة لمنتج ملابس شبابية على تيك توك." },
-        { icon: <MegaphoneIcon />, title: "مقارنة أداء المنصات", description: "مقارنة بين فيسبوك وجوجل", prompt: "ما هي المنصة الإعلانية الأفضل لمركز طبي في القاهرة، إعلانات فيسبوك أم إعلانات جوجل؟ ولماذا؟" },
-        { icon: <DocumentTextIcon />, title: "تقرير الإنفاق الإعلاني", description: "ملخص الإنفاق على الإعلانات", prompt: "أنشئ لي تقريرًا عن إجمالي الإنفاق الإعلاني لهذا الشهر، مقسمًا حسب كل منصة." },
-        { icon: <UsersIcon />, title: "تحسين صفحة الهبوط", description: "اقتراحات لزيادة تحويلات الصفحة", prompt: "ما هي اقتراحاتك لتحسين صفحة الهبوط الخاصة بمنتجنا لزيادة معدل التحويل؟" },
-        { icon: <CalendarIcon />, title: "خطة محتوى أسبوعية", description: "جدول أفكار محتوى للسوشيال ميديا", prompt: "ضع لي خطة محتوى بسيطة لمدة أسبوع لحساب انستغرام مختص بالتسويق الرقمي." },
-    ];
+const adminActions = [
+    { icon: <ChartBarIcon />, title: "تحليل أداء الحملات", description: "احصل على تحليل لأداء حملات هذا الشهر", prompt: "قم بتحليل أداء الحملات الإعلانية لهذا الشهر وقدم ملخصاً للنتائج الرئيسية والتوصيات." },
+    { icon: <LightBulbIcon />, title: "أفكار محتوى للمدونة", description: "اقتراح 3 أفكار مقالات جديدة", prompt: "اقترح لي 3 أفكار مقالات جديدة ومبتكرة لمدونة الوكالة حول التسويق الرقمي." },
+    { icon: <MegaphoneIcon />, title: "مقارنة أداء المنصات", description: "مقارنة بين فيسبوك وجوجل لعميل", prompt: "ما هي المنصة الإعلانية الأفضل لعيادة أسنان في القاهرة، إعلانات فيسبوك أم إعلانات جوجل؟ ولماذا؟" },
+    { icon: <DocumentTextIcon />, title: "إنشاء تقرير عميل", description: "ملخص أداء لعميل محدد", prompt: "أنشئ لي مسودة تقرير أداء شهري للعميل 'شركة التجارة الحديثة' مع التركيز على نمو المبيعات." },
+    { icon: <UsersIcon />, title: "تحليل سلوك العملاء", description: "فهم أفضل لشرائح العملاء", prompt: "بناءً على بياناتنا، ما هي الخصائص الديموغرافية لأكثر شريحة عملاء تفاعلاً مع خدماتنا؟" },
+];
+
+const clientActions = [
+    { icon: <LightBulbIcon />, title: "فكرة إعلانية جديدة", description: "احصل على فكرة مبتكرة لمشروعك", prompt: "اقترح فكرة حملة إعلانية جديدة لمتجر ملابس يستهدف الشباب على انستغرام." },
+    { icon: <DocumentTextIcon />, title: "كتابة منشور سوشيال ميديا", description: "احصل على نص لمنشورك القادم", prompt: "اكتب لي نصاً قصيراً وجذاباً لمنشور على فيسبوك حول خصومات نهاية الأسبوع على منتجاتنا." },
+    { icon: <ProjectIcon />, title: "استفسار عن مشروعي", description: "اسأل عن حالة مشروعك الحالي", prompt: "ما هي آخر التطورات في مشروع تصميم المتجر الإلكتروني الخاص بي؟" },
+    { icon: <ChartBarIcon />, title: "فهم تقرير الأداء", description: "اطلب شرحاً مبسطاً لتقريرك", prompt: "اشرح لي ببساطة ماذا يعني مصطلح 'معدل التحويل' (Conversion Rate) في تقريري الأخير." },
+];
+
+
+const QuickActions: React.FC<QuickActionsProps> = ({ onActionClick, isLoading, onNewChat, userRole }) => {
+    const actions = userRole === 'admin' ? adminActions : clientActions;
 
   return (
     <div className="bg-white h-full p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col">

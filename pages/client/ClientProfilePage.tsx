@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
-import { updateUser } from '../../data/userData';
+import { updateUser, getBusinessProfile, updateBusinessProfile } from '../../data/userData';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const ClientProfilePage: React.FC = () => {
@@ -12,16 +12,27 @@ const ClientProfilePage: React.FC = () => {
     const [phone, setPhone] = useState('');
     const [companyName, setCompanyName] = useState('');
     const [websiteUrl, setWebsiteUrl] = useState('');
+    const [facebookUrl, setFacebookUrl] = useState('');
+    const [instagramHandle, setInstagramHandle] = useState('');
     const [logoUrl, setLogoUrl] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     
     useEffect(() => {
-        if(currentUser) {
+        if (currentUser) {
             setName(currentUser.name);
             setPhone(currentUser.phone);
-            setCompanyName(currentUser.companyName || '');
-            setWebsiteUrl(currentUser.websiteUrl || '');
-            setLogoUrl(currentUser.logoUrl || '');
+            
+            const fetchProfile = async () => {
+                const profile = await getBusinessProfile(currentUser.id);
+                if (profile) {
+                    setCompanyName(profile.company_name || '');
+                    setWebsiteUrl(profile.page_link || '');
+                    setLogoUrl(profile.logo_url || '');
+                    setFacebookUrl(profile.facebook_url || '');
+                    setInstagramHandle(profile.instagram_handle || '');
+                }
+            };
+            fetchProfile();
         }
     }, [currentUser]);
 
@@ -31,16 +42,18 @@ const ClientProfilePage: React.FC = () => {
         
         setIsLoading(true);
         try {
-            const updatedUser = {
-                ...currentUser,
-                name,
-                companyName,
-                websiteUrl,
-                logoUrl,
-            };
-            await updateUser(updatedUser);
-            // NOTE: We don't update sessionStorage here, it will update on next login.
-            // Or we could create a function in AuthContext to update the currentUser state.
+            // Update main user info (name, bio)
+            await updateUser(currentUser.id, { name });
+
+            // Update business profile info
+            await updateBusinessProfile(currentUser.id, {
+                company_name: companyName,
+                page_link: websiteUrl,
+                logo_url: logoUrl,
+                facebook_url: facebookUrl,
+                instagram_handle: instagramHandle,
+            });
+            
             addNotification('نجاح', 'تم تحديث ملفك الشخصي بنجاح.', 'success');
         } catch (error) {
             addNotification('خطأ', 'فشل تحديث الملف الشخصي.', 'error');
@@ -56,7 +69,7 @@ const ClientProfilePage: React.FC = () => {
                 <div className="bg-panel-bg p-8 rounded-2xl border border-slate-100/10 shadow-lg">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="flex items-center gap-6">
-                            <img src={logoUrl || `https://ui-avatars.com/api/?name=${name}&background=1D4ED8&color=fff&size=128`} alt="logo" className="w-24 h-24 rounded-full object-cover bg-light-bg border-2 border-slate-700" />
+                            <img src={logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1D4ED8&color=fff&size=128`} alt="logo" className="w-24 h-24 rounded-full object-cover bg-light-bg border-2 border-slate-700" />
                             <div className="flex-grow">
                                 <label htmlFor="logoUrl" className="block text-sm font-medium text-slate-300">رابط الشعار (اللوجو)</label>
                                 <input type="url" id="logoUrl" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-light-bg border border-slate-700 text-white rounded-lg shadow-sm focus:ring-primary focus:border-primary" placeholder="https://example.com/logo.png" />
@@ -79,6 +92,14 @@ const ClientProfilePage: React.FC = () => {
                              <div>
                                 <label htmlFor="websiteUrl" className="block text-sm font-medium text-slate-300">الموقع الإلكتروني</label>
                                 <input type="url" id="websiteUrl" value={websiteUrl} onChange={e => setWebsiteUrl(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-light-bg border border-slate-700 text-white rounded-lg shadow-sm focus:ring-primary focus:border-primary" placeholder="https://example.com" />
+                            </div>
+                            <div>
+                                <label htmlFor="facebookUrl" className="block text-sm font-medium text-slate-300">رابط صفحة فيسبوك</label>
+                                <input type="url" id="facebookUrl" value={facebookUrl} onChange={e => setFacebookUrl(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-light-bg border border-slate-700 text-white rounded-lg shadow-sm focus:ring-primary focus:border-primary" placeholder="https://facebook.com/yourpage" />
+                            </div>
+                            <div>
+                                <label htmlFor="instagramHandle" className="block text-sm font-medium text-slate-300">معرف انستغرام</label>
+                                <input type="text" id="instagramHandle" value={instagramHandle} onChange={e => setInstagramHandle(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-light-bg border border-slate-700 text-white rounded-lg shadow-sm focus:ring-primary focus:border-primary" placeholder="yourhandle" />
                             </div>
                         </div>
                         <div className="pt-4">

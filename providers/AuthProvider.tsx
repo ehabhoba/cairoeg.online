@@ -1,12 +1,15 @@
+
 import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { User, findUserByPhone, addUser } from '../data/userData';
+import { supabase } from '../services/supabaseClient';
+import { User, getUserProfile, createPublicUserProfile } from '../data/userData';
+import type { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
-  login: (phone: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (name: string, phone: string, password: string, role: 'client') => Promise<void>;
+  register: (name: string, email: string, phone: string, password: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -22,50 +25,82 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for an active session
-    const sessionUser = sessionStorage.getItem('currentUser');
-    if (sessionUser) {
-      setCurrentUser(JSON.parse(sessionUser));
+    setLoading(true);
+    const getSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        await handleSession(session);
+        setLoading(false);
+    }
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        await handleSession(session);
+      }
+    );
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+  
+  const handleSession = async (session: Session | null) => {
+    if (session) {
+        const profile = await getUserProfile(session.user.id);
+        if (profile) {
+            setCurrentUser({ ...profile, id: session.user.id });
+        } else {
+            // This case might happen if profile creation failed after signup.
+            // Or if a user exists in auth but not in public profiles.
+            setCurrentUser(null);
+        }
+    } else {
+        setCurrentUser(null);
     }
     setLoading(false);
+  }
+
+  const login = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error("البريد الإلكتروني أو كلمة المرور غير صحيحة.");
   }, []);
 
-  const login = useCallback(async (phone: string, password: string) => {
-    const user = await findUserByPhone(phone);
-    if (!user) {
-      throw new Error('رقم الهاتف غير مسجل.');
-    }
-    // This is an insecure password check. A real app should use Supabase Auth.
-    if (user.password !== password) {
-      throw new Error('كلمة المرور غير صحيحة.');
-    }
-    setCurrentUser(user);
-    sessionStorage.setItem('currentUser', JSON.stringify(user));
-  }, []);
-
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setCurrentUser(null);
-    sessionStorage.removeItem('currentUser');
-    // The App component will handle navigation to login
     window.history.pushState({}, '', '/login');
     window.dispatchEvent(new Event('popstate'));
   }, []);
 
-  const register = useCallback(async (name: string, phone: string, password: string, role: 'client') => {
-    const existingUser = await findUserByPhone(phone);
-    if (existingUser) {
-      throw new Error('هذا الرقم مسجل بالفعل.');
+  const register = useCallback(async (name: string, email: string, phone: string, password: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          phone_number: phone,
+        }
+      }
+    });
+    if (error) {
+        if (error.message.includes("User already registered")) {
+            throw new Error("هذا البريد الإلكتروني مسجل بالفعل.");
+        }
+        throw new Error(error.message);
     }
-    const newUser: User = { 
-        name, 
-        phone, 
-        password, // Storing plain text password is insecure
-        role, 
-        bio: 'مساهم جديد في منصة إعلانات القاهرة.',
-    };
-    await addUser(newUser);
-    // Note: No need to create welcome projects/invoices here,
-    // as the admin can now do this from the client details page.
+    if (data.user) {
+        // Create the corresponding public user profile
+        await createPublicUserProfile({
+            id: data.user.id,
+            name,
+            email,
+            phone_number: phone,
+            role: 'client' // Default role for new signups
+        });
+    } else {
+        throw new Error("فشل في إنشاء المستخدم. يرجى المحاولة مرة أخرى.");
+    }
   }, []);
   
   const value = {

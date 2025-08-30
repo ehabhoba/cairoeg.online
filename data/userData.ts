@@ -1,34 +1,58 @@
+
 import { supabase } from '../services/supabaseClient';
 
 export interface User {
-    id?: string; // Add ID for internal use
+    id: string; 
     name: string;
+    email: string;
     phone: string;
-    password?: string; // Password should not be stored/retrieved directly in production
     role: 'admin' | 'client';
     bio: string;
+    // Business profile data might be joined or fetched separately
     companyName?: string;
     websiteUrl?: string;
     logoUrl?: string;
+    facebookUrl?: string;
+    instagramHandle?: string;
 }
 
-// NOTE: A real app should use Supabase Auth (supabase.auth.signUp/signIn) which handles password securely.
-// For this exercise, we'll simulate by storing a plain text password, which is NOT secure.
-// We'll also assume a `password` column exists in the `users` table.
+export interface BusinessProfile {
+    user_id: string;
+    company_name?: string;
+    page_link?: string;
+    logo_url?: string;
+    facebook_url?: string;
+    instagram_handle?: string;
+}
 
-const fromSupabase = (data: any): User | null => {
-    if (!data) return null;
+// ---- Profile Management ---- //
+export const getUserProfile = async (userId: string): Promise<User | null> => {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+    
+    if (error || !data) {
+        console.error("Error fetching user profile:", error);
+        return null;
+    }
+
     return {
         id: data.id,
         name: data.name,
+        email: data.email,
         phone: data.phone_number,
-        password: data.password, // Assumes password column exists
         role: data.role,
-        bio: data.bio || '', // Assume bio might be null
-        companyName: data.company_name || '',
-        websiteUrl: data.page_link || '',
-        logoUrl: data.logo_url || ''
+        bio: data.bio || 'مساهم جديد في منصة إعلانات القاهرة.'
     };
+};
+
+export const createPublicUserProfile = async (profileData: {id: string, name: string, email: string, phone_number: string, role: 'client' | 'admin'}) => {
+    const { error } = await supabase.from('users').insert(profileData);
+    if (error) {
+        console.error("Error creating public user profile:", error);
+    }
 };
 
 export const findUserByPhone = async (phone: string): Promise<User | null> => {
@@ -43,22 +67,20 @@ export const findUserByPhone = async (phone: string): Promise<User | null> => {
         return null;
     }
     
-    return fromSupabase(data);
+    if (!data) return null;
+
+    return {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        phone: data.phone_number,
+        role: data.role,
+        bio: data.bio || ''
+    };
 };
 
 export const findUserById = async (id: string): Promise<User | null> => {
-    const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', id)
-        .single();
-        
-    if (error && error.code !== 'PGRST116') {
-        console.error('Error finding user by ID:', error);
-        return null;
-    }
-    
-    return fromSupabase(data);
+    return getUserProfile(id);
 }
 
 export const findAdmin = async (): Promise<User | null> => {
@@ -74,56 +96,74 @@ export const findAdmin = async (): Promise<User | null> => {
         return null;
     }
 
-    return fromSupabase(data);
-};
-
-
-export const addUser = async (newUser: User): Promise<void> => {
-    // Map User type to database columns
-    const { data, error } = await supabase
-        .from('users')
-        .insert([{ 
-            name: newUser.name,
-            phone_number: newUser.phone,
-            password: newUser.password,
-            role: newUser.role,
-            bio: newUser.bio,
-        }]);
-
-    if (error) {
-        console.error('Error adding user:', error);
-        throw new Error('فشل في إنشاء مستخدم جديد.');
-    }
-};
-
-export const updateUser = async (updatedUser: User): Promise<void> => {
-    const { data, error } = await supabase
-        .from('users')
-        .update({
-            name: updatedUser.name,
-            bio: updatedUser.bio,
-            company_name: updatedUser.companyName,
-            page_link: updatedUser.websiteUrl,
-            logo_url: updatedUser.logoUrl
-        })
-        .eq('phone_number', updatedUser.phone);
-
-    if (error) {
-        console.error('Error updating user:', error);
-        throw new Error('فشل تحديث بيانات المستخدم.');
-    }
+    if (!data) return null;
+    return {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        phone: data.phone_number,
+        role: data.role,
+        bio: data.bio || ''
+    };
 };
 
 export const getAllClients = async (): Promise<User[]> => {
     const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('*, business_profiles(*)')
         .eq('role', 'client');
 
     if (error) {
         console.error('Error fetching clients:', error);
         return [];
     }
-
-    return data.map(d => fromSupabase(d)).filter((u): u is User => u !== null);
+    
+    return data.map(d => ({
+        id: d.id,
+        name: d.name,
+        email: d.email,
+        phone: d.phone_number,
+        role: 'client',
+        bio: d.bio || '',
+        companyName: d.business_profiles[0]?.company_name,
+        websiteUrl: d.business_profiles[0]?.page_link,
+        logoUrl: d.business_profiles[0]?.logo_url,
+    }));
 };
+
+// ---- Business Profile Management ---- //
+export const getBusinessProfile = async (userId: string): Promise<BusinessProfile | null> => {
+    const { data, error } = await supabase
+        .from('business_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+    
+    if (error && error.code !== 'PGRST116') {
+        console.error('Error getting business profile:', error);
+    }
+    return data;
+};
+
+export const updateBusinessProfile = async (userId: string, profileData: Partial<BusinessProfile>): Promise<void> => {
+    const { error } = await supabase
+        .from('business_profiles')
+        .upsert({ user_id: userId, ...profileData }, { onConflict: 'user_id' });
+    
+    if (error) {
+        console.error("Error updating business profile:", error);
+        throw new Error("فشل في تحديث ملف الأعمال.");
+    }
+};
+
+export const updateUser = async (userId: string, userData: Partial<Pick<User, 'name' | 'bio'>>): Promise<void> => {
+    const { error } = await supabase
+        .from('users')
+        .update(userData)
+        .eq('id', userId);
+    
+    if (error) {
+        console.error('Error updating user profile:', error);
+        throw new Error('فشل تحديث بيانات المستخدم.');
+    }
+}

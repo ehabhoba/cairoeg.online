@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
 
 const LoginPage: React.FC = () => {
-    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
@@ -13,7 +14,7 @@ const LoginPage: React.FC = () => {
         event.preventDefault();
         setIsLoading(true);
         try {
-            await login(phone, password);
+            await login(email, password);
             addNotification('تم تسجيل الدخول بنجاح!', 'جاري توجيهك إلى لوحة التحكم...', 'success');
         } catch (error: any) {
             addNotification('خطأ في تسجيل الدخول', error.message, 'error');
@@ -40,17 +41,17 @@ const LoginPage: React.FC = () => {
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div className="rounded-md shadow-sm -space-y-px">
                             <div>
-                                <label htmlFor="phone-number" className="sr-only">رقم الهاتف</label>
+                                <label htmlFor="email-address" className="sr-only">البريد الإلكتروني</label>
                                 <input
-                                    id="phone-number"
-                                    name="phone"
-                                    type="tel"
-                                    autoComplete="tel"
+                                    id="email-address"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
                                     required
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-slate-900 text-slate-300 placeholder-slate-500 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                                    placeholder="رقم الهاتف"
+                                    placeholder="البريد الإلكتروني"
                                 />
                             </div>
                             <div>

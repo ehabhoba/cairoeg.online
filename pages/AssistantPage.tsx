@@ -5,6 +5,7 @@ import QuickActions from '../components/QuickActions';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { type Message } from '../types';
 import { ai, SYSTEM_INSTRUCTION } from '../services/geminiService';
+import { useAuth } from '../hooks/useAuth';
 import type { Chat } from '@google/genai';
 
 const CHAT_HISTORY_KEY = 'gemini-smart-organizer-chat-history';
@@ -15,6 +16,7 @@ const initialMessage: Message = {
 };
 
 const AssistantPage: React.FC = () => {
+  const { currentUser } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
@@ -186,7 +188,12 @@ const AssistantPage: React.FC = () => {
       <main className="flex-1 overflow-hidden h-full">
         <div className="max-w-7xl mx-auto h-full grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-4 xl:col-span-3 h-full overflow-y-auto">
-             <QuickActions onActionClick={handleSendMessage} isLoading={isLoading} onNewChat={handleNewChatRequest} />
+             <QuickActions 
+                onActionClick={handleSendMessage} 
+                isLoading={isLoading} 
+                onNewChat={handleNewChatRequest}
+                userRole={currentUser?.role || 'client'}
+              />
           </div>
           <div className="col-span-12 lg:col-span-8 xl:col-span-9 h-full">
             <ChatWindow 

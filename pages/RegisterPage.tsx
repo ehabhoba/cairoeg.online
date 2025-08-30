@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
@@ -13,6 +14,7 @@ const PasswordRequirement: React.FC<{ isValid: boolean; text: string }> = ({ isV
 
 const RegisterPage: React.FC = () => {
     const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -49,13 +51,13 @@ const RegisterPage: React.FC = () => {
         }
         setIsLoading(true);
         try {
-            await register(name, phone, password, 'client');
-            addNotification('نجاح!', 'تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول.', 'success');
-            // Redirect to login page after a short delay
+            await register(name, email, phone, password);
+            addNotification('نجاح!', 'تم إنشاء حسابك. برجاء مراجعة بريدك الإلكتروني لتفعيل الحساب.', 'success', 10000);
+            
             setTimeout(() => {
                 window.history.pushState({}, '', '/login');
                 window.dispatchEvent(new Event('popstate'));
-            }, 2000);
+            }, 3000);
         } catch (error: any) {
             addNotification('خطأ في التسجيل', error.message, 'error');
             setIsLoading(false);
@@ -90,6 +92,19 @@ const RegisterPage: React.FC = () => {
                                     onChange={(e) => setName(e.target.value)}
                                     className="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-light-bg text-slate-300 placeholder-slate-500 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                                     placeholder="الاسم الكامل"
+                                />
+                            </div>
+                             <div>
+                                <label htmlFor="email-address" className="sr-only">البريد الإلكتروني</label>
+                                <input
+                                    id="email-address"
+                                    name="email"
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="appearance-none rounded-none relative block w-full px-3 py-3 border border-slate-700 bg-light-bg text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                                    placeholder="البريد الإلكتروني"
                                 />
                             </div>
                             <div>

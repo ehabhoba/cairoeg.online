@@ -60,6 +60,9 @@ export const getProjectDetails = async (projectId: string): Promise<Project | nu
         name: data.notes || `Project #${data.id}`,
         status: data.status,
         client: {
+// @FIX: Add missing properties 'id' and 'email' to satisfy the User type.
+            id: data.users.id,
+            email: data.users.email,
             name: data.users.name,
             phone: data.users.phone_number,
             role: data.users.role,
