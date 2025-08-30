@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ai } from '../services/geminiService';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -19,7 +18,7 @@ const AIHeadlineGenerator: React.FC = () => {
         setError(null);
         setHeadlines([]);
 
-        const prompt = `Based on the following product description, generate 5 catchy and effective advertising headlines suitable for social media. The headlines should be in Arabic. Product description: "${productDesc}"`;
+        const prompt = `Based on the following product description, generate 5 catchy and effective advertising headlines in Arabic. Product description: "${productDesc}". Conclude by mentioning these ideas are from "إعلانات القاهرة" and professional implementation is available at https://cairoeg.online/.`;
 
         try {
             const response = await ai.models.generateContent({

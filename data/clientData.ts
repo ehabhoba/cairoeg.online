@@ -1,3 +1,4 @@
+
 import { supabase } from '../services/supabaseClient';
 
 // These types align with the app's needs.
@@ -18,7 +19,7 @@ export interface ClientInvoice {
     issueDate: string; // `invoices.issue_date`
     amount: number; // `invoices.amount`
     status: 'مدفوعة' | 'غير مدفوعة'; // `invoices.status`
-    items: { description: string; amount: number }[]; // Stored in a custom `items` jsonb column
+    items: { description: string; amount: number }[]; // UI-only field for calculation
 }
 
 export interface ProjectFile {
@@ -37,6 +38,36 @@ export interface Campaign {
     status: 'draft' | 'active' | 'completed';
 }
 
+// ---- Status Mapping Helpers ----
+const projectStatusFromDb = (dbStatus: string | null): ClientProject['status'] => {
+    switch (dbStatus) {
+        case 'pending':
+        case 'in_progress':
+            return 'قيد التنفيذ';
+        case 'completed':
+            return 'مكتمل';
+        case 'on_hold':
+        case 'paused':
+        case 'cancelled':
+            return 'متوقف';
+        default:
+            return 'قيد التنفيذ';
+    }
+};
+
+const projectStatusToDb = (appStatus: ClientProject['status']): string => {
+    switch (appStatus) {
+        case 'قيد التنفيذ':
+            return 'pending';
+        case 'مكتمل':
+            return 'completed';
+        case 'متوقف':
+            return 'paused';
+        default:
+            return 'pending';
+    }
+};
+
 
 // --- User ID Helper ---
 const getUserIdByPhone = async (phone: string): Promise<string | null> => {
@@ -54,7 +85,7 @@ export const getProjectsByClient = async (clientPhone: string): Promise<ClientPr
     const userId = await getUserIdByPhone(clientPhone);
     if (!userId) return [];
     
-    const { data, error } = await supabase.from('orders').select('*').eq('user_id', userId);
+    const { data, error } = await supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     if (error) {
         console.error('Error fetching projects:', error);
         return [];
@@ -65,31 +96,40 @@ export const getProjectsByClient = async (clientPhone: string): Promise<ClientPr
         id: p.id,
         clientPhone,
         name: p.notes || `مشروع #${p.id}`,
-        status: p.status === 'pending' ? 'قيد التنفيذ' : p.status === 'completed' ? 'مكتمل' : 'متوقف',
+        status: projectStatusFromDb(p.status),
         startDate: new Date(p.created_at).toISOString().split('T')[0],
-        dueDate: new Date(p.updated_at).toISOString().split('T')[0], // Placeholder
+        dueDate: p.updated_at ? new Date(p.updated_at).toISOString().split('T')[0] : '', // Placeholder
     }));
 };
 
 export const addProject = async (project: ClientProject): Promise<void> => {
     const userId = await getUserIdByPhone(project.clientPhone);
     if (!userId) throw new Error("Client not found");
+    
+    // Dynamically fetch a valid service_id to prevent foreign key errors
+    const { data: services, error: serviceError } = await supabase.from('services').select('id').limit(1);
+    if (serviceError || !services || services.length === 0) {
+        throw new Error('No services available to associate with the project.');
+    }
+    const serviceId = services[0].id;
 
     const { error } = await supabase.from('orders').insert({
-        id: project.id,
         user_id: userId,
-        service_id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef', // Placeholder service_id
+        service_id: serviceId,
         notes: project.name,
-        status: project.status,
-        created_at: project.startDate
+        status: projectStatusToDb(project.status),
+        // Let the DB handle id and created_at
     });
-    if (error) throw new Error('Failed to add project.');
+    if (error) {
+        console.error("Error adding project:", error);
+        throw new Error('Failed to add project.');
+    }
 };
 
 export const updateProject = async (project: ClientProject): Promise<void> => {
      const { error } = await supabase.from('orders').update({
         notes: project.name,
-        status: project.status
+        status: projectStatusToDb(project.status)
     }).eq('id', project.id);
     if (error) throw new Error('Failed to update project.');
 };
@@ -101,7 +141,7 @@ export const getInvoicesByClient = async (clientPhone: string): Promise<ClientIn
     const userId = await getUserIdByPhone(clientPhone);
     if (!userId) return [];
 
-    const { data, error } = await supabase.from('invoices').select('*').eq('user_id', userId);
+    const { data, error } = await supabase.from('invoices').select('*').eq('user_id', userId).order('issue_date', { ascending: false });
     if (error) return [];
     
     return data.map(i => ({
@@ -110,7 +150,7 @@ export const getInvoicesByClient = async (clientPhone: string): Promise<ClientIn
         issueDate: new Date(i.issue_date).toISOString().split('T')[0],
         amount: i.amount,
         status: i.status === 'unpaid' ? 'غير مدفوعة' : 'مدفوعة',
-        items: i.items || [{ description: 'فاتورة', amount: i.amount }] // Assumes an `items` jsonb column
+        items: i.items || [{ description: 'فاتورة', amount: i.amount }]
     }));
 };
 
@@ -119,21 +159,22 @@ export const addInvoice = async (invoice: ClientInvoice): Promise<void> => {
     if (!userId) throw new Error("Client not found");
 
     const { error } = await supabase.from('invoices').insert({
-        id: invoice.id,
         user_id: userId,
         amount: invoice.amount,
         status: invoice.status === 'مدفوعة' ? 'paid' : 'unpaid',
         issue_date: invoice.issueDate,
-        items: invoice.items,
+        // The `items` column doesn't exist in the provided schema. Only total amount is saved.
     });
-    if (error) throw new Error('Failed to add invoice.');
+    if (error) {
+        console.error("Error adding invoice:", error);
+        throw new Error('Failed to add invoice.');
+    }
 };
 
 export const updateInvoice = async (invoice: ClientInvoice): Promise<void> => {
      const { error } = await supabase.from('invoices').update({
         amount: invoice.amount,
         status: invoice.status === 'مدفوعة' ? 'paid' : 'unpaid',
-        items: invoice.items,
     }).eq('id', invoice.id);
     if (error) throw new Error('Failed to update invoice.');
 };

@@ -19,11 +19,11 @@ const iconMap: { [key: string]: React.ReactNode } = {
 };
 
 const serviceLinks: { [id: string]: string } = {
-    'ads': '#/services/marketing',
-    'creation': '#/services/ad-creation',
-    'design': '#/services/graphic-design',
-    'dev': '#/services/web-design',
-    'seo': '#/services/marketing',
+    'ads': '/services/marketing',
+    'creation': '/services/ad-creation',
+    'design': '/services/graphic-design',
+    'dev': '/services/web-design',
+    'seo': '/services/marketing',
 };
 
 const ServicesPage: React.FC = () => {

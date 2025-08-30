@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
@@ -31,6 +29,8 @@ import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import PublishArticlePage from './pages/PublishArticlePage';
 import AuthorProfilePage from './pages/AuthorProfilePage';
+import PortfolioClientPage from './pages/PortfolioClientPage';
+import PlatformGuidePage from './pages/PlatformGuidePage';
 
 // Service Pages
 import MarketingPage from './pages/Services/MarketingPage';
@@ -168,8 +168,16 @@ const App: React.FC = () => {
                 pageDescription = "اكتشف باقات أسعارنا المرنة التي تناسب جميع أحجام الشركات، من الناشئة إلى الكبيرة.";
                 break;
             case 'portfolio':
-                pageTitle = `معرض أعمالنا في التسويق الرقمي - ${baseTitle}`;
-                pageDescription = "شاهد قصص نجاح عملائنا وتعرف على جودة المشاريع التي نفخر بتقديمها في مختلف المجالات.";
+                if (slug) {
+                    const client = await findUserByPhone(slug);
+                    if(client) {
+                        pageTitle = `أعمالنا مع ${client.name} - ${baseTitle}`;
+                        pageDescription = `شاهد معرض أعمالنا ومشاريعنا الناجحة التي قمنا بتنفيذها مع ${client.name}.`;
+                    }
+                } else {
+                     pageTitle = `معرض أعمالنا في التسويق الرقمي - ${baseTitle}`;
+                    pageDescription = "شاهد قصص نجاح عملائنا وتعرف على جودة المشاريع التي نفخر بتقديمها في مختلف المجالات.";
+                }
                 break;
             case 'about':
                 pageTitle = `عن وكالة إعلانات القاهرة للتسويق - ${baseTitle}`;
@@ -186,21 +194,17 @@ const App: React.FC = () => {
             case 'terms': pageTitle = `شروط الخدمة - ${baseTitle}`; break;
             case 'privacy': pageTitle = `سياسة الخصوصية - ${baseTitle}`; break;
             case 'publish-article': pageTitle = `انشر مقالتك - ${baseTitle}`; break;
+            case 'guide': pageTitle = `دليل المنصة - ${baseTitle}`; break;
             case 'blog': 
                 if (slug) {
                     const post = await getPostBySlug(slug);
                     if (post) {
                         const author = await findUserByPhone(post.authorPhone);
                         pageTitle = `${post.title} - بقلم ${author?.name || 'فريقنا'} | ${baseTitle}`;
-                        
-                        // SEO Improvement: Unique and descriptive meta description
                         pageDescription = `اكتشف في قسم "${post.category}": ${post.excerpt}`;
-
-                        // SEO Improvement: Enriched keywords from title, category, and tags
                         const titleKeywords = post.title.split(' ').filter(word => word.length > 3);
                         const allKeywords = [...post.tags, post.category, ...titleKeywords];
                         pageKeywords = [...new Set(allKeywords)].join(', ');
-
                         ogImage = post.imageUrl;
 
                         updateStructuredData({
@@ -302,7 +306,8 @@ const App: React.FC = () => {
                 default: return <ServicesPage />; 
             }
         case 'pricing': return <PricingPage />;
-        case 'portfolio': return <PortfolioPage />;
+        case 'portfolio': 
+            return slug ? <PortfolioClientPage clientPhone={slug} /> : <PortfolioPage />;
         case 'about': return <AboutPage />;
         case 'contact': return <ContactPage />;
         case 'login': return <LoginPage />;
@@ -312,6 +317,7 @@ const App: React.FC = () => {
         case 'terms': return <TermsPage />;
         case 'privacy': return <PrivacyPolicyPage />;
         case 'publish-article': return <PublishArticlePage />;
+        case 'guide': return <PlatformGuidePage />;
         case 'author': return slug ? <AuthorProfilePage authorPhone={slug} /> : <BlogPage />;
         case 'blog': 
             return slug ? <BlogPostPage slug={slug} /> : <BlogPage />;

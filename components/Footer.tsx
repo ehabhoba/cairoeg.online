@@ -16,6 +16,7 @@ const Footer: React.FC = () => {
     const supportLinks = [
         { href: "/contact", label: "تواصل معنا" },
         { href: "/payments", label: "طرق الدفع" },
+        { href: "/guide", label: "دليل المنصة" },
         { href: "/terms", label: "شروط الخدمة" },
         { href: "/privacy", label: "سياسة الخصوصية" },
     ];
