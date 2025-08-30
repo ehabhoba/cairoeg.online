@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
-import { getProjectsByClient, ClientProject } from '../../data/clientData';
-import { getInvoicesByClient, ClientInvoice } from '../../data/clientData';
-import { getNotifications, Notification } from '../../data/notificationsData';
+import { getProjectsByClient, ClientProject, getInvoicesByClient, ClientInvoice, getFilesByClient, ProjectFile, getCampaignsByClient, Campaign } from '../../data/clientData';
 import { ProjectIcon } from '../../components/icons/ProjectIcon';
 import { InvoiceIcon } from '../../components/icons/InvoiceIcon';
+import { DocumentIcon } from '../../components/icons/DocumentIcon';
+import { MegaphoneIcon } from '../../components/icons/MegaphoneIcon';
 import Badge from '../../components/Badge';
 import { useAuth } from '../../hooks/useAuth';
-import { BellIcon } from '../../components/icons/BellIcon';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const StatCard: React.FC<{ title: string, value: string | number, icon: React.ReactNode, iconBgColor: string }> = ({ title, value, icon, iconBgColor }) => {
     return (
@@ -30,17 +29,25 @@ const ClientDashboardPage: React.FC = () => {
     const { currentUser } = useAuth();
     const [projects, setProjects] = useState<ClientProject[]>([]);
     const [invoices, setInvoices] = useState<ClientInvoice[]>([]);
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [files, setFiles] = useState<ProjectFile[]>([]);
+    const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+    const [loading, setLoading] = useState(true);
     
     useEffect(() => {
         if (currentUser) {
             const fetchData = async () => {
-                const clientProjects = await getProjectsByClient(currentUser.phone);
-                const clientInvoices = await getInvoicesByClient(currentUser.phone);
-                const clientNotifications = await getNotifications(currentUser.phone);
+                setLoading(true);
+                const [clientProjects, clientInvoices, clientFiles, clientCampaigns] = await Promise.all([
+                    getProjectsByClient(currentUser.phone),
+                    getInvoicesByClient(currentUser.phone),
+                    getFilesByClient(currentUser.phone),
+                    getCampaignsByClient(currentUser.phone),
+                ]);
                 setProjects(clientProjects);
                 setInvoices(clientInvoices);
-                setNotifications(clientNotifications.slice(0, 4)); // Get latest 4
+                setFiles(clientFiles);
+                setCampaigns(clientCampaigns);
+                setLoading(false);
             };
             fetchData();
         }
@@ -48,7 +55,10 @@ const ClientDashboardPage: React.FC = () => {
 
     const activeProjects = projects.filter(p => p.status === 'قيد التنفيذ').length;
     const unpaidInvoices = invoices.filter(i => i.status === 'غير مدفوعة').length;
-    const latestProject = projects.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())[0];
+
+    if (loading) {
+        return <div className="flex items-center justify-center h-full bg-dark-bg"><LoadingSpinner /></div>
+    }
 
     return (
         <main className="flex-1 bg-dark-bg p-4 lg:p-6 overflow-y-auto">
@@ -72,59 +82,53 @@ const ClientDashboardPage: React.FC = () => {
                     />
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Recent Project */}
-                    <div className="lg:col-span-2 bg-gradient-to-br from-light-bg to-panel-bg p-6 rounded-2xl border border-slate-700/50 shadow-lg">
-                        <h3 className="text-lg font-bold text-white mb-4">آخر تحديث لمشاريعك</h3>
-                        {latestProject ? (
-                            <div>
-                                <div className="flex justify-between items-start">
-                                    <h4 className="font-semibold text-slate-200 text-lg">{latestProject.name}</h4>
-                                    <Badge color={latestProject.status === 'مكتمل' ? 'green' : 'blue'}>{latestProject.status}</Badge>
-                                </div>
-                                <p className="text-sm text-slate-400 mt-2">تاريخ التسليم المتوقع: {latestProject.dueDate}</p>
-                                 <div className="w-full bg-slate-700 rounded-full h-1.5 mt-3">
-                                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '75%' }}></div>
-                                </div>
-                                <a href="/client/projects" className="text-sm font-semibold text-primary-light hover:underline mt-4 inline-block">عرض كل المشاريع →</a>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Active Campaigns */}
+                    <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
+                        <h3 className="text-lg font-bold text-white mb-4">الحملات الإعلانية النشطة</h3>
+                        {campaigns.length > 0 ? (
+                            <div className="space-y-3">
+                                {campaigns.map(c => (
+                                    <div key={c.id} className="bg-light-bg p-3 rounded-lg">
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-medium text-white">{c.platform} Campaign</p>
+                                            <Badge color={c.status === 'active' ? 'green' : 'gray'}>{c.status}</Badge>
+                                        </div>
+                                        <p className="text-sm text-slate-400 mt-1">الميزانية: {c.budget.toLocaleString()} ج.م</p>
+                                    </div>
+                                ))}
                             </div>
-                        ) : (
-                             <div className="text-center py-8">
-                                 <ProjectIcon className="mx-auto w-12 h-12 text-slate-600 mb-2" />
-                                <p className="text-slate-400">لا توجد مشاريع حالياً.</p>
-                                 <a href="/client/requests" className="text-sm font-semibold text-primary-light hover:underline mt-2 inline-block">اطلب أول خدمة لك</a>
-                            </div>
-                        )}
+                        ) : <p className="text-slate-400 text-center py-4">لا توجد حملات نشطة حالياً.</p>}
                     </div>
+                    
+                    {/* Recent Files */}
                      <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
-                        <h3 className="text-lg font-bold text-white mb-4">إجراءات سريعة</h3>
-                        <div className="space-y-3">
-                            <a href="/client/requests" className="block w-full text-center px-4 py-2.5 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-colors">تقديم طلب جديد</a>
-                            <a href="/client/profile" className="block w-full text-center px-4 py-2.5 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">تعديل ملفي الشخصي</a>
-                             <a href="/client/support" className="block w-full text-center px-4 py-2.5 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">طلب دعم فني</a>
-                        </div>
-                    </div>
-
-                    {/* Notifications */}
-                     <div className="lg:col-span-3 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
-                        <h3 className="text-lg font-bold text-white mb-4">أحدث الإشعارات</h3>
-                         {notifications.length > 0 ? (
-                            <ul className="space-y-4">
-                                {notifications.map(n => (
-                                    <li key={n.id} className="flex items-center gap-3">
-                                        <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-primary/20 text-primary rounded-full">
-                                            <BellIcon className="w-5 h-5" />
+                        <h3 className="text-lg font-bold text-white mb-4">أحدث الملفات والتصميمات</h3>
+                        {files.length > 0 ? (
+                            <ul className="space-y-3">
+                                {files.slice(0, 4).map(f => (
+                                    <li key={f.id} className="flex items-center gap-3 bg-light-bg p-3 rounded-lg">
+                                        <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-accent/20 text-accent rounded-md">
+                                            <DocumentIcon className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-slate-200">{n.message}</p>
-                                            <p className="text-xs text-slate-500">{new Date(n.timestamp).toLocaleString('ar-EG')}</p>
+                                            <p className="text-sm font-medium text-slate-200 truncate">{f.file_name}</p>
+                                            <p className="text-xs text-slate-500">{new Date(f.uploaded_at).toLocaleDateString('ar-EG')}</p>
                                         </div>
                                     </li>
                                 ))}
                             </ul>
-                        ) : (
-                            <p className="text-slate-400 text-center py-4">لا توجد إشعارات جديدة.</p>
-                        )}
+                        ) : <p className="text-slate-400 text-center py-4">لا توجد ملفات مرفوعة.</p>}
+                    </div>
+
+                     <div className="lg:col-span-2 bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg">
+                        <h3 className="text-lg font-bold text-white mb-4">إجراءات سريعة</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <a href="/client/requests" className="block w-full text-center p-4 bg-primary text-white font-semibold rounded-lg shadow-sm hover:bg-primary-dark transition-colors">طلب جديد</a>
+                             <a href="/client/invoices" className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض الفواتير</a>
+                             <a href="/client/projects" className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">عرض المشاريع</a>
+                             <a href="/client/support" className="block w-full text-center p-4 bg-light-bg/50 text-slate-200 font-semibold rounded-lg hover:bg-light-bg transition-colors">طلب دعم فني</a>
+                        </div>
                     </div>
                 </div>
 

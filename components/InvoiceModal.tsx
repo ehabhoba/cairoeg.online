@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { ClientInvoice } from '../data/clientData';
+import { XIcon } from './icons/XIcon';
 
 interface InvoiceModalProps {
     isOpen: boolean;
@@ -21,7 +21,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, onSave, cl
             setAmount(invoice.amount);
             setStatus(invoice.status);
             setIssueDate(invoice.issueDate);
-            setItems(invoice.items || [{ description: 'مبلغ الفاتورة', amount: invoice.amount }]);
+            setItems(invoice.items && invoice.items.length > 0 ? invoice.items : [{ description: 'مبلغ الفاتورة', amount: invoice.amount }]);
         } else {
             setAmount('');
             setStatus('غير مدفوعة');
@@ -42,7 +42,11 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, onSave, cl
     };
     
     const addItem = () => setItems([...items, { description: '', amount: 0 }]);
-    const removeItem = (index: number) => setItems(items.filter((_, i) => i !== index));
+    const removeItem = (index: number) => {
+        if (items.length > 1) {
+            setItems(items.filter((_, i) => i !== index));
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -71,7 +75,9 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, onSave, cl
                             <div key={index} className="flex gap-2 items-center">
                                 <input type="text" placeholder="الوصف" value={item.description} onChange={e => handleItemChange(index, 'description', e.target.value)} className="flex-grow px-4 py-2 bg-light-bg border border-slate-700 text-white rounded-lg focus:ring-primary focus:border-primary" required />
                                 <input type="number" placeholder="المبلغ" value={item.amount || ''} onChange={e => handleItemChange(index, 'amount', e.target.value)} className="w-32 px-4 py-2 bg-light-bg border border-slate-700 text-white rounded-lg focus:ring-primary focus:border-primary" required />
-                                <button type="button" onClick={() => removeItem(index)} className="p-2 text-red-400 hover:text-red-300">&times;</button>
+                                <button type="button" onClick={() => removeItem(index)} className="p-2 text-red-400 hover:text-red-300 disabled:opacity-50" disabled={items.length <= 1}>
+                                   <XIcon className="w-5 h-5" />
+                                </button>
                             </div>
                         ))}
                         <button type="button" onClick={addItem} className="text-sm text-primary hover:underline">+ إضافة بند</button>
@@ -79,7 +85,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, onSave, cl
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                              <label className="block text-sm font-medium text-slate-300">المبلغ الإجمالي</label>
-                             <input type="text" value={`${amount.toLocaleString()} ج.م`} readOnly className="mt-1 block w-full px-4 py-2 bg-slate-900 border border-slate-700 text-white rounded-lg" />
+                             <input type="text" value={`${(amount || 0).toLocaleString()} ج.م`} readOnly className="mt-1 block w-full px-4 py-2 bg-slate-900 border border-slate-700 text-white rounded-lg" />
                         </div>
                         <div>
                              <label htmlFor="invoiceStatus" className="block text-sm font-medium text-slate-300">الحالة</label>

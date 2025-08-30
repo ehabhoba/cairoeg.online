@@ -1,101 +1,159 @@
+import { supabase } from '../services/supabaseClient';
+
+// These types align with the app's needs.
+// They will be populated from the Supabase schema.
 
 export interface ClientProject {
-    id: string;
+    id: string; // Corresponds to `orders.id`
     clientPhone: string;
-    name: string;
-    status: 'قيد التنفيذ' | 'مكتمل' | 'متوقف';
-    startDate: string;
-    dueDate: string;
+    name: string; // Corresponds to `orders.notes` or similar
+    status: 'قيد التنفيذ' | 'مكتمل' | 'متوقف'; // Corresponds to `orders.status`
+    startDate: string; // Corresponds to `orders.created_at`
+    dueDate: string; // A new field or from `orders` table if available
 }
 
 export interface ClientInvoice {
-    id: string;
+    id: string; // Corresponds to `invoices.id`
     clientPhone: string;
-    issueDate: string;
-    amount: number;
-    status: 'مدفوعة' | 'غير مدفوعة';
-    items: { description: string; amount: number }[];
+    issueDate: string; // `invoices.issue_date`
+    amount: number; // `invoices.amount`
+    status: 'مدفوعة' | 'غير مدفوعة'; // `invoices.status`
+    items: { description: string; amount: number }[]; // Stored in a custom `items` jsonb column
 }
 
-const PROJECTS_DB_KEY = 'cairoeg-client-projects';
-const INVOICES_DB_KEY = 'cairoeg-client-invoices';
+export interface ProjectFile {
+    id: number;
+    order_id: string;
+    file_name: string;
+    file_url: string;
+    uploaded_at: string;
+}
 
-// --- Database Simulation ---
-const simulateDelay = (ms: number) => new Promise(res => setTimeout(res, ms));
+export interface Campaign {
+    id: number;
+    order_id: string;
+    platform: string;
+    budget: number;
+    status: 'draft' | 'active' | 'completed';
+}
 
-// --- Initialization ---
-export const initializeClientData = (): void => {
-    if (!localStorage.getItem(PROJECTS_DB_KEY)) {
-        const initialProjects: ClientProject[] = [
-             { id: 'PROJ-001', clientPhone: '01234567890', name: 'حملة إعلانية لرمضان', status: 'مكتمل', startDate: '2024-03-01', dueDate: '2024-04-10' },
-             { id: 'PROJ-002', clientPhone: '01234567890', name: 'تصميم هوية بصرية جديدة', status: 'قيد التنفيذ', startDate: '2024-04-15', dueDate: '2024-05-05' },
-        ];
-        localStorage.setItem(PROJECTS_DB_KEY, JSON.stringify(initialProjects));
+
+// --- User ID Helper ---
+const getUserIdByPhone = async (phone: string): Promise<string | null> => {
+    const { data, error } = await supabase.from('users').select('id').eq('phone_number', phone).single();
+    if (error || !data) {
+        console.error('Error fetching user ID for phone:', phone, error);
+        return null;
     }
-     if (!localStorage.getItem(INVOICES_DB_KEY)) {
-        const initialInvoices: ClientInvoice[] = [
-            { id: 'INV-2024-050', clientPhone: '01234567890', issueDate: '2024-03-01', amount: 15000, status: 'مدفوعة', items: [{description: 'حملة رمضان', amount: 15000}] },
-            { id: 'INV-2024-051', clientPhone: '01234567890', issueDate: '2024-04-15', amount: 8000, status: 'غير مدفوعة', items: [{description: 'دفعة أولى هوية بصرية', amount: 8000}] },
-        ];
-        localStorage.setItem(INVOICES_DB_KEY, JSON.stringify(initialInvoices));
-    }
+    return data.id;
 };
 
-// --- Projects Management ---
-const getProjects = async (): Promise<ClientProject[]> => {
-    await simulateDelay(100);
-    const projectsJson = localStorage.getItem(PROJECTS_DB_KEY);
-    return projectsJson ? JSON.parse(projectsJson) : [];
-};
-
-const saveProjects = async (projects: ClientProject[]): Promise<void> => {
-    await simulateDelay(100);
-    localStorage.setItem(PROJECTS_DB_KEY, JSON.stringify(projects));
-};
+// --- Projects (Orders) Management ---
 
 export const getProjectsByClient = async (clientPhone: string): Promise<ClientProject[]> => {
-    const allProjects = await getProjects();
-    return allProjects.filter(p => p.clientPhone === clientPhone);
+    const userId = await getUserIdByPhone(clientPhone);
+    if (!userId) return [];
+    
+    const { data, error } = await supabase.from('orders').select('*').eq('user_id', userId);
+    if (error) {
+        console.error('Error fetching projects:', error);
+        return [];
+    }
+    
+    // Map DB schema to app's `ClientProject` type
+    return data.map(p => ({
+        id: p.id,
+        clientPhone,
+        name: p.notes || `مشروع #${p.id}`,
+        status: p.status === 'pending' ? 'قيد التنفيذ' : p.status === 'completed' ? 'مكتمل' : 'متوقف',
+        startDate: new Date(p.created_at).toISOString().split('T')[0],
+        dueDate: new Date(p.updated_at).toISOString().split('T')[0], // Placeholder
+    }));
 };
 
 export const addProject = async (project: ClientProject): Promise<void> => {
-    const projects = await getProjects();
-    projects.push(project);
-    await saveProjects(projects);
+    const userId = await getUserIdByPhone(project.clientPhone);
+    if (!userId) throw new Error("Client not found");
+
+    const { error } = await supabase.from('orders').insert({
+        id: project.id,
+        user_id: userId,
+        service_id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef', // Placeholder service_id
+        notes: project.name,
+        status: project.status,
+        created_at: project.startDate
+    });
+    if (error) throw new Error('Failed to add project.');
 };
 
-export const updateProject = async (updatedProject: ClientProject): Promise<void> => {
-    let projects = await getProjects();
-    projects = projects.map(p => p.id === updatedProject.id ? updatedProject : p);
-    await saveProjects(projects);
+export const updateProject = async (project: ClientProject): Promise<void> => {
+     const { error } = await supabase.from('orders').update({
+        notes: project.name,
+        status: project.status
+    }).eq('id', project.id);
+    if (error) throw new Error('Failed to update project.');
 };
 
 
 // --- Invoices Management ---
-const getInvoices = async (): Promise<ClientInvoice[]> => {
-    await simulateDelay(100);
-    const invoicesJson = localStorage.getItem(INVOICES_DB_KEY);
-    return invoicesJson ? JSON.parse(invoicesJson) : [];
-};
-
-const saveInvoices = async (invoices: ClientInvoice[]): Promise<void> => {
-    await simulateDelay(100);
-    localStorage.setItem(INVOICES_DB_KEY, JSON.stringify(invoices));
-};
 
 export const getInvoicesByClient = async (clientPhone: string): Promise<ClientInvoice[]> => {
-    const allInvoices = await getInvoices();
-    return allInvoices.filter(i => i.clientPhone === clientPhone);
+    const userId = await getUserIdByPhone(clientPhone);
+    if (!userId) return [];
+
+    const { data, error } = await supabase.from('invoices').select('*').eq('user_id', userId);
+    if (error) return [];
+    
+    return data.map(i => ({
+        id: i.id,
+        clientPhone,
+        issueDate: new Date(i.issue_date).toISOString().split('T')[0],
+        amount: i.amount,
+        status: i.status === 'unpaid' ? 'غير مدفوعة' : 'مدفوعة',
+        items: i.items || [{ description: 'فاتورة', amount: i.amount }] // Assumes an `items` jsonb column
+    }));
 };
 
 export const addInvoice = async (invoice: ClientInvoice): Promise<void> => {
-    const invoices = await getInvoices();
-    invoices.push(invoice);
-    await saveInvoices(invoices);
+    const userId = await getUserIdByPhone(invoice.clientPhone);
+    if (!userId) throw new Error("Client not found");
+
+    const { error } = await supabase.from('invoices').insert({
+        id: invoice.id,
+        user_id: userId,
+        amount: invoice.amount,
+        status: invoice.status === 'مدفوعة' ? 'paid' : 'unpaid',
+        issue_date: invoice.issueDate,
+        items: invoice.items,
+    });
+    if (error) throw new Error('Failed to add invoice.');
 };
 
-export const updateInvoice = async (updatedInvoice: ClientInvoice): Promise<void> => {
-    let invoices = await getInvoices();
-    invoices = invoices.map(i => i.id === updatedInvoice.id ? updatedInvoice : i);
-    await saveInvoices(invoices);
+export const updateInvoice = async (invoice: ClientInvoice): Promise<void> => {
+     const { error } = await supabase.from('invoices').update({
+        amount: invoice.amount,
+        status: invoice.status === 'مدفوعة' ? 'paid' : 'unpaid',
+        items: invoice.items,
+    }).eq('id', invoice.id);
+    if (error) throw new Error('Failed to update invoice.');
+};
+
+// --- Files & Campaigns for Dashboard ---
+
+export const getFilesByClient = async (clientPhone: string): Promise<ProjectFile[]> => {
+    const projects = await getProjectsByClient(clientPhone);
+    if (projects.length === 0) return [];
+    const projectIds = projects.map(p => p.id);
+
+    const { data, error } = await supabase.from('project_files').select('*').in('order_id', projectIds);
+    return error ? [] : data;
+};
+
+export const getCampaignsByClient = async (clientPhone: string): Promise<Campaign[]> => {
+    const projects = await getProjectsByClient(clientPhone);
+    if (projects.length === 0) return [];
+    const projectIds = projects.map(p => p.id);
+    
+    const { data, error } = await supabase.from('campaigns').select('*').in('order_id', projectIds);
+    return error ? [] : data;
 };

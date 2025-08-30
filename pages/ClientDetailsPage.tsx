@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, findUserByPhone } from '../data/userData';
 import { ClientProject, ClientInvoice, getProjectsByClient, getInvoicesByClient, addProject, addInvoice, updateProject, updateInvoice } from '../data/clientData';
@@ -30,20 +29,25 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
 
     const fetchData = useCallback(async () => {
         setLoading(true);
-        const user = await findUserByPhone(clientPhone);
-        if (user) {
-            setClient(user);
-            const [clientProjects, clientInvoices, clientRequests] = await Promise.all([
-                getProjectsByClient(clientPhone),
-                getInvoicesByClient(clientPhone),
-                getRequestsByClient(clientPhone)
-            ]);
-            setProjects(clientProjects);
-            setInvoices(clientInvoices);
-            setRequests(clientRequests);
+        try {
+            const user = await findUserByPhone(clientPhone);
+            if (user) {
+                setClient(user);
+                const [clientProjects, clientInvoices, clientRequests] = await Promise.all([
+                    getProjectsByClient(clientPhone),
+                    getInvoicesByClient(clientPhone),
+                    getRequestsByClient(clientPhone)
+                ]);
+                setProjects(clientProjects);
+                setInvoices(clientInvoices);
+                setRequests(clientRequests);
+            }
+        } catch (error) {
+            addNotification('خطأ', 'فشل في جلب بيانات العميل.', 'error');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
-    }, [clientPhone]);
+    }, [clientPhone, addNotification]);
 
     useEffect(() => {
         fetchData();
@@ -128,10 +132,10 @@ const ClientDetailsPage: React.FC<{ clientPhone: string }> = ({ clientPhone }) =
                         </div>
                         <div className="space-y-3">
                             {projects.map(p => (
-                                <div key={p.id} className="bg-light-bg p-3 rounded-lg flex justify-between items-center">
+                                <a key={p.id} href={`/dashboard/project/${p.id}`} className="block bg-light-bg p-3 rounded-lg flex justify-between items-center transition-colors hover:bg-slate-700/50">
                                     <p className="font-medium text-white">{p.name}</p>
                                     <Badge color={p.status === 'مكتمل' ? 'green' : 'blue'}>{p.status}</Badge>
-                                </div>
+                                </a>
                             ))}
                         </div>
                     </div>

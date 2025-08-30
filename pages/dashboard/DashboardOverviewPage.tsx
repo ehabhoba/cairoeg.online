@@ -1,15 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
-import { kpiData, monthlyRevenue } from '../../data/mockAnalytics';
+import { kpiData as mockKpiData } from '../../data/mockAnalytics';
+import { getKpiData, getMonthlyRevenue, KpiData, MonthlyRevenue } from '../../data/analyticsData';
 import { CurrencyDollarIcon } from '../../components/icons/CurrencyDollarIcon';
 import { UsersGroupIcon } from '../../components/icons/UsersGroupIcon';
 import { ArrowTrendingUpIcon } from '../../components/icons/ArrowTrendingUpIcon';
 import Badge from '../../components/Badge';
-import { getAllClients } from '../../data/userData';
 import { ClientRequest, getAllRequests } from '../../data/requestsData';
 import { Notification, getNotifications } from '../../data/notificationsData';
 import { BellIcon } from '../../components/icons/BellIcon';
 import { ClipboardDocumentListIcon } from '../../components/icons/ClipboardDocumentListIcon';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
+
 
 const iconMap: { [key: string]: React.ReactNode } = {
     'Revenue': <CurrencyDollarIcon />,
@@ -36,7 +37,7 @@ const StatCard: React.FC<{ title: string; value: string; change?: string; change
 };
 
 const BarChart: React.FC<{ data: { month: string, revenue: number }[] }> = ({ data }) => {
-    const maxRevenue = Math.max(...data.map(d => d.revenue));
+    const maxRevenue = Math.max(...data.map(d => d.revenue), 1); // Avoid division by zero
     return (
         <div className="bg-panel-bg p-6 rounded-2xl border border-slate-100/10 shadow-lg h-full">
             <h3 className="text-lg font-bold text-white mb-4">نظرة عامة على الإيرادات الشهرية</h3>
@@ -59,23 +60,37 @@ const BarChart: React.FC<{ data: { month: string, revenue: number }[] }> = ({ da
 };
 
 const DashboardOverviewPage: React.FC = () => {
-    const [clientCount, setClientCount] = useState(0);
+    const [kpiData, setKpiData] = useState<KpiData | null>(null);
+    const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenue[]>([]);
     const [recentRequests, setRecentRequests] = useState<ClientRequest[]>([]);
     const [recentNotifications, setRecentNotifications] = useState<Notification[]>([]);
+    const [loading, setLoading] = useState(true);
     
     useEffect(() => {
         const fetchData = async () => {
-            const [clients, requests, notifications] = await Promise.all([
-                getAllClients(),
+            setLoading(true);
+            const [kpis, revenue, requests, notifications] = await Promise.all([
+                getKpiData(),
+                getMonthlyRevenue(),
                 getAllRequests(),
                 getNotifications('admin')
             ]);
-            setClientCount(clients.length);
+            setKpiData(kpis);
+            setMonthlyRevenue(revenue);
             setRecentRequests(requests.slice(0, 5));
             setRecentNotifications(notifications.slice(0, 5));
+            setLoading(false);
         };
         fetchData();
     }, []);
+
+    if (loading) {
+        return (
+            <main className="flex-1 bg-dark-bg p-6 flex items-center justify-center">
+                <LoadingSpinner />
+            </main>
+        )
+    }
 
   return (
     <main className="flex-1 bg-dark-bg p-4 lg:p-6 overflow-y-auto">
@@ -86,22 +101,20 @@ const DashboardOverviewPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                 <StatCard 
                     title="إجمالي الإيرادات"
-                    value={kpiData[0].value}
-                    change={kpiData[0].change}
-                    changeType={kpiData[0].changeType}
-                    icon={iconMap[kpiData[0].icon]}
+                    value={`${kpiData?.totalRevenue.toLocaleString() || 0} ج.م`}
+                    icon={iconMap['Revenue']}
                 />
                  <StatCard 
                     title="إجمالي العملاء"
-                    value={clientCount.toString()}
+                    value={kpiData?.clientCount.toString() || '0'}
                     icon={<UsersGroupIcon />}
                 />
                  <StatCard 
-                    title="معدل التحويل"
-                    value={kpiData[2].value}
-                    change={kpiData[2].change}
-                    changeType={kpiData[2].changeType}
-                    icon={iconMap[kpiData[2].icon]}
+                    title={mockKpiData[0].title}
+                    value={mockKpiData[0].value}
+                    change={mockKpiData[0].change}
+                    changeType={mockKpiData[0].changeType}
+                    icon={iconMap['Conversion']}
                 />
             </div>
 

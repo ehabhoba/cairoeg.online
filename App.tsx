@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { NotificationProvider } from './providers/NotificationProvider';
 import { getPostBySlug } from './data/blogData';
@@ -46,6 +47,7 @@ import CommentManagerPage from './pages/CommentManagerPage';
 import AIStudioPage from './pages/AIStudioPage';
 import RequestsManagerPage from './pages/dashboard/RequestsManagerPage';
 import ContentAutomatorPage from './pages/dashboard/ContentAutomatorPage';
+import ProjectDetailsPage from './pages/dashboard/ProjectDetailsPage';
 
 
 // Client Portal Pages
@@ -243,6 +245,7 @@ const App: React.FC = () => {
                 switch (slug) {
                     case 'overview': pageTitle = `نظرة عامة - ${baseTitle}`; break;
                     case 'clients': pageTitle = `إدارة العملاء - ${baseTitle}`; break;
+                    case 'project': pageTitle = `تفاصيل المشروع - ${baseTitle}`; break;
                     case 'requests': pageTitle = `إدارة الطلبات - ${baseTitle}`; break;
                     case 'articles': pageTitle = `إدارة المقالات - ${baseTitle}`; break;
                     case 'comments': pageTitle = `إدارة التعليقات - ${baseTitle}`; break;
@@ -322,6 +325,8 @@ const App: React.FC = () => {
           case 'overview': return <DashboardOverviewPage />;
           case 'clients': 
             return param ? <ClientDetailsPage clientPhone={param} /> : <ClientsPage />;
+          case 'project':
+            return param ? <ProjectDetailsPage projectId={param} /> : <DashboardOverviewPage />;
           case 'requests': return <RequestsManagerPage />;
           case 'articles': return <ArticleManagerPage />;
           case 'comments': return <CommentManagerPage />;
