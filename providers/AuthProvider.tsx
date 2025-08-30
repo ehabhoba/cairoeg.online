@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useCallback, ReactNode, Dispatch, SetStateAction } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { User, getUserProfile, createPublicUserProfile, findAdmin, createBusinessProfile } from '../data/userData';
@@ -26,7 +25,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const addNotification = useNotification();
-  const { navigate } = useNavigate();
+  const { navigate, route } = useNavigate();
 
 
   const handleSession = useCallback(async (session: Session | null) => {
@@ -34,7 +33,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const profile = await getUserProfile(session.user.id);
         if (profile) {
             setCurrentUser({ ...profile, id: session.user.id });
-             if (window.location.pathname.includes('/login') || window.location.pathname.includes('/register')) {
+             if (route === '/login' || route === '/register' || route === '/forgot-password') {
                 navigate(profile.role === 'admin' ? '/dashboard/overview' : '/client/dashboard');
              }
         } else {
@@ -46,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCurrentUser(null);
     }
     setLoading(false);
-  }, [navigate]);
+  }, [navigate, route]);
 
   useEffect(() => {
     const checkSession = async () => {

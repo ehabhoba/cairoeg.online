@@ -3,6 +3,7 @@
 
 
 
+
 import React, { useEffect } from 'react';
 import { getPostBySlug } from './data/blogData';
 import { useAuth } from './hooks/useAuth';
@@ -106,7 +107,7 @@ const App: React.FC = () => {
         const baseTitle = "إعلانات القاهرة | Cairoeg";
         let pageTitle = baseTitle;
         let pageDescription = "إعلانات القاهرة (Cairoeg) هي شريكك الرقمي للنجاح. نقدم خدمات الإعلانات الممولة، تحسين محركات البحث (SEO)، التصميم الجرافيكي، وتطوير المواقع والمتاجر الإلكترونية في مصر.";
-        let pageKeywords = "تسويق رقمي, إعلانات ممولة, SEO, تصميم جرافيك, تطوير مواقع, حملات إعلانية, فيسبوك, جوجل, انستغرام, مصر, القاهرة, Cairoeg";
+        let pageKeywords = "تسويق رقمي, إعلانات ممولة, SEO, تصميم جرافيك, تطوير مواقع, حملات إعلانية, فيسبوك, جوجل, انستغرام, مصر, القاهرة, Cairoeg, محرك إعلانات القاهرة, مصمم جرافيك, تسويق الكتروني, اعلان ممول انستقرام";
         let ogImage = "https://i.postimg.cc/1RN16091/image.png";
 
         const path = route;
@@ -125,10 +126,10 @@ const App: React.FC = () => {
         switch (baseRoute) {
             case 'services':
                 switch (slug) {
-                    case 'marketing': pageTitle = `التسويق الرقمي - ${baseTitle}`; pageDescription = "خدمات تسويق رقمي وإعلانات ممولة احترافية لزيادة مبيعاتك ونمو علامتك التجارية على الإنترنت."; break;
-                    case 'graphic-design': pageTitle = `التصميم الجرافيكي - ${baseTitle}`; pageDescription = "تصميم هويات بصرية وشعارات إبداعية تعكس قصة علامتك التجارية وتجذب انتباه جمهورك."; break;
-                    case 'web-design': pageTitle = `تصميم المواقع - ${baseTitle}`; pageDescription = "نطور مواقع ومتاجر إلكترونية سريعة، آمنة، ومتجاوبة تضمن أفضل تجربة لعملائك."; break;
-                    case 'ad-creation': pageTitle = `إنشاء الإعلانات - ${baseTitle}`; pageDescription = "نتولى جميع خطوات حملتك الإعلانية من الفكرة إلى الإطلاق والمتابعة لضمان تحقيق أهدافك."; break;
+                    case 'marketing': pageTitle = `التسويق الرقمي - ${baseTitle}`; pageDescription = "خدمات تسويق رقمي وإعلانات ممولة احترافية لزيادة مبيعاتك ونمو علامتك التجارية على الإنترنت."; pageKeywords = "تسويق الكتروني, شركة تسويق الكتروني, التسويق عبر الإنترنت, اعلان ممول انستقرام, تسويق جوجل, تسويق سيو"; break;
+                    case 'graphic-design': pageTitle = `التصميم الجرافيكي - ${baseTitle}`; pageDescription = "تصميم هويات بصرية وشعارات إبداعية تعكس قصة علامتك التجارية وتجذب انتباه جمهورك."; pageKeywords = "مصمم جرافيك, مصمم جرافيك في مصر, مصمم جرافيك محترف, تصميم شعارات احترافية, تصميم بوستات سوشيال ميديا, تصميم هوية بصرية"; break;
+                    case 'web-design': pageTitle = `تصميم المواقع - ${baseTitle}`; pageDescription = "نطور مواقع ومتاجر إلكترونية سريعة, آمنة, ومتجاوبة تضمن أفضل تجربة لعملائك."; pageKeywords = "تصميم مواقع, تصميم متجر الكتروني, تطوير متجر الكتروني, إنشاء متجر إلكتروني, مبرمج مواقع"; break;
+                    case 'ad-creation': pageTitle = `إنشاء الإعلانات - ${baseTitle}`; pageDescription = "نتولى جميع خطوات حملتك الإعلانية من الفكرة إلى الإطلاق والمتابعة لضمان تحقيق أهدافك."; pageKeywords = "اعلان ممول على الانستجرام, ادارة الحملات الاعلانية, استهداف الجمهور, تصميم إعلانات جذابة"; break;
                     default: pageTitle = `الخدمات - ${baseTitle}`;
                 }
                 break;

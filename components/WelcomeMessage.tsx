@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { BrainCircuitIcon } from './icons/BrainCircuitIcon';
 import { ChartBarIcon } from './icons/ChartBarIcon';
@@ -21,9 +22,9 @@ const WelcomeSuggestion: React.FC<{icon: React.ReactNode, title: string, prompt:
 
 const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onSuggestionClick }) => {
     const suggestions = [
-        { icon: <ChartBarIcon />, title: "تحليل أداء الحملات", prompt: "قم بتحليل أداء حملة فيسبوك الأخيرة وقدم ملخصاً للنتائج الرئيسية." },
-        { icon: <MegaphoneIcon />, title: "اقتراح حملة جديدة", prompt: "اقترح فكرة حملة إعلانية جديدة لمتجر ملابس يستهدف الشباب على انستغرام." },
-        { icon: <UsersIcon />, title: "أفضل الكلمات المفتاحية", prompt: "ما هي أفضل الكلمات المفتاحية التي يجب استهدافها في إعلانات جوجل لعيادة أسنان في القاهرة؟" },
+        { icon: <ChartBarIcon className="w-8 h-8" />, title: "تحليل أداء الحملات", prompt: "قم بتحليل أداء حملة فيسبوك الأخيرة وقدم ملخصاً للنتائج الرئيسية." },
+        { icon: <MegaphoneIcon className="w-8 h-8" />, title: "اقتراح حملة جديدة", prompt: "اقترح فكرة حملة إعلانية جديدة لمتجر ملابس يستهدف الشباب على انستغرام." },
+        { icon: <UsersIcon className="w-8 h-8" />, title: "أفضل الكلمات المفتاحية", prompt: "ما هي أفضل الكلمات المفتاحية التي يجب استهدافها في إعلانات جوجل لعيادة أسنان في القاهرة؟" },
     ];
 
   return (

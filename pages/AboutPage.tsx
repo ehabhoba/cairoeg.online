@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { teamMembers, whyChooseUsPoints } from '../data/siteData';
 import { CheckCircleIcon } from '../components/icons/CheckCircleIcon';
@@ -10,10 +11,10 @@ const AboutPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-white sm:text-5xl">
-            عن إعلانات القاهرة
+            عن Cairoeg (إعلانات القاهرة)
           </h1>
           <p className="mt-4 max-w-3xl mx-auto text-xl text-slate-400">
-            نحن أكثر من مجرد وكالة تسويق، نحن شريك نجاحك الرقمي الذي يمكنك الاعتماد عليه.
+            وجهتك الرقمية الأولى لخدمات الإعلان والتصميم الجرافيكي في قلب القاهرة. نقدم مزيجًا احترافيًا وسلسًا من الخدمات الإبداعية التي تساعد الأفراد ورواد الأعمال والشركات على إظهار علاماتهم التجارية بشكل مميز وجذاب.
           </p>
         </div>
 
@@ -21,13 +22,13 @@ const AboutPage: React.FC = () => {
             <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 animate-slide-in-right">
                 <h2 className="text-3xl font-bold text-white mb-4">رؤيتنا</h2>
                 <p className="text-slate-300 leading-relaxed">
-                    أن نصبح الشريك الرقمي الأول لنجاح الأعمال عبر الإنترنت في القاهرة ومصر كلها، من خلال تقديم حلول تسويقية مبتكرة وفعالة تحقق نتائج حقيقية.
+                    أن نصبح المنصة الرائدة في مجال الإعلان والتصميم الجرافيكي في القاهرة ومصر، من خلال تقديم حلول مبتكرة ومرنة تلبي احتياجات السوق سريع التغيّر.
                 </p>
             </div>
             <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 animate-slide-in-left">
                 <h2 className="text-3xl font-bold text-white mb-4">رسالتنا</h2>
                 <p className="text-slate-300 leading-relaxed">
-                    تقديم خدمات تسويق إلكتروني وإعلانات رقمية شاملة بتقنيات حديثة، تجعل العميل واثقًا أن استثماره الإعلاني في أيدٍ أمينة وقادر على تحقيق النمو المستدام.
+                    نُمكّن عملاءنا من تعزيز حضورهم الإعلامي والتجاري من خلال تصميمات عالية الجودة، حملات إعلانية فعّالة، وخدمات تتمحور حول العميل لتوجيه علامتهم نحو النجاح.
                 </p>
             </div>
         </div>
@@ -52,7 +53,7 @@ const AboutPage: React.FC = () => {
         </div>
         
         <div className="mt-20">
-            <h2 className="text-3xl font-bold text-white text-center mb-10">لماذا تختارنا؟</h2>
+            <h2 className="text-3xl font-bold text-white text-center mb-10">لماذا تختار Cairoeg؟</h2>
              <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
                 {whyChooseUsPoints.map((point, index) => (
                     <div key={index} className="flex items-start gap-4 p-4">

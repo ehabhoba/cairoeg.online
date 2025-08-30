@@ -1,7 +1,8 @@
 
 
+
+
 import React, { useState, useEffect, useCallback } from 'react';
-// @FIX: Correct the import name from clientUploadProjectFile to uploadProjectFile. clientUploadProjectFile is not exported.
 import { Project, getProjectDetails, getProjectFiles, ProjectFile, getProjectTasks, Task, getProjectMessages, sendProjectMessage, Message, uploadProjectFile } from '../../data/projectData';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { useNotification } from '../../hooks/useNotification';
@@ -54,7 +55,6 @@ const ClientProjectDetailsPage: React.FC<{ projectId: string }> = ({ projectId }
     const handleFileUpload = async (file: File) => {
         setUploading(true);
         try {
-            // @FIX: Correct the function call to use the imported uploadProjectFile.
             await uploadProjectFile(projectId, file);
             addNotification('نجاح', 'تم رفع الملف بنجاح!', 'success');
             fetchData(); // Refresh file list

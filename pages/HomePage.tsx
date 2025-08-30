@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { testimonials, faqItems, services } from '../data/siteData';
 import { PaintBrushIcon } from '../components/icons/PaintBrushIcon';
@@ -129,10 +127,10 @@ const HomePage: React.FC = () => {
     };
 
     const platformFeatures = [
-        { icon: <AssistantIcon />, title: "المساعد الذكي", description: "استخدم قوة الذكاء الاصطناعي لاقتراح أفكار إعلانية، كتابة المحتوى، وتحليل الأداء." },
-        { icon: <ProjectIcon />, title: "بوابة العميل التفاعلية", description: "تابع مشاريعك، تواصل مع الفريق، وادفع فواتيرك من مكان واحد منظم وآمن." },
-        { icon: <MegaphoneIcon />, title: "نظام إعلانات متكامل", description: "انشر إعلاناتك مجاناً أو اختر الباقات المدفوعة للوصول إلى جمهور أوسع داخل المنصة." },
-        { icon: <PortfolioIcon />, title: "معرض أعمال ديناميكي", description: "تلقائياً، يتم عرض أعمالك المنجزة في معرض أعمالنا، مما يعزز من علامتك التجارية." }
+        { icon: <AssistantIcon className="w-8 h-8" />, title: "المساعد الذكي", description: "استخدم قوة الذكاء الاصطناعي لاقتراح أفكار إعلانية، كتابة المحتوى، وتحليل الأداء." },
+        { icon: <ProjectIcon className="w-8 h-8" />, title: "بوابة العميل التفاعلية", description: "تابع مشاريعك، تواصل مع الفريق، وادفع فواتيرك من مكان واحد منظم وآمن." },
+        { icon: <MegaphoneIcon className="w-8 h-8" />, title: "نظام إعلانات متكامل", description: "انشر إعلاناتك مجاناً أو اختر الباقات المدفوعة للوصول إلى جمهور أوسع داخل المنصة." },
+        { icon: <PortfolioIcon className="w-8 h-8" />, title: "معرض أعمال ديناميكي", description: "تلقائياً، يتم عرض أعمالك المنجزة في معرض أعمالنا، مما يعزز من علامتك التجارية." }
     ];
 
     return (
@@ -173,8 +171,7 @@ const HomePage: React.FC = () => {
                         {platformFeatures.map(feature => (
                              <div key={feature.title} className="bg-light-bg/50 p-6 rounded-2xl border border-slate-100/10 text-center">
                                  <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary/20 text-primary rounded-xl">
-                                    {/* FIX: Use spread props to fix TypeScript error with React.cloneElement type inference. */}
-                                    {React.cloneElement(feature.icon, { ...feature.icon.props, className: "w-8 h-8" })}
+                                    {feature.icon}
                                  </div>
                                 <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
                                 <p className="text-slate-400 text-sm">{feature.description}</p>
